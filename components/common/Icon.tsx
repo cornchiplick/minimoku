@@ -12,7 +12,7 @@ const Icon = ({name, size = 24, color = "black", bgColor, rx}: IconPropType) => 
   const icon = ICONS[name];
 
   // 사이즈 동적 조절
-  const scale = size >= 28 ? size / 28 : 1;
+  // const scale = size >= 28 ? size / 28 : 1;
 
   return (
     <svg
@@ -23,7 +23,8 @@ const Icon = ({name, size = 24, color = "black", bgColor, rx}: IconPropType) => 
       xmlns="http://www.w3.org/2000/svg"
       className="flex items-center justify-center">
       {bgColor && <rect width={size} height={size} rx={rx} fill={bgColor} />}
-      <g transform={`scale(${scale})`}>
+      {/* <g transform={`scale(${scale})`}> */}
+      <g transform={`scale(${size / 24})`}>
         <path fillRule="evenodd" clipRule="evenodd" d={icon} fill={color} />
       </g>
     </svg>

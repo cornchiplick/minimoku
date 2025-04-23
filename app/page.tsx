@@ -4,7 +4,6 @@ import HiraKataChart from "@/components/home/HiraKataChart";
 import LoginModal from "@/components/home/LoginModal";
 import {SAMPLE_PHRASES, USER_PHRASES_EXAMPLE} from "@/constants/examples";
 import {useState} from "react";
-// import { Book, Edit, List, BarChart, AlignLeft, LogIn, LogOut, User, Home, Search, ChevronUp, ChevronDown } from 'lucide-react';
 
 export default function JapaneseWebApp() {
   const [activeTab, setActiveTab] = useState<string>("home");
@@ -48,7 +47,7 @@ export default function JapaneseWebApp() {
           <div className="mt-2 flex justify-center">
             <button
               onClick={handleLoginClick}
-              className="focus:shadow-outline inline-flex items-center gap-3 rounded bg-indigo-600 px-4 py-2 font-bold text-white hover:bg-indigo-700 focus:outline-none">
+              className="focus:shadow-outline inline-flex items-center gap-1 rounded bg-indigo-600 px-4 py-2 font-bold text-white hover:bg-indigo-700 focus:outline-none">
               <Icon name="login" size={24} color="white" />
               로그인
             </button>
@@ -57,8 +56,8 @@ export default function JapaneseWebApp() {
       )}
 
       <div className="mb-8">
-        <h2 className="mb-4 flex items-center text-2xl font-bold">
-          {/* <Book size={24} className="mr-2 text-indigo-600" />  */}
+        <h2 className="mb-4 flex items-center gap-2 text-2xl font-bold">
+          <Icon name="book" size={24} color="black" />
           {isLoggedIn ? "내 일본어 회화 문장" : "예시 회화 문장"}
         </h2>
         <div className="grid gap-4 md:grid-cols-2">
@@ -77,7 +76,7 @@ export default function JapaneseWebApp() {
           <button
             onClick={() => setActiveTab("phrases")}
             className="flex items-center text-indigo-600 hover:text-indigo-800">
-            {/* <List size={16} className="mr-1" /> */}
+            <Icon name="listcheck" size={20} color="#4f46e5" />
             전체 보기
           </button>
         </div>
@@ -87,27 +86,27 @@ export default function JapaneseWebApp() {
         <div
           onClick={() => (isLoggedIn ? setActiveTab("quiz-ja-ko") : handleLoginClick())}
           className={`flex cursor-pointer flex-col items-center justify-center rounded-lg bg-indigo-100 p-4 shadow transition-shadow hover:shadow-md ${!isLoggedIn && "opacity-75"}`}>
-          {/* <BarChart size={32} className="text-indigo-600 mb-2" /> */}
+          <Icon name="barchartver" size={32} color="#4f46e5" />
           <h3 className="text-center font-medium">일본어 → 한국어 퀴즈</h3>
           {!isLoggedIn && <span className="mt-1 text-xs text-indigo-600">로그인 필요</span>}
         </div>
         <div
           onClick={() => (isLoggedIn ? setActiveTab("quiz-ko-ja") : handleLoginClick())}
           className={`flex cursor-pointer flex-col items-center justify-center rounded-lg bg-indigo-100 p-4 shadow transition-shadow hover:shadow-md ${!isLoggedIn && "opacity-75"}`}>
-          {/* <AlignLeft size={32} className="text-indigo-600 mb-2" /> */}
+          <Icon name="barcharthor" size={32} color="#4f46e5" />
           <h3 className="text-center font-medium">한국어 → 일본어 퀴즈</h3>
           {!isLoggedIn && <span className="mt-1 text-xs text-indigo-600">로그인 필요</span>}
         </div>
         <div
           onClick={() => setActiveTab("alphabet")}
           className="flex cursor-pointer flex-col items-center justify-center rounded-lg bg-indigo-100 p-4 shadow transition-shadow hover:shadow-md">
-          {/* <Book size={32} className="text-indigo-600 mb-2" /> */}
+          <Icon name="table" size={32} color="#4f46e5" />
           <h3 className="text-center font-medium">히라가나/카타카나 표</h3>
         </div>
         <div
           onClick={handleAddPhrase}
           className={`flex cursor-pointer flex-col items-center justify-center rounded-lg bg-indigo-100 p-4 shadow transition-shadow hover:shadow-md ${!isLoggedIn && "opacity-75"}`}>
-          {/* <Edit size={32} className="text-indigo-600 mb-2" /> */}
+          <Icon name="edit" size={32} color="#4f46e5" />
           <h3 className="text-center font-medium">새 문장 추가하기</h3>
           {!isLoggedIn && <span className="mt-1 text-xs text-indigo-600">로그인 필요</span>}
         </div>
@@ -133,16 +132,16 @@ export default function JapaneseWebApp() {
           </h2>
           <div className="flex items-center space-x-2">
             <button
-              className={`rounded px-3 py-1 ${sortOrder === "newest" ? "bg-indigo-600 text-white" : "bg-gray-200 hover:bg-gray-300"}`}
+              className={`flex flex-row items-center gap-1 rounded px-3 py-1 ${sortOrder === "newest" ? "bg-indigo-600 text-white" : "bg-gray-200 hover:bg-gray-300"}`}
               onClick={() => setSortOrder("newest")}>
               최신순
-              {/* <ChevronUp size={16} className="inline" /> */}
+              <Icon name="chevronup" size={16} color="white" />
             </button>
             <button
-              className={`rounded px-3 py-1 ${sortOrder === "oldest" ? "bg-indigo-600 text-white" : "bg-gray-200 hover:bg-gray-300"}`}
+              className={`flex flex-row items-center gap-1 rounded px-3 py-1 ${sortOrder === "oldest" ? "bg-indigo-600 text-white" : "bg-gray-200 hover:bg-gray-300"}`}
               onClick={() => setSortOrder("oldest")}>
               등록순
-              {/* <ChevronDown size={16} className="inline" /> */}
+              <Icon name="chevrondown" size={16} color="black" />
             </button>
           </div>
         </div>
@@ -155,7 +154,7 @@ export default function JapaneseWebApp() {
                 placeholder="문장 검색..."
                 className="w-full rounded-lg border p-2 pl-10"
               />
-              {/* <Search size={18} className="absolute left-3 top-2.5 text-gray-400" /> */}
+              <Icon name="search" size={18} color="gray" />
             </div>
           </div>
         )}
@@ -187,8 +186,8 @@ export default function JapaneseWebApp() {
             <div className="mt-2 flex justify-center">
               <button
                 onClick={handleLoginClick}
-                className="focus:shadow-outline inline-flex items-center rounded bg-indigo-600 px-4 py-2 font-bold text-white hover:bg-indigo-700 focus:outline-none">
-                {/* <LogIn size={16} className="mr-2" /> */}
+                className="focus:shadow-outline inline-flex items-center gap-1 rounded bg-indigo-600 px-4 py-2 font-bold text-white hover:bg-indigo-700 focus:outline-none">
+                <Icon name="login" size={16} color="white" />
                 로그인
               </button>
             </div>
@@ -214,8 +213,8 @@ export default function JapaneseWebApp() {
                 <p className="mb-4">이 기능을 사용하려면 로그인이 필요합니다.</p>
                 <button
                   onClick={handleLoginClick}
-                  className="focus:shadow-outline inline-flex items-center rounded bg-indigo-600 px-4 py-2 font-bold text-white hover:bg-indigo-700 focus:outline-none">
-                  {/* <LogIn size={16} className="mr-2" /> */}
+                  className="focus:shadow-outline inline-flex items-center gap-1 rounded bg-indigo-600 px-4 py-2 font-bold text-white hover:bg-indigo-700 focus:outline-none">
+                  <Icon name="login" size={16} color="white" />
                   로그인
                 </button>
               </div>
@@ -243,39 +242,39 @@ export default function JapaneseWebApp() {
           <div className="mt-4 flex items-center space-x-4 md:mt-0">
             <button
               onClick={() => setActiveTab("home")}
-              className={`flex items-center rounded px-3 py-2 hover:bg-indigo-700 ${activeTab === "home" ? "bg-indigo-700" : ""}`}>
-              {/* <Home size={16} className="mr-1" /> */}홈
+              className={`flex items-center gap-1 rounded px-3 py-2 hover:bg-indigo-700 ${activeTab === "home" ? "bg-indigo-700" : ""}`}>
+              <Icon name="home" size={16} color="white" />홈
             </button>
             <button
               onClick={() => setActiveTab("phrases")}
-              className={`flex items-center rounded px-3 py-2 hover:bg-indigo-700 ${activeTab === "phrases" ? "bg-indigo-700" : ""}`}>
-              {/* <List size={16} className="mr-1" /> */}
+              className={`flex items-center gap-1 rounded px-3 py-2 hover:bg-indigo-700 ${activeTab === "phrases" ? "bg-indigo-700" : ""}`}>
+              <Icon name="listcheck" size={16} color="white" />
               문장목록
             </button>
             <button
               onClick={() => (isLoggedIn ? setActiveTab("quiz-ja-ko") : handleLoginClick())}
-              className={`flex items-center rounded px-3 py-2 hover:bg-indigo-700 ${activeTab === "quiz-ja-ko" ? "bg-indigo-700" : ""}`}>
-              {/* <BarChart size={16} className="mr-1" /> */}
+              className={`flex items-center gap-1 rounded px-3 py-2 hover:bg-indigo-700 ${activeTab === "quiz-ja-ko" ? "bg-indigo-700" : ""}`}>
+              <Icon name="barchartver" size={16} color="white" />
               퀴즈
             </button>
             <button
               onClick={() => setActiveTab("alphabet")}
-              className={`flex items-center rounded px-3 py-2 hover:bg-indigo-700 ${activeTab === "alphabet" ? "bg-indigo-700" : ""}`}>
-              {/* <AlignLeft size={16} className="mr-1" /> */}
+              className={`flex items-center gap-1 rounded px-3 py-2 hover:bg-indigo-700 ${activeTab === "alphabet" ? "bg-indigo-700" : ""}`}>
+              <Icon name="table" size={16} color="white" />
               문자표
             </button>
             {isLoggedIn ? (
               <button
                 onClick={handleLogout}
-                className="flex items-center rounded px-3 py-2 hover:bg-indigo-700">
-                {/* <LogOut size={16} className="mr-1" /> */}
+                className="flex items-center gap-1 rounded px-3 py-2 hover:bg-indigo-700">
+                <Icon name="logout" size={16} color="white" />
                 로그아웃
               </button>
             ) : (
               <button
                 onClick={handleLoginClick}
-                className="flex items-center rounded px-3 py-2 hover:bg-indigo-700">
-                {/* <LogIn size={16} className="mr-1" /> */}
+                className="flex items-center gap-1 rounded px-3 py-2 hover:bg-indigo-700">
+                <Icon name="login" size={16} color="white" />
                 로그인
               </button>
             )}
