@@ -41,8 +41,7 @@ export default function JapaneseWebApp() {
       {!isLoggedIn && (
         <div className="mb-8 rounded-lg bg-indigo-100 p-4">
           <p className="text-center">
-            <span className="font-medium">로그인</span>하시면 문장 추가, 퀴즈 풀기 등 더 많은 기능을
-            이용하실 수 있습니다.
+            로그인하시면 문장 추가, 퀴즈 풀기 등 더 많은 기능을 이용하실 수 있습니다.
           </p>
           <div className="mt-2 flex justify-center">
             <button
@@ -227,75 +226,14 @@ export default function JapaneseWebApp() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* 네비게이션 바 */}
-      <nav className="bg-indigo-600 p-4 text-white">
-        <div className="container mx-auto flex flex-col md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center justify-between">
-            <h1
-              onClick={() => setActiveTab("home")}
-              className="flex cursor-pointer items-center text-2xl font-bold">
-              <Icon name="book" size={24} color="white" />
-              일본어 회화 암기노트
-            </h1>
-          </div>
-          <div className="mt-4 flex items-center space-x-4 md:mt-0">
-            <button
-              onClick={() => setActiveTab("home")}
-              className={`flex items-center gap-1 rounded px-3 py-2 hover:bg-indigo-700 ${activeTab === "home" ? "bg-indigo-700" : ""}`}>
-              <Icon name="home" size={16} color="white" />홈
-            </button>
-            <button
-              onClick={() => setActiveTab("phrases")}
-              className={`flex items-center gap-1 rounded px-3 py-2 hover:bg-indigo-700 ${activeTab === "phrases" ? "bg-indigo-700" : ""}`}>
-              <Icon name="listcheck" size={16} color="white" />
-              문장목록
-            </button>
-            <button
-              onClick={() => (isLoggedIn ? setActiveTab("quiz-ja-ko") : handleLoginClick())}
-              className={`flex items-center gap-1 rounded px-3 py-2 hover:bg-indigo-700 ${activeTab === "quiz-ja-ko" ? "bg-indigo-700" : ""}`}>
-              <Icon name="barchartver" size={16} color="white" />
-              퀴즈
-            </button>
-            <button
-              onClick={() => setActiveTab("alphabet")}
-              className={`flex items-center gap-1 rounded px-3 py-2 hover:bg-indigo-700 ${activeTab === "alphabet" ? "bg-indigo-700" : ""}`}>
-              <Icon name="table" size={16} color="white" />
-              문자표
-            </button>
-            {isLoggedIn ? (
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-1 rounded px-3 py-2 hover:bg-indigo-700">
-                <Icon name="logout" size={16} color="white" />
-                로그아웃
-              </button>
-            ) : (
-              <button
-                onClick={handleLoginClick}
-                className="flex items-center gap-1 rounded px-3 py-2 hover:bg-indigo-700">
-                <Icon name="login" size={16} color="white" />
-                로그인
-              </button>
-            )}
-          </div>
-        </div>
-      </nav>
-
+    <>
       {/* 메인 콘텐츠 영역 */}
       <main className="min-h-screen pb-8">{renderContent()}</main>
-
-      {/* 푸터 */}
-      <footer className="bg-gray-800 p-4 text-white">
-        <div className="container mx-auto text-center">
-          <p>&copy; 2025 일본어 회화 암기노트 - 모든 권리 보유</p>
-        </div>
-      </footer>
 
       {/* 로그인 모달 */}
       {showLoginModal && (
         <LoginModal handleLogin={handleLogin} setShowLoginModal={setShowLoginModal} />
       )}
-    </div>
+    </>
   );
 }
