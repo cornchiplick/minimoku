@@ -1,4 +1,4 @@
-const HiraKataChart = () => {
+const HiaraKataPage = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h2 className="mb-6 text-2xl font-bold">히라가나 / 카타카나 표</h2>
@@ -128,4 +128,4 @@ const HiraKataChart = () => {
   );
 };
 
-export default HiraKataChart;
+export default HiaraKataPage;
