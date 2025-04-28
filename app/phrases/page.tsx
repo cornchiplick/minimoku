@@ -24,8 +24,8 @@ const PhrasesPage = () => {
   });
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6 flex flex-col items-start justify-between md:flex-row md:items-center">
+    <div className="container flex flex-col gap-6 px-4 py-8">
+      <div className="flex flex-col items-start justify-between md:flex-row md:items-center">
         <h2 className="mb-2 text-2xl font-bold md:mb-0">
           {isLoggedIn ? "내 일본어 회화 문장" : "예시 회화 문장"}
         </h2>
@@ -46,7 +46,7 @@ const PhrasesPage = () => {
       </div>
 
       {isLoggedIn && (
-        <div className="mb-6">
+        <div>
           <div className="relative">
             <input
               type="text"
@@ -77,12 +77,12 @@ const PhrasesPage = () => {
       </div>
 
       {!isLoggedIn && (
-        <div className="mt-8 rounded-lg bg-indigo-100 p-4">
+        <div className="flex flex-col gap-2 rounded-lg bg-indigo-100 p-4 pt-6">
           <p className="text-center">
             <span className="font-medium">로그인</span>하시면 나만의 문장을 추가하고 관리할 수
             있습니다.
           </p>
-          <div className="mt-2 flex justify-center">
+          <div className="flex justify-center">
             <button
               onClick={handleLoginClick}
               className="focus:shadow-outline inline-flex items-center gap-1 rounded bg-indigo-600 px-4 py-2 font-bold text-white hover:bg-indigo-700 focus:outline-none">

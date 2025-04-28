@@ -13,8 +13,8 @@ const LoginPage = () => {
         <title>로그인 | 내 앱</title>
       </Head>
 
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
-        <div className="mb-6 flex items-center justify-between">
+      <div className="flex w-full max-w-md flex-col gap-6 rounded-lg bg-white p-8 shadow-lg">
+        <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold text-gray-700">Sign In</h1>
         </div>
 

@@ -21,7 +21,7 @@ export default function RootLayout({
           <Nav />
 
           {/* 메인 컨텐츠 */}
-          {children}
+          <main className="flex min-h-screen flex-row justify-center pb-8">{children}</main>
 
           {/* 푸터 */}
           <footer className="bg-gray-800 p-4 text-white">
