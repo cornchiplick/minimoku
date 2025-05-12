@@ -121,5 +121,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# prisma
+lib/generated/prisma/
+/prisma/dev.db
+/prisma/*.sqlite
+/prisma/.env
+@prisma/
+
 
 # End of https://www.toptal.com/developers/gitignore/api/react,visualstudiocode,macos,windows
