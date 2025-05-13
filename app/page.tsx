@@ -6,7 +6,7 @@ import Link from "next/link";
 
 const HomePage = () => {
   // TODO // 로그인 상태를 관리하는 상태 변수 : next/auth 로 구현할것
-  const isLoggedIn = false;
+  const isLoggedIn = true;
 
   return (
     <div className="container flex flex-col gap-8 px-4 py-8">

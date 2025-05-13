@@ -6,7 +6,7 @@ import {useState} from "react";
 
 const PhrasesPage = () => {
   // FIX : 로그인 상태를 관리하는 상태 변수 : next/auth 로 구현할것
-  const isLoggedIn = false;
+  const isLoggedIn = true;
   const handleLoginClick = () => {};
   // const handleLoginClick = () => {
   //   setShowLoginModal(true);
