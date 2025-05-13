@@ -8,9 +8,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String?
-  createdAt DateTime @default(now())
+model Phrase {
+  id            Int      @id @default(autoincrement())
+  japanese      String // 일본어 원문
+  romaji        String // 로마자 표기
+  pronunciation String // 한글 발음
+  translation   String // 한국어 번역
+  writer        String   @default("test") // 등록자
+  createdAt     DateTime @default(now()) // 등록 날짜
+  updatedAt     DateTime @updatedAt // 업데이트 날짜
+  description   String? // 문장 설명 (선택)
 }
