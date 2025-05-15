@@ -128,5 +128,8 @@ lib/generated/prisma/
 /prisma/.env
 @prisma/
 
+# temp
+components/sample/
+
 
 # End of https://www.toptal.com/developers/gitignore/api/react,visualstudiocode,macos,windows
