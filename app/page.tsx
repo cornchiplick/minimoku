@@ -1,5 +1,6 @@
 "use client";
 import Icon from "@/components/common/Icon";
+import SentenceCard from "@/components/common/SentenceCard";
 import {SAMPLE_PHRASES, USER_PHRASES_EXAMPLE} from "@/constants/examples";
 import {URL} from "@/constants/url";
 import Link from "next/link";
@@ -33,14 +34,7 @@ const HomePage = () => {
         </h2>
         <div className="grid gap-4 md:grid-cols-2">
           {(isLoggedIn ? USER_PHRASES_EXAMPLE : SAMPLE_PHRASES).slice(0, 4).map((phrase) => (
-            <div
-              key={phrase.id}
-              className="flex flex-col gap-1 rounded-lg bg-white p-4 shadow transition-shadow hover:shadow-md">
-              <p className="text-xl font-medium">{phrase.japanese}</p>
-              <p className="text-gray-600">{phrase.romaji}</p>
-              <p className="text-gray-600">{phrase.korean}</p>
-              <p className="text-gray-700">{phrase.meaning}</p>
-            </div>
+            <SentenceCard key={phrase.id} phrase={phrase} />
           ))}
         </div>
         {!isLoggedIn && (

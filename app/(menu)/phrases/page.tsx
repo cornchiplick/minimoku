@@ -1,6 +1,7 @@
 "use client";
 
 import Icon from "@/components/common/Icon";
+import SentenceCard from "@/components/common/SentenceCard";
 import {SAMPLE_PHRASES, USER_PHRASES_EXAMPLE} from "@/constants/examples";
 import {useState} from "react";
 
@@ -24,7 +25,7 @@ const PhrasesPage = () => {
   });
 
   return (
-    <div className="container flex flex-col gap-6 px-4 py-8">
+    <div className="container flex flex-col gap-6">
       <div className="flex flex-col items-start justify-between md:flex-row md:items-center">
         <h2 className="mb-2 text-2xl font-bold md:mb-0">
           {isLoggedIn ? "내 일본어 회화 문장" : "예시 회화 문장"}
@@ -60,19 +61,7 @@ const PhrasesPage = () => {
 
       <div className="grid gap-4 md:grid-cols-2">
         {sortedPhrases.map((phrase) => (
-          <div
-            key={phrase.id}
-            className="rounded-lg bg-white p-4 shadow transition-shadow hover:shadow-md">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="mb-1 text-xl font-medium">{phrase.japanese}</p>
-                <p className="mb-1 text-gray-600">{phrase.romaji}</p>
-                <p className="mb-1 text-gray-600">{phrase.korean}</p>
-                <p className="text-gray-700">{phrase.meaning}</p>
-              </div>
-              <span className="text-xs text-gray-500">{phrase.createdAt}</span>
-            </div>
-          </div>
+          <SentenceCard key={phrase.id} phrase={phrase} showDateTime />
         ))}
       </div>
 
