@@ -2,7 +2,7 @@
 import {cn} from "@/lib/utils";
 import React from "react";
 
-type TypoType = "Head1" | "Head2" | "Head3" | "SubTitle1" | "P1" | "P2" | "P3";
+type TypoType = "Head1" | "Head2" | "Head3" | "SubTitle1" | "P1" | "P2" | "P3" | "Error";
 
 interface TypographyProps {
   children: React.ReactNode;
@@ -17,6 +17,7 @@ const typoTypeMap: Record<TypoType, string> = {
   P1: "text-base",
   P2: "text-sm",
   P3: "text-xs",
+  Error: "text-xs text-red-600",
 };
 
 const BaseTypography = ({type, children, className}: TypographyProps & {type: TypoType}) => {
@@ -33,6 +34,7 @@ export const Typography = {
   P1: (props: TypographyProps) => <BaseTypography type="P1" {...props} />,
   P2: (props: TypographyProps) => <BaseTypography type="P2" {...props} />,
   P3: (props: TypographyProps) => <BaseTypography type="P3" {...props} />,
+  Error: (props: TypographyProps) => <BaseTypography type="Error" {...props} />,
 };
 
 export default Typography;
