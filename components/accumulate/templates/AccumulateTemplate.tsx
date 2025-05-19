@@ -1,29 +1,18 @@
 "use client";
 
-import FormButton from "@/components/common/FormButton";
-import FormInput from "@/components/common/FormInput";
+import {addCardAction} from "@/app/(menu)/accumulate/action";
+import CardForm from "@/components/accumulate/organisms/CardForm";
 import Typography from "@/components/home/atomic/Typography";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
+import {CardInputs} from "@/types/phrase";
 import clsx from "clsx";
 import {useEffect, useState} from "react";
 import {FormProvider, SubmitHandler, useForm} from "react-hook-form";
 
-// 폼 입력 타입 정의
-interface LanguageCardInputs {
-  // 일본어 원문
-  japanese: string;
-  // 로마자 표기
-  romaji: string;
-  // 한글 발음
-  pronunciation: string;
-  // 한국어 의미
-  translation: string;
-}
+const AccumulateTemplate = () => {
+  const [previewCard, setPreviewCard] = useState<CardInputs | null>(null);
 
-const LanguageCardForm = () => {
-  const [previewCard, setPreviewCard] = useState<LanguageCardInputs | null>(null);
-
-  const formMethods = useForm<LanguageCardInputs>({
+  const formMethods = useForm<CardInputs>({
     defaultValues: {
       japanese: "",
       romaji: "",
@@ -31,9 +20,20 @@ const LanguageCardForm = () => {
       translation: "",
     },
   });
-  const {handleSubmit, reset, watch} = formMethods;
+  const {reset, watch} = formMethods;
 
-  const onSubmit: SubmitHandler<LanguageCardInputs> = (data) => {
+  const onSubmit: SubmitHandler<CardInputs> = async (data) => {
+    const formData = new FormData();
+    formData.append("japanese", data.japanese);
+    formData.append("romaji", data.romaji);
+    formData.append("pronunciation", data.pronunciation);
+    formData.append("translation", data.translation);
+
+    const errors = await addCardAction(formData);
+    if (errors) {
+      // setError("")
+    }
+
     console.log("data :: ", data);
     reset();
   };
@@ -41,7 +41,7 @@ const LanguageCardForm = () => {
   // 미리보기 업데이트
   useEffect(() => {
     const subscription = watch((value) => {
-      setPreviewCard(value as LanguageCardInputs);
+      setPreviewCard(value as CardInputs);
     });
     return () => subscription.unsubscribe();
   }, [watch]);
@@ -90,35 +90,7 @@ const LanguageCardForm = () => {
         </TabsList>
         <TabsContent value="classic">
           <FormProvider {...formMethods}>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-[0.7] flex-col gap-4">
-              <div className="flex flex-1 flex-col gap-4">
-                <FormInput
-                  name="japanese"
-                  label="일본어 (원문)"
-                  placeholder="ありがとうございます"
-                  registerOptions={{required: "일본어 원문을 입력해주세요"}}
-                />
-                <FormInput
-                  name="romaji"
-                  label="로마자 표기"
-                  placeholder="arigatou gozaimasu"
-                  registerOptions={{required: "로마자 표기를 입력해주세요"}}
-                />
-                <FormInput
-                  name="pronunciation"
-                  label="한글 발음"
-                  placeholder="아리가토 고자이마스"
-                  registerOptions={{required: "한글 발음을 입력해주세요"}}
-                />
-                <FormInput
-                  name="translation"
-                  label="한국어 의미"
-                  placeholder="감사합니다"
-                  registerOptions={{required: "한국어 의미를 입력해주세요"}}
-                />
-              </div>
-              <FormButton type="submit">카드 저장하기</FormButton>
-            </form>
+            <CardForm onSubmit={onSubmit} />
           </FormProvider>
         </TabsContent>
         <TabsContent value="whole">
@@ -129,4 +101,4 @@ const LanguageCardForm = () => {
   );
 };
 
-export default LanguageCardForm;
+export default AccumulateTemplate;

@@ -1,5 +1,17 @@
 "use client";
 
+// async function getPhrases() {
+//   const posts = await db.phrase.findMany({
+//     select: {
+//       id: true,
+//     },
+//   });
+//   return posts;
+// }
+
+// const phrases = await getPhrases();
+// console.log("phrases :: ", phrases);
+
 import Icon from "@/components/common/Icon";
 import SentenceCard from "@/components/common/SentenceCard";
 import {SAMPLE_PHRASES, USER_PHRASES_EXAMPLE} from "@/constants/examples";

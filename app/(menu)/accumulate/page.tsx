@@ -1,19 +1,7 @@
-import LanguageCardForm from "@/app/(menu)/accumulate/temp";
-
-// async function getPhrases() {
-//   const posts = await db.phrase.findMany({
-//     select: {
-//       id: true,
-//     },
-//   });
-//   return posts;
-// }
+import AccumulateTemplate from "@/components/accumulate/templates/AccumulateTemplate";
 
 const AccumulatePage = async () => {
-  // const phrases = await getPhrases();
-  // console.log("phrases :: ", phrases);
-
-  return <LanguageCardForm />;
+  return <AccumulateTemplate />;
 };
 
 export default AccumulatePage;
