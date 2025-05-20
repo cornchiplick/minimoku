@@ -1,5 +1,3 @@
-"use client";
-
 import FormButton from "@/components/common/FormButton";
 import FormInput from "@/components/common/FormInput";
 import {CardInputs} from "@/types/phrase";
