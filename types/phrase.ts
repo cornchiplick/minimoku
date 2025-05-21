@@ -18,5 +18,7 @@ export interface Phrase {
   romaji: string;
   pronunciation: string;
   translation: string;
-  createdAt?: number;
+  createdAt: Date;
+  updatedAt: Date;
+  description?: string | null;
 }
