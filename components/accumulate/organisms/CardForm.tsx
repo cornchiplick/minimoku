@@ -1,5 +1,6 @@
 import FormButton from "@/components/common/FormButton";
 import FormInput from "@/components/common/FormInput";
+import {PhraseConstants} from "@/constants/phrase";
 import {CardInputs} from "@/types/phrase";
 import {SubmitHandler, useFormContext} from "react-hook-form";
 
@@ -38,7 +39,14 @@ const CardForm = ({onSubmit}: CardFormProps) => {
           registerOptions={{required: "한국어 의미를 입력해주세요"}}
         />
       </div>
-      <FormButton type="submit">카드 저장하기</FormButton>
+      <div className="flex flex-1 items-center justify-end gap-4">
+        <FormButton type="submit" name="submitType" value={PhraseConstants.CARD_SAVETYPE_SAVE}>
+          카드 저장하기
+        </FormButton>
+        <FormButton type="submit" name="submitType" value={PhraseConstants.CARD_SAVETYPE_CONTINUE}>
+          계속 추가하기
+        </FormButton>
+      </div>
     </form>
   );
 };

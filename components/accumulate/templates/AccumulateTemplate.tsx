@@ -4,12 +4,15 @@ import {addCardAction} from "@/app/(menu)/accumulate/action";
 import CardForm from "@/components/accumulate/organisms/CardForm";
 import Typography from "@/components/home/atomic/Typography";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
+import {PhraseConstants} from "@/constants/phrase";
 import {CardInputs} from "@/types/phrase";
 import clsx from "clsx";
+import {useRouter} from "next/navigation";
 import {useEffect, useState} from "react";
 import {FormProvider, SubmitHandler, useForm} from "react-hook-form";
 
 const AccumulateTemplate = () => {
+  const router = useRouter();
   const [previewCard, setPreviewCard] = useState<CardInputs | null>(null);
 
   const formMethods = useForm<CardInputs>({
@@ -22,7 +25,11 @@ const AccumulateTemplate = () => {
   });
   const {reset, watch} = formMethods;
 
-  const onSubmit: SubmitHandler<CardInputs> = async (data) => {
+  const onSubmit: SubmitHandler<CardInputs> = async (data, e) => {
+    // submitType 읽기
+    const submitter = (e?.nativeEvent as SubmitEvent)?.submitter as HTMLButtonElement | undefined;
+    const submitType = submitter?.value;
+
     const formData = new FormData();
     formData.append("japanese", data.japanese);
     formData.append("romaji", data.romaji);
@@ -36,6 +43,9 @@ const AccumulateTemplate = () => {
 
     console.log("data :: ", data);
     reset();
+    if (submitType === PhraseConstants.CARD_SAVETYPE_SAVE) {
+      router.push("/phrases");
+    }
   };
 
   // 미리보기 업데이트
