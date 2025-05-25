@@ -8,6 +8,7 @@ export interface CardInputs {
 
 // 카드 검색 폼 입력 타입
 export interface SearchInputs {
+  searchType: "japanese" | "romaji" | "pronunciation" | "translation"; // 검색 타입
   keyword: string; // 검색어
 }
 

@@ -2,8 +2,16 @@
 
 import db from "@/lib/db";
 
+interface GetPhrasesParams {
+  searchType?: string | undefined;
+  keyword?: string;
+}
+
 // export async function getPhrases(page: number) {
-export async function getPhrases() {
+export async function getPhrases({searchType, keyword}: GetPhrasesParams) {
+  const isCorrectSearchType =
+    !!searchType && ["japanese", "romaji", "pronunciation", "translation"].includes(searchType);
+
   const products = await db.phrase.findMany({
     select: {
       id: true,
@@ -14,6 +22,16 @@ export async function getPhrases() {
       createdAt: true,
       updatedAt: true,
       description: true,
+    },
+    where: {
+      ...(isCorrectSearchType && keyword
+        ? {
+            [searchType]: {
+              contains: keyword,
+              mode: "insensitive", // 대소문자 구분 없이 검색
+            },
+          }
+        : {}),
     },
     // skip: page * 1,
     // take: 1,

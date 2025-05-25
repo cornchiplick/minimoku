@@ -1,13 +1,17 @@
 "use client";
 
 import {InitialPhrases} from "@/app/(menu)/phrases/page";
+import FormButton from "@/components/common/FormButton";
+import FormSelect from "@/components/common/FormSelect";
 import Icon from "@/components/common/Icon";
 import SentenceCard from "@/components/common/SentenceCard";
 import SearchForm from "@/components/phrase/organisms/SearchForm";
+import {SelectContent, SelectItem} from "@/components/ui/select";
 import {URL} from "@/constants/url";
 import {SearchInputs} from "@/types/phrase";
 import clsx from "clsx";
 import Link from "next/link";
+import {useRouter} from "next/navigation";
 import {FormProvider, SubmitHandler, useForm} from "react-hook-form";
 
 interface PhrasesTemplateProps {
@@ -16,6 +20,7 @@ interface PhrasesTemplateProps {
 }
 
 const PhrasesTemplate = ({sortOrder = "newest", initialPhrases}: PhrasesTemplateProps) => {
+  const router = useRouter();
   // FIX : 로그인 상태를 관리하는 상태 변수 : next/auth 로 구현할것
   const isLoggedIn = true;
   const handleLoginClick = () => {};
@@ -26,11 +31,19 @@ const PhrasesTemplate = ({sortOrder = "newest", initialPhrases}: PhrasesTemplate
 
   const formMethods = useForm<SearchInputs>({
     defaultValues: {
+      searchType: "japanese", // 기본 검색 타입
       keyword: "",
     },
   });
+  const {handleSubmit} = formMethods;
   const onSubmit: SubmitHandler<SearchInputs> = async (data) => {
     console.log("Search data: ", data);
+
+    const params = new URLSearchParams({
+      searchType: data.searchType,
+      keyword: data.keyword,
+    });
+    router.push(`/${URL.PHRASES}?${params.toString()}`);
   };
 
   return (
@@ -67,7 +80,20 @@ const PhrasesTemplate = ({sortOrder = "newest", initialPhrases}: PhrasesTemplate
 
       {isLoggedIn && (
         <FormProvider {...formMethods}>
-          <SearchForm onSubmit={onSubmit} />
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="flex flex-row gap-2 self-stretch *:items-center">
+              <FormSelect name="searchType" defaultValue="japanese">
+                <SelectContent>
+                  <SelectItem value="japanese">일어</SelectItem>
+                  <SelectItem value="romaji">영어발음</SelectItem>
+                  <SelectItem value="pronunciation">한글발음</SelectItem>
+                  <SelectItem value="translation">의미</SelectItem>
+                </SelectContent>
+              </FormSelect>
+              <SearchForm />
+            </div>
+            <FormButton>검색</FormButton>
+          </form>
         </FormProvider>
       )}
 
