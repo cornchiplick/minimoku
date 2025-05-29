@@ -42,3 +42,14 @@ export async function getPhrases({searchType, keyword}: GetPhrasesParams) {
   console.log("products : ", products);
   return products;
 }
+
+export const deletePhrase = async (id: number) => {
+  // const session = await getSession();
+  // try {
+  await db.phrase.delete({
+    where: {
+      id,
+    },
+  });
+  // } catch (e) {}
+};
