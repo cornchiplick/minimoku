@@ -39,7 +39,6 @@ export async function getPhrases({searchType, keyword}: GetPhrasesParams) {
       createdAt: "desc",
     },
   });
-  console.log("products : ", products);
   return products;
 }
 

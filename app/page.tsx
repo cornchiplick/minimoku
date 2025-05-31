@@ -51,7 +51,7 @@ const HomePage = () => {
 
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
         <Link
-          href={isLoggedIn ? URL.PHRASES : URL.LOGIN}
+          href={isLoggedIn ? URL.QUIZ : URL.LOGIN}
           className={`flex cursor-pointer flex-col items-center justify-center rounded-lg bg-indigo-100 p-4 shadow transition-shadow hover:shadow-md ${!isLoggedIn && "opacity-75"}`}>
           <Icon name="barchartver" size={32} color="#4f46e5" />
           <h3 className="text-center font-medium">일본어 → 한국어 퀴즈</h3>
