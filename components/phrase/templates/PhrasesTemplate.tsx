@@ -1,7 +1,9 @@
 "use client";
 
+import {deletePhrase} from "@/app/(menu)/phrases/action";
 import {InitialPhrases} from "@/app/(menu)/phrases/page";
 import FormButton from "@/components/common/FormButton";
+import FormResetButton from "@/components/common/FormResetButton";
 import FormSelect from "@/components/common/FormSelect";
 import Icon from "@/components/common/Icon";
 import SentenceCard from "@/components/common/SentenceCard";
@@ -12,6 +14,7 @@ import {SearchInputs} from "@/types/phrase";
 import clsx from "clsx";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
+import {KeyboardEventHandler, useCallback} from "react";
 import {FormProvider, SubmitHandler, useForm} from "react-hook-form";
 
 interface PhrasesTemplateProps {
@@ -43,8 +46,30 @@ const PhrasesTemplate = ({sortOrder = "newest", initialPhrases}: PhrasesTemplate
       searchType: data.searchType,
       keyword: data.keyword,
     });
-    router.push(`/${URL.PHRASES}?${params.toString()}`);
+    router.push(`${URL.PHRASES}?${params.toString()}`);
   };
+
+  const onKeyUp: KeyboardEventHandler<HTMLInputElement> = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSubmit(onSubmit)();
+    }
+  };
+
+  const onClickCard = useCallback(
+    (id: number) => {
+      router.push(`${URL.PHRASES}/${id}`);
+    },
+    [router]
+  );
+
+  const onDelete = useCallback(
+    async (id: number) => {
+      await deletePhrase(id);
+      router.refresh();
+    },
+    [router]
+  );
 
   return (
     <div className="container flex flex-col gap-6">
@@ -90,16 +115,30 @@ const PhrasesTemplate = ({sortOrder = "newest", initialPhrases}: PhrasesTemplate
                   <SelectItem value="translation">의미</SelectItem>
                 </SelectContent>
               </FormSelect>
-              <SearchForm />
+              <SearchForm onKeyUp={onKeyUp} />
+              <FormButton className="w-20">검색</FormButton>
+              <FormResetButton className="w-20">초기화</FormResetButton>
             </div>
-            <FormButton>검색</FormButton>
           </form>
         </FormProvider>
       )}
 
       <div className="grid gap-4 md:grid-cols-2">
         {initialPhrases.map((phrase) => (
-          <SentenceCard key={phrase.id} phrase={phrase} showDateTime />
+          <div
+            key={phrase.id}
+            className="group relative cursor-pointer"
+            onClick={() => onClickCard(phrase.id)}>
+            <SentenceCard phrase={phrase} showDateTime />
+            <div
+              className="pointer-events-none absolute left-[-6px] top-[-6px] opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(phrase.id);
+              }}>
+              <Icon name="close" />
+            </div>
+          </div>
         ))}
       </div>
 
