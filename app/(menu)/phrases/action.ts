@@ -5,10 +5,12 @@ import db from "@/lib/db";
 interface GetPhrasesParams {
   searchType?: string | undefined;
   keyword?: string;
+  order?: string | undefined;
 }
 
 // export async function getPhrases(page: number) {
-export async function getPhrases({searchType, keyword}: GetPhrasesParams) {
+export async function getPhrases({searchType, keyword, order}: GetPhrasesParams) {
+  const orderColumn = order === "asc" ? "asc" : "desc";
   const isCorrectSearchType =
     !!searchType && ["japanese", "romaji", "pronunciation", "translation"].includes(searchType);
 
@@ -36,7 +38,7 @@ export async function getPhrases({searchType, keyword}: GetPhrasesParams) {
     // skip: page * 1,
     // take: 1,
     orderBy: {
-      createdAt: "desc",
+      createdAt: orderColumn,
     },
   });
   return products;

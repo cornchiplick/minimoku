@@ -17,10 +17,11 @@ const PhrasesPage = async ({searchParams}: PhrasesPageProps) => {
   const searchType =
     typeof searchParams?.searchType === "string" ? searchParams.searchType : undefined;
   const keyword = typeof searchParams?.keyword === "string" ? searchParams.keyword : undefined;
+  const order = typeof searchParams?.createdAt === "string" ? searchParams.createdAt : "desc";
 
-  const initialPhrases = await getPhrases({searchType, keyword});
+  const initialPhrases = await getPhrases({searchType, keyword, order});
 
-  return <PhrasesTemplate initialPhrases={initialPhrases} />;
+  return <PhrasesTemplate sort={order} initialPhrases={initialPhrases} />;
 };
 
 export default PhrasesPage;
