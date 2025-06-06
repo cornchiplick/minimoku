@@ -1,7 +1,7 @@
-import {ICONS} from "@/constants/icons";
+import {IconName, ICONS} from "@/constants/icons";
 
 interface IconPropType {
-  name: keyof typeof ICONS;
+  name: IconName;
   size?: number; // 아이콘 사이즈
   color?: string; // 아이콘 색상
   bgColor?: string; // 배경색
