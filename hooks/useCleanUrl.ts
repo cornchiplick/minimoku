@@ -1,5 +1,5 @@
 import {usePathname, useSearchParams} from "next/navigation";
-import {useCallback, useMemo} from "react";
+import {useCallback} from "react";
 
 export const useCleanUrl = () => {
   const pathname = usePathname();
@@ -13,12 +13,5 @@ export const useCleanUrl = () => {
     return query ? `${pathname}?${query}` : pathname;
   }, [pathname, searchParams]);
 
-  const memorizedValue = useMemo(
-    () => ({
-      getCleanUrl,
-    }),
-    [getCleanUrl]
-  );
-
-  return memorizedValue;
+  return {getCleanUrl};
 };

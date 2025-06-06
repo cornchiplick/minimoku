@@ -13,12 +13,10 @@ const SubHeader = () => {
   const firstPath = getPathnameArray(pathname).at(0) || URL.HOME;
 
   return (
-    <>
-      <Typography.Head3 className="flex items-center gap-2">
-        <Icon name={URL_TITLE_MAP[firstPath].icon} size={24} color="black" />
-        {isLoggedIn ? URL_TITLE_MAP[firstPath].login : URL_TITLE_MAP[firstPath].logout}
-      </Typography.Head3>
-    </>
+    <Typography.Head3 className="flex items-center gap-2">
+      <Icon name={URL_TITLE_MAP[firstPath].icon} size={24} color="black" />
+      {isLoggedIn ? URL_TITLE_MAP[firstPath].login : URL_TITLE_MAP[firstPath].logout}
+    </Typography.Head3>
   );
 };
 
