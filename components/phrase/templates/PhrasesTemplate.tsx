@@ -93,7 +93,7 @@ const PhrasesTemplate = ({sort = "desc", initialPhrases}: PhrasesTemplateProps) 
         <FormProvider {...formMethods}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-row gap-2 self-stretch *:items-center">
-              <FormSelect name="searchType" defaultValue="japanese">
+              <FormSelect name="searchType" defaultValue="japanese" className="w-[180px]">
                 <SelectContent>
                   <SelectItem value="japanese">일어</SelectItem>
                   <SelectItem value="romaji">영어발음</SelectItem>
