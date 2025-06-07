@@ -7,9 +7,13 @@
  * 예시: "/" → ["/"]
  */
 export const getPathnameArray = (pathname: string): string[] => {
+  if (!pathname || pathname === "/") {
+    return ["/"];
+  }
+
   const pathArray = pathname
     .split("/")
-    .map((path) => `/${path}`)
-    .filter(Boolean);
+    .filter(Boolean)
+    .map((path) => `/${path}`);
   return pathArray;
 };
