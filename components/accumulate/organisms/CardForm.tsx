@@ -12,7 +12,9 @@ const CardForm = ({onSubmit}: CardFormProps) => {
   const {handleSubmit} = useFormContext<CardInputs>();
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-[0.7] flex-col gap-4">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex w-full max-w-2xl flex-col gap-4 lg:flex-[0.7]">
       <div className="flex flex-1 flex-col gap-4">
         <FormInput
           name="japanese"

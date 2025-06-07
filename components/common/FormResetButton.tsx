@@ -19,7 +19,10 @@ const FormResetButton = ({children, className, ...props}: ButtonProps) => {
     <Button
       type="button"
       onClick={handleReset}
-      className={clsx("bg-gray-400 ease-in-out hover:bg-gray-500", className)}
+      className={clsx(
+        "bg-secondary-light hover:bg-secondary-light/80 transition-colors",
+        className
+      )}
       {...props}>
       {children}
     </Button>

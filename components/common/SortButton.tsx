@@ -9,6 +9,8 @@ interface SortButtonProps {
 const SortButton = ({name, sort, onChangeSort}: SortButtonProps) => {
   return (
     <button
+      type="button"
+      aria-label={`Sort by ${name} in ${sort === "asc" ? "descending" : "ascending"} order`}
       className="flex flex-row items-center gap-1 rounded-md border border-gray-600 px-3 py-1"
       onClick={onChangeSort}>
       {name}

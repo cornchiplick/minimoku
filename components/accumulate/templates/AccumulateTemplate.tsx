@@ -40,8 +40,6 @@ const AccumulateTemplate = () => {
     if (errors) {
       // setError("")
     }
-
-    console.log("data :: ", data);
     reset();
     if (submitType === PhraseConstants.CARD_SAVETYPE_SAVE) {
       router.push("/phrases");

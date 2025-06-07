@@ -19,7 +19,7 @@ const SentenceCard = ({phrase, showDateTime = false}: SentenceCardProps) => {
   );
 
   return (
-    <Card key={phrase.id} className="flex flex-col gap-1 p-4 transition-shadow hover:shadow-md">
+    <Card className="flex flex-col gap-1 p-4 transition-shadow hover:shadow-md">
       {showDateTime ? (
         <div className="flex items-start justify-between">
           {essentialPhrase}

@@ -34,7 +34,7 @@ const FormSelect = <T extends FieldValues>({
       rules={rules}
       render={({field}) => (
         <Select value={field.value} onValueChange={field.onChange}>
-          <SelectTrigger className={cn("w-[180px]", className)}>
+          <SelectTrigger className={cn("w-full", className)}>
             <SelectValue placeholder="항목" />
           </SelectTrigger>
           {children}
