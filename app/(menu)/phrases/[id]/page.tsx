@@ -1,9 +1,6 @@
 import {getPhrase} from "@/app/(menu)/phrases/[id]/action";
 import PhraseViewPageTemplate from "@/components/phrase/templates/PhraseViewPageTemplate";
-import {Prisma} from "@prisma/client";
 import {notFound} from "next/navigation";
-
-type Phrase = Prisma.PromiseReturnType<typeof getPhrase>;
 
 interface PhraseViewPageProps {
   params: {

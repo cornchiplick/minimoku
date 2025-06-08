@@ -15,6 +15,7 @@ const PhraseViewPageTemplate = ({phrase}: PhraseViewPageTemplateProps) => {
       <div className="flex items-center justify-end">
         <Button
           type="button"
+          // TODO: 수정 모달을 여는 onClick 함수 개발할것
           // onClick={() => {}}
           className="bg-indigo-600 transition-colors hover:bg-indigo-600/80">
           수정
