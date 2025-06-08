@@ -12,13 +12,13 @@ const Nav = () => {
   const isLoggedIn = true;
 
   return (
-    <nav className="bg-indigo-600 p-4 text-white">
-      <div className="container flex flex-col md:flex-row md:items-center md:justify-between">
+    <nav className="w-full bg-indigo-600 px-6 py-2 text-white">
+      <div className="flex w-full flex-row items-center justify-between">
         <Link href={URL.HOME} className="flex cursor-pointer items-center justify-between">
           <Icon name="book" size={24} color="white" />
           <span className="text-2xl font-bold">일본어 회화 암기노트</span>
         </Link>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center gap-4">
           <Link
             href={URL.HOME}
             className={`flex items-center gap-1 rounded px-3 py-2 hover:bg-indigo-700 ${pathname === URL.HOME ? "bg-indigo-700" : ""}`}>
