@@ -26,7 +26,7 @@ const PhrasesTemplate = ({sort = "desc", initialPhrases}: PhrasesTemplateProps) 
   const router = useRouter();
   const searchParams = useSearchParams();
   // FIX : 로그인 상태를 관리하는 상태 변수 : next/auth 로 구현할것
-  const isLoggedIn = true;
+  const isLoggedIn = false;
   const handleLoginClick = () => {};
 
   // ----------------------------------------

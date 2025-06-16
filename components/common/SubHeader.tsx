@@ -8,7 +8,7 @@ import {usePathname} from "next/navigation";
 
 const SubHeader = () => {
   // TODO isLoggedIn
-  const isLoggedIn = true;
+  const isLoggedIn = false;
   const pathname = usePathname();
   const firstPath = getPathnameArray(pathname).at(0) || URL.HOME;
 

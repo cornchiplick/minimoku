@@ -9,7 +9,7 @@ const Nav = () => {
   const pathname = usePathname();
 
   // TODO 로그인 상태를 관리하는 상태 변수 : next/auth 로 구현할것
-  const isLoggedIn = true;
+  const isLoggedIn = false;
 
   return (
     <nav className="w-full bg-indigo-600 px-6 py-2 text-white">

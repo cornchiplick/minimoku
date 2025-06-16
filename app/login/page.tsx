@@ -1,5 +1,6 @@
 "use client";
 
+import SocialLogin from "@/components/auth/SocialLogin";
 import Icon from "@/components/common/Icon";
 import Head from "next/head";
 import Link from "next/link";
@@ -71,6 +72,10 @@ const LoginPage = () => {
             <Link href="/signup" className="text-blue-500 hover:underline">
               Sign up
             </Link>
+            <SocialLogin />
+            {/* <Link href="/github/start" className="text-blue-500 hover:underline">
+              github
+            </Link> */}
           </div>
         </form>
       </div>
