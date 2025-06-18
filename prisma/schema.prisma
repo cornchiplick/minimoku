@@ -8,6 +8,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id          Int      @id @default(autoincrement())
+  username    String
+  provider    String
+  provider_id String
+  avatar      String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  phrases Phrase[] // Relation to Phrase
+
+  @@unique([provider, provider_id])
+}
+
 model Phrase {
   id            Int      @id @default(autoincrement())
   japanese      String // 일본어 원문
@@ -18,4 +32,7 @@ model Phrase {
   createdAt     DateTime @default(now()) // 등록 날짜
   updatedAt     DateTime @updatedAt // 업데이트 날짜
   description   String? // 문장 설명 (선택)
+
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
 }
