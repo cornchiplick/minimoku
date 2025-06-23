@@ -1,21 +1,25 @@
 export const getAccessToken = async (code: string) => {
   // code를 이용해 access token을 받아옴
-  const accessTokenParams = new URLSearchParams({
-    client_id: process.env.GITHUB_CLIENT_ID!,
-    client_secret: process.env.GITHUB_CLIENT_SECRET!,
-    code,
-  }).toString();
-  const accessTokenURL = `https://github.com/login/oauth/access_token?${accessTokenParams}`;
-  const accessTokenResponse = await fetch(accessTokenURL, {
+  const accessTokenURL = "https://github.com/login/oauth/access_token";
+
+  const response = await fetch(accessTokenURL, {
     method: "POST",
     headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
       Accept: "application/json",
     },
+    body: new URLSearchParams({
+      client_id: process.env.GITHUB_CLIENT_ID!,
+      client_secret: process.env.GITHUB_CLIENT_SECRET!,
+      code,
+    }),
   });
 
   // access token을 이용해 user profile을 받아옴.
   // user profile에는 github id, avatar url, login 정보가 있음
-  const {error, access_token} = await accessTokenResponse.json();
+  const result = await response.json();
+  console.log("result : ", result);
+  const {error, access_token} = result;
   if (error) {
     return new Response(null, {
       status: 400,

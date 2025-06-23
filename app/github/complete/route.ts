@@ -14,18 +14,17 @@ export async function GET(request: NextRequest) {
   }
   const access_token = await getAccessToken(code);
 
-  // access token을 이용해 user email을 받아옴.
-  // const userEmail = await getGithubEmail(access_token);
-  // console.log("github Email : ", userEmail);
-
   // access token을 이용해 user profile을 받아옴.
-  // const {id, avatar_url, login} = await getGithubProfile(access_token);
+  const {id, avatar_url, login} = await getGithubProfile(access_token);
   const data = await getGithubProfile(access_token);
-  console.log("github Profile : ", data);
+  console.log("github Profile : ", data, avatar_url, login);
 
   // const user = await db.user.findUnique({
   //   where: {
-  //     github_id: id + "",
+  //     provider_provider_id: {
+  //       provider: 'github',
+  //       provider_id: id + ""
+  //     },
   //   },
   //   select: {
   //     id: true,
@@ -37,10 +36,9 @@ export async function GET(request: NextRequest) {
   // }
   // const newUser = await db.user.create({
   //   data: {
-  //     // 주의! github 로그인을 통해 만들어지는 user의 username 과 email/pwd 방식으로 만들어지는 user의 username이 겹칠 수 있는 문제의 소지 있음
   //     username: login,
-
-  //     github_id: id + "",
+  //     provider: "github",
+  //     provider_id: id + "",
   //     avatar: avatar_url,
   //   },
   //   select: {
