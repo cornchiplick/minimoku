@@ -9,5 +9,9 @@ export default withAuth({
 
 // 인증이 필요한 경로 정의
 export const config = {
-  matcher: ["/accumulate/:path", "/phrases/:path", "/quiz/:path"],
+  matcher: [
+    "/accumulate/:path",
+    // "/phrases/:path",
+    "/quiz/:path",
+  ],
 };
