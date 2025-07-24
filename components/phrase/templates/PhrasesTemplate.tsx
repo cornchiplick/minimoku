@@ -11,6 +11,7 @@ import SortButton from "@/components/common/SortButton";
 import SearchForm from "@/components/phrase/organisms/SearchForm";
 import {SelectContent, SelectItem} from "@/components/ui/select";
 import {URL} from "@/constants/url";
+import {useAuth} from "@/hooks/useAuth";
 import {SearchInputs} from "@/types/phrase";
 import Link from "next/link";
 import {useRouter, useSearchParams} from "next/navigation";
@@ -25,9 +26,10 @@ interface PhrasesTemplateProps {
 const PhrasesTemplate = ({sort = "desc", initialPhrases}: PhrasesTemplateProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  // FIX : 로그인 상태를 관리하는 상태 변수 : next/auth 로 구현할것
-  const isLoggedIn = true;
-  const handleLoginClick = () => {};
+  const {isAuthenticated} = useAuth();
+  const handleLoginClick = () => {
+    router.push(URL.LOGIN);
+  };
 
   // ----------------------------------------
   // 검색 폼
@@ -89,7 +91,7 @@ const PhrasesTemplate = ({sort = "desc", initialPhrases}: PhrasesTemplateProps) 
         </div>
       </div>
 
-      {isLoggedIn && (
+      {isAuthenticated && (
         <FormProvider {...formMethods}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-row gap-2 self-stretch *:items-center">
@@ -128,7 +130,7 @@ const PhrasesTemplate = ({sort = "desc", initialPhrases}: PhrasesTemplateProps) 
         ))}
       </div>
 
-      {!isLoggedIn && (
+      {!isAuthenticated && (
         <div className="flex flex-col gap-2 rounded-lg bg-indigo-100 p-4 pt-6">
           <p className="text-center">
             <span className="font-medium">로그인</span>하시면 나만의 문장을 추가하고 관리할 수
