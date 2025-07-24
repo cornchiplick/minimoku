@@ -1,6 +1,6 @@
-import Providers from "@/providers/providers";
 import Nav from "@/components/common/Nav";
 import Typography from "@/components/home/atomic/Typography";
+import Providers from "@/providers/providers";
 import type {Metadata} from "next";
 import "./globals.css";
 
@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={`antialiased`}>
-        {/* SessionProvider는 클라이언트 컴포넌트이므로, use client 지시어를 가진 별도의 컴포넌트로 분리함 */}
+        {/* SessionProvider is a client component, so it's separated into a component with 'use client' directive */}
         <Providers>
           <div className="min-h-screen bg-gray-50">
             {/* 네비게이션 바 */}

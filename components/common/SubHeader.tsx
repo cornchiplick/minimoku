@@ -11,8 +11,6 @@ const SubHeader = () => {
   const pathname = usePathname();
   const firstPath = getPathnameArray(pathname).at(0) || URL.HOME;
   const {isAuthenticated} = useAuth();
-  // const {status} = useSession();
-  // const isAuthenticated = useMemo(() => status === AuthConstants.AUTHENTICATED, [status]);
 
   return (
     <Typography.Head3 className="flex items-center gap-2">

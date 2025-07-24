@@ -22,16 +22,7 @@ const AuthButton = ({provider = "github", redirect = URL.LOGIN}: AuthButtonProps
     return (
       <button
         onClick={() => signOut({callbackUrl: URL.HOME})}
-        style={{
-          padding: "12px 25px",
-          backgroundColor: "#dc3545",
-          color: "white",
-          border: "none",
-          borderRadius: "8px",
-          cursor: "pointer",
-          fontSize: "1.1em",
-          transition: "background-color 0.3s ease",
-        }}>
+        className="cursor-pointer rounded-lg border-none bg-red-600 px-6 py-3 text-[1.1em] text-white transition-colors duration-300 hover:bg-red-700">
         로그아웃
       </button>
     );
@@ -40,16 +31,7 @@ const AuthButton = ({provider = "github", redirect = URL.LOGIN}: AuthButtonProps
   return (
     <button
       onClick={() => signIn(`${provider}`, {callbackUrl: redirect})}
-      style={{
-        padding: "12px 25px",
-        backgroundColor: "#007bff",
-        color: "white",
-        border: "none",
-        borderRadius: "8px",
-        cursor: "pointer",
-        fontSize: "1.1em",
-        transition: "background-color 0.3s ease",
-      }}>
+      className="cursor-pointer rounded-lg border-none bg-blue-600 px-6 py-3 text-[1.1em] text-white transition-colors duration-300 hover:bg-blue-700">
       GitHub로 로그인
     </button>
   );

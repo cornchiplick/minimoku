@@ -2,15 +2,17 @@
 
 import Icon from "@/components/common/Icon";
 import SentenceCard from "@/components/common/SentenceCard";
-import {SAMPLE_PHRASES, USER_PHRASES_EXAMPLE} from "@/constants/examples";
+import {SAMPLE_PHRASES} from "@/constants/examples";
 import {URL} from "@/constants/url";
+import {Phrase} from "@/types/phrase";
 import Link from "next/link";
 
 interface DashBoardProps {
   isAuthenticated: boolean;
+  userPhrases?: Phrase[];
 }
 
-const DashBoard = ({isAuthenticated = false}: DashBoardProps) => {
+const DashBoard = ({isAuthenticated = false, userPhrases = []}: DashBoardProps) => {
   return (
     <div className="container flex flex-col gap-8 px-4 py-8">
       {!isAuthenticated && (
@@ -35,7 +37,7 @@ const DashBoard = ({isAuthenticated = false}: DashBoardProps) => {
           {isAuthenticated ? "내 일본어 회화 문장" : "예시 회화 문장"}
         </h2>
         <div className="grid gap-4 md:grid-cols-2">
-          {(isAuthenticated ? USER_PHRASES_EXAMPLE : SAMPLE_PHRASES).slice(0, 4).map((phrase) => (
+          {(isAuthenticated ? userPhrases : SAMPLE_PHRASES).slice(0, 4).map((phrase) => (
             <SentenceCard key={phrase.id} phrase={phrase} />
           ))}
         </div>
@@ -54,9 +56,11 @@ const DashBoard = ({isAuthenticated = false}: DashBoardProps) => {
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
         <Link
           href={isAuthenticated ? URL.QUIZ : URL.LOGIN}
-          className={`flex cursor-pointer flex-col items-center justify-center rounded-lg bg-indigo-100 p-4 shadow transition-shadow hover:shadow-md ${!isAuthenticated && "opacity-75"}`}>
+          className={`flex cursor-pointer flex-col items-center justify-center rounded-lg bg-indigo-100 p-4 shadow transition-shadow hover:shadow-md ${!isAuthenticated && "opacity-75"}`}
+          aria-label={!isAuthenticated ? "로그인이 필요한 기능입니다" : undefined}>
           <Icon name="barchartver" size={32} color="#4f46e5" />
           <h3 className="text-center font-medium">일본어 → 한국어 퀴즈</h3>
+          {!isAuthenticated && <span className="sr-only">로그인 필요</span>}
         </Link>
         <Link
           href={isAuthenticated ? URL.QUIZ : URL.LOGIN}

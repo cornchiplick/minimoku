@@ -27,7 +27,9 @@ const PhrasesTemplate = ({sort = "desc", initialPhrases}: PhrasesTemplateProps) 
   const router = useRouter();
   const searchParams = useSearchParams();
   const {isAuthenticated} = useAuth();
-  const handleLoginClick = () => {};
+  const handleLoginClick = () => {
+    router.push(URL.LOGIN);
+  };
 
   // ----------------------------------------
   // 검색 폼

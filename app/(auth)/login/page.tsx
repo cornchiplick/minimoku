@@ -2,7 +2,7 @@ import AuthButton from "@/components/auth/AuthButton";
 import UserInfo from "@/components/auth/UserInfo";
 import Head from "next/head";
 
-const LoginPage = async () => {
+const LoginPage = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
       <Head>

@@ -7,7 +7,11 @@ const UserInfo = () => {
   const {data: session, status} = useSession();
 
   if (status === "loading") {
-    return <p>Loading...</p>;
+    return (
+      <div className="rounded-lg border border-gray-300 bg-gray-100 p-4">
+        <p>Loading...</p>
+      </div>
+    );
   }
 
   if (session) {
@@ -29,8 +33,7 @@ const UserInfo = () => {
             alt="User Avatar"
             width={50}
             height={50}
-            // fill
-            style={{width: "50px", height: "50px", borderRadius: "50%", marginTop: "10px"}}
+            style={{borderRadius: "50%", marginTop: "10px"}}
           />
         )}
         <p style={{marginTop: "10px", fontSize: "0.9em", color: "#555"}}>
@@ -41,7 +44,7 @@ const UserInfo = () => {
   }
 
   return (
-    <p
+    <div
       style={{
         padding: "15px",
         backgroundColor: "#ffe6e6",
@@ -53,7 +56,7 @@ const UserInfo = () => {
       <p style={{fontSize: "0.9em", color: "#555", marginTop: "5px"}}>
         (클라이언트 컴포넌트에서 세션이 없습니다.)
       </p>
-    </p>
+    </div>
   );
 };
 
