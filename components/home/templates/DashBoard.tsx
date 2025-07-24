@@ -76,9 +76,11 @@ const DashBoard = ({isAuthenticated = false, userPhrases = []}: DashBoardProps) 
         </Link>
         <Link
           href={isAuthenticated ? URL.ACCUMULATE : URL.LOGIN}
-          className={`flex cursor-pointer flex-col items-center justify-center rounded-lg bg-indigo-100 p-4 shadow transition-shadow hover:shadow-md ${!isAuthenticated && "opacity-75"}`}>
+          className={`flex cursor-pointer flex-col items-center justify-center rounded-lg bg-indigo-100 p-4 shadow transition-shadow hover:shadow-md ${!isAuthenticated && "opacity-75"}`}
+          aria-label={!isAuthenticated ? "로그인이 필요한 기능입니다" : undefined}>
           <Icon name="edit" size={32} color="#4f46e5" />
           <h3 className="text-center font-medium">새 문장 추가하기</h3>
+          {!isAuthenticated && <span className="sr-only">로그인 필요</span>}
         </Link>
       </div>
     </div>
