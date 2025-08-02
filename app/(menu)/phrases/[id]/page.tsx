@@ -1,5 +1,5 @@
-import {getPhrase} from "@/app/(menu)/phrases/[id]/action";
-import PhraseViewPageTemplate from "@/components/phrase/templates/PhraseViewPageTemplate";
+import PhraseViewPageTemplate from "@/features/phrases/components/templates/PhraseViewPageTemplate";
+import {getPhrase} from "@/features/phrases/services/phrases.service";
 import {notFound} from "next/navigation";
 
 interface PhraseViewPageProps {

@@ -8,6 +8,7 @@ declare module "next-auth" {
     accessToken?: string;
     user: {
       id?: string;
+      provider?: string;
     } & DefaultSession["user"];
   }
 }
@@ -39,8 +40,9 @@ export const authOptions: AuthOptions = {
         // OAuth access token 저장
         token.accessToken = account.access_token;
 
-        // 사용자 ID 저장 (DB 연동 시 필요)
+        // 사용자 정보 저장 (DB 연동 시 필요)
         token.id = user.id;
+        token.provider = account.provider;
 
         // 유저 정보 db확인
         const existingUser = await db.user.findUnique({
@@ -70,8 +72,9 @@ export const authOptions: AuthOptions = {
       // 세션에 추가 정보를 포함
       session.accessToken = token.accessToken as string;
       if (session.user) {
-        // 세션 user 객체에 id 추가
+        // 세션 user 객체에 id, provider 추가
         session.user.id = token.id as string;
+        session.user.provider = token.provider as string;
       }
       return session;
     },

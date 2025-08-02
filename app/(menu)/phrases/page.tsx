@@ -1,5 +1,5 @@
-import {getPhrases} from "@/app/(menu)/phrases/action";
-import PhrasesTemplate from "@/components/phrase/templates/PhrasesTemplate";
+import PhrasesTemplate from "@/features/phrases/components/templates/PhrasesTemplate";
+import {getPhrases} from "@/features/phrases/services/phrases.service";
 import {Prisma} from "@prisma/client";
 
 export type InitialPhrases = Prisma.PromiseReturnType<typeof getPhrases>;
