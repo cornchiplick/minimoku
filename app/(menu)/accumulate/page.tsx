@@ -1,4 +1,4 @@
-import AccumulateTemplate from "@/components/accumulate/templates/AccumulateTemplate";
+import AccumulateTemplate from "@/features/accumulate/components/templates/AccumulateTemplate";
 
 const AccumulatePage = async () => {
   return <AccumulateTemplate />;

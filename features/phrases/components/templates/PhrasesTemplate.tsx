@@ -1,6 +1,5 @@
 "use client";
 
-import {deletePhrase} from "@/app/(menu)/phrases/action";
 import {InitialPhrases} from "@/app/(menu)/phrases/page";
 import FormButton from "@/components/common/FormButton";
 import FormResetButton from "@/components/common/FormResetButton";
@@ -8,9 +7,10 @@ import FormSelect from "@/components/common/FormSelect";
 import Icon from "@/components/common/Icon";
 import SentenceCard from "@/components/common/SentenceCard";
 import SortButton from "@/components/common/SortButton";
-import SearchForm from "@/components/phrase/organisms/SearchForm";
 import {SelectContent, SelectItem} from "@/components/ui/select";
 import {URL} from "@/constants/url";
+import SearchForm from "@/features/phrases/components/organisms/SearchForm";
+import {deletePhrase} from "@/features/phrases/services/phrases.service";
 import {useAuth} from "@/hooks/useAuth";
 import {SearchInputs} from "@/types/phrase";
 import Link from "next/link";

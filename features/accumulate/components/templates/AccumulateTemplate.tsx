@@ -1,10 +1,10 @@
 "use client";
 
-import {addCardAction} from "@/app/(menu)/accumulate/action";
-import CardForm from "@/components/accumulate/organisms/CardForm";
 import Typography from "@/components/home/atomic/Typography";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {PhraseConstants} from "@/constants/phrase";
+import CardForm from "@/features/accumulate/components/organisms/CardForm";
+import {addCardAction} from "@/features/accumulate/services/accumulate.service";
 import {CardInputs} from "@/types/phrase";
 import clsx from "clsx";
 import {useRouter} from "next/navigation";
