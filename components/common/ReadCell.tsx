@@ -1,5 +1,5 @@
 import Typography from "@/components/home/atomic/Typography";
-import {cn} from "@/lib/utils";
+import {cn} from "@/shared/lib/utils/commonUtils";
 
 interface ReadCellProps {
   title: string;

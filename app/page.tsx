@@ -1,7 +1,7 @@
-import {authOptions} from "@/app/api/auth/[...nextauth]/route";
 import DashBoard from "@/components/home/templates/DashBoard";
-import {USER_PHRASES_EXAMPLE} from "@/constants/examples";
-import {getServerSession} from "next-auth";
+import { USER_PHRASES_EXAMPLE } from "@/shared/constants/examples";
+import { authOptions } from "@/shared/lib/auth";
+import { getServerSession } from "next-auth";
 
 const HomePage = async () => {
   let session;

@@ -1,6 +1,6 @@
 "use client";
 
-import {URL} from "@/constants/url";
+import {URL} from "@/shared/constants/url";
 import {signIn, signOut, useSession} from "next-auth/react";
 
 interface AuthButtonProps {

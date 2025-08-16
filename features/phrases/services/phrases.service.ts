@@ -1,7 +1,7 @@
 "use server";
 
-import db from "@/lib/db";
-import {getSessionUser} from "@/utils/authUtils";
+import db from "@/shared/lib/db";
+import {getSessionUser} from "@/shared/lib/utils/authUtils";
 
 interface GetPhrasesParams {
   searchType?: string | undefined;

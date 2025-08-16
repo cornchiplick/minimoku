@@ -1,3 +1,10 @@
+import {clsx, type ClassValue} from "clsx";
+import {twMerge} from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
 /**
  * 주어진 pathname 문자열을 '/'로 분리하여 각 경로 조각 앞에 '/'를 붙인 문자열 배열로 반환합니다.
  *

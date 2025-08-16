@@ -2,9 +2,9 @@
 
 import Icon from "@/components/common/Icon";
 import SentenceCard from "@/components/common/SentenceCard";
-import {SAMPLE_PHRASES} from "@/constants/examples";
-import {URL} from "@/constants/url";
-import {Phrase} from "@/types/phrase";
+import {SAMPLE_PHRASES} from "@/shared/constants/examples";
+import {URL} from "@/shared/constants/url";
+import {Phrase} from "@/shared/types/phrase";
 import Link from "next/link";
 
 interface DashBoardProps {

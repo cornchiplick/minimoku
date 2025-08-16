@@ -1,4 +1,4 @@
-import {AuthConstants} from "@/constants/auth";
+import {AuthConstants} from "@/shared/constants/auth";
 import {useSession} from "next-auth/react";
 import {useMemo} from "react";
 

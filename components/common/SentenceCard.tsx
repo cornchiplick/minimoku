@@ -1,6 +1,6 @@
 import Typography from "@/components/home/atomic/Typography";
 import {Card, CardContent} from "@/components/ui/card";
-import {Phrase} from "@/types/phrase";
+import {Phrase} from "@/shared/types/phrase";
 import {format} from "date-fns";
 
 interface SentenceCardProps {

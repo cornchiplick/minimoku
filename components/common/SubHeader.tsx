@@ -2,9 +2,9 @@
 
 import Icon from "@/components/common/Icon";
 import Typography from "@/components/home/atomic/Typography";
-import {URL, URL_TITLE_MAP} from "@/constants/url";
-import {useAuth} from "@/hooks/useAuth";
-import {getPathnameArray} from "@/utils/commonUtils";
+import {URL, URL_TITLE_MAP} from "@/shared/constants/url";
+import {useAuth} from "@/shared/lib/hooks/useAuth";
+import {getPathnameArray} from "@/shared/lib/utils/commonUtils";
 import {usePathname} from "next/navigation";
 
 const SubHeader = () => {

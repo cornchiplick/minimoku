@@ -1,4 +1,4 @@
-import {IconName, ICONS} from "@/constants/icons";
+import {IconName, ICONS} from "@/shared/constants/icons";
 
 interface IconPropType {
   name: IconName;

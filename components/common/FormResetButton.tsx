@@ -1,5 +1,5 @@
 import {Button, ButtonProps} from "@/components/ui/button";
-import {useCleanUrl} from "@/hooks/useCleanUrl";
+import {useCleanUrl} from "@/shared/lib/hooks/useCleanUrl";
 import clsx from "clsx";
 import {useRouter} from "next/navigation";
 import {useFormContext} from "react-hook-form";
@@ -20,7 +20,7 @@ const FormResetButton = ({children, className, ...props}: ButtonProps) => {
       type="button"
       onClick={handleReset}
       className={clsx(
-        "bg-secondary-light hover:bg-secondary-light/80 transition-colors",
+        "bg-secondary-light transition-colors hover:bg-secondary-light/80",
         className
       )}
       {...props}>
