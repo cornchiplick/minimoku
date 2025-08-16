@@ -3,7 +3,7 @@ import SentenceCard from "@/components/common/SentenceCard";
 import Typography from "@/components/home/atomic/Typography";
 import {Button} from "@/components/ui/button";
 import {Separator} from "@/components/ui/separator";
-import {Phrase} from "@/types/phrase";
+import {Phrase} from "@/shared/types/phrase";
 
 interface PhraseViewPageTemplateProps {
   phrase: Phrase;

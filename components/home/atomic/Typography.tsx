@@ -1,5 +1,5 @@
 // components/Typography.tsx
-import {cn} from "@/lib/utils";
+import {cn} from "@/shared/lib/utils/commonUtils";
 import React from "react";
 
 type TypoType = "Head1" | "Head2" | "Head3" | "SubTitle1" | "P1" | "P2" | "P3" | "Error";

@@ -2,10 +2,10 @@
 
 import Typography from "@/components/home/atomic/Typography";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {PhraseConstants} from "@/constants/phrase";
 import CardForm from "@/features/accumulate/components/organisms/CardForm";
 import {addCardAction} from "@/features/accumulate/services/accumulate.service";
-import {CardInputs} from "@/types/phrase";
+import {PhraseConstants} from "@/shared/constants/phrase";
+import {CardInputs} from "@/shared/types/phrase";
 import clsx from "clsx";
 import {useRouter} from "next/navigation";
 import {useEffect, useState} from "react";

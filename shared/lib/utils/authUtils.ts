@@ -1,6 +1,6 @@
-import {authOptions} from "@/app/api/auth/[...nextauth]/route";
-import db from "@/lib/db";
-import {getServerSession} from "next-auth";
+import { authOptions } from "@/shared/lib/auth";
+import db from "@/shared/lib/db";
+import { getServerSession } from "next-auth";
 
 /**
  * 현재 로그인 중인 사용자의 정보를 조회하여 가져오는 함수

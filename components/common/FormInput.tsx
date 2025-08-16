@@ -2,7 +2,7 @@ import * as React from "react";
 
 import Typography from "@/components/home/atomic/Typography";
 import {Label} from "@/components/ui/label";
-import {cn} from "@/lib/utils";
+import {cn} from "@/shared/lib/utils/commonUtils";
 import {FieldValues, Path, RegisterOptions, useFormContext} from "react-hook-form";
 
 interface InputProps<T extends FieldValues> extends React.InputHTMLAttributes<HTMLInputElement> {

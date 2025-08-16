@@ -1,9 +1,9 @@
 "use server";
 
-import {authOptions} from "@/app/api/auth/[...nextauth]/route";
-import db from "@/lib/db";
-import {getServerSession} from "next-auth";
-import {z} from "zod";
+import { authOptions } from "@/shared/lib/auth";
+import db from "@/shared/lib/db";
+import { getServerSession } from "next-auth";
+import { z } from "zod";
 
 const formSchema = z.object({
   japanese: z.string({required_error: "일본어 원문을 입력해주세요."}).trim(),
