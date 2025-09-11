@@ -1,0 +1,47 @@
+import {cn} from "@/shared/lib/utils/commonUtils";
+import {Select, SelectTrigger, SelectValue} from "@/shared/ui/select";
+import {
+  Controller,
+  FieldValue,
+  FieldValues,
+  Path,
+  RegisterOptions,
+  useFormContext,
+} from "react-hook-form";
+
+interface FormSelectProps<T extends FieldValues> {
+  name: Path<T>;
+  defaultValue: FieldValue<T>;
+  children: React.ReactNode;
+  className?: string;
+  rules?: RegisterOptions<T, Path<T>>;
+}
+
+const FormSelect = <T extends FieldValues>({
+  name,
+  defaultValue,
+  children,
+  className,
+  rules,
+}: FormSelectProps<T>) => {
+  const {control} = useFormContext<T>();
+
+  return (
+    <Controller
+      name={name}
+      control={control}
+      defaultValue={defaultValue}
+      rules={rules}
+      render={({field}) => (
+        <Select value={field.value} onValueChange={field.onChange}>
+          <SelectTrigger className={cn("w-full", className)}>
+            <SelectValue placeholder="항목" />
+          </SelectTrigger>
+          {children}
+        </Select>
+      )}
+    />
+  );
+};
+
+export default FormSelect;
