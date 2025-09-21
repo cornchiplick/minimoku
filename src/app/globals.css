@@ -1,23 +1,35 @@
 @import "tailwindcss";
-@custom-variant dark (&:where(.dark, .dark *));
+/* @custom-variant dark (&:where(.dark, .dark *)); */
 
-@layer theme {
-  :root {
-    --color-background: #ffffff;
-    --color-foreground: #171717;
-    --font-sans: var(--font-geist-sans);
-    --font-mono: var(--font-geist-mono);
-  }
-  .dark {
-    --color-background: #0a0a0a;
-    --color-foreground: #ededed;
-    --font-sans: var(--font-geist-sans);
-    --font-mono: var(--font-geist-mono);
-  }
+:root {
+  --font-sans:
+    "Geist Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+  --font-mono: "Geist Mono", monospace;
+  --color-background: #ffffff;
+  --color-foreground: #364153;
+  --color-minimoku: #2b7fff;
+}
+
+:root.dark {
+  --color-background: #101828;
+  --color-foreground: #e5e7eb;
+  --color-minimoku: #2b7fff;
+}
+
+@theme {
+  --breakpoint-mobile: 360px; /* 모바일 최소값 */
+  --breakpoint-tablet: 768px; /* 모바일 최소값 */
+  --breakpoint-laptop: 1024px; /* laptop 최소값 */
+  --breakpoint-desktop: 1513px; /* desktop 최소값 */
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-foreground);
+  --color-minimoku: var(--color-minimoku);
 }
 
 body {
-  background: var(--color-background);
-  color: var(--color-foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
 }
