@@ -1,5 +1,5 @@
-import FormButton from "@/shared/common/FormButton";
-import FormInput from "@/shared/common/FormInput";
+import FormButton from "@/shared/components/common/FormButton";
+import FormInput from "@/shared/components/common/FormInput";
 import {PhraseConstants} from "@/shared/constants/phrase";
 import {CardInputs} from "@/shared/types/phrase";
 import {SubmitHandler, useFormContext} from "react-hook-form";

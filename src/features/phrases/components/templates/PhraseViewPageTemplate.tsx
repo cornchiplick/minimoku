@@ -1,5 +1,5 @@
-import ReadCell from "@/shared/common/ReadCell";
-import SentenceCard from "@/shared/common/SentenceCard";
+import ReadCell from "@/shared/components/common/ReadCell";
+import SentenceCard from "@/shared/components/common/SentenceCard";
 import Typography from "@/shared/home/atomic/Typography";
 import {Phrase} from "@/shared/types/phrase";
 import {Button} from "@/shared/ui/button";

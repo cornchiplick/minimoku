@@ -10,14 +10,14 @@ interface TypographyProps {
 }
 
 const typoTypeMap: Record<TypoType, string> = {
-  Head1: "text-5xl font-exrabold",
-  Head2: "text-3xl font-bold",
-  Head3: "text-2xl font-bold",
-  SubTitle1: "text-xl font-medium",
-  P1: "text-base",
-  P2: "text-sm",
-  P3: "text-xs",
-  Error: "text-xs text-red-600",
+  Head1: "text-5xl font-exrabold text-foreground",
+  Head2: "text-3xl font-bold text-foreground",
+  Head3: "text-2xl font-bold text-foreground",
+  SubTitle1: "text-xl font-medium text-foreground",
+  P1: "text-base text-foreground",
+  P2: "text-sm text-foreground",
+  P3: "text-xs text-foreground",
+  Error: "text-xs text-red-600 text-foreground",
 };
 
 const BaseTypography = ({type, children, className}: TypographyProps & {type: TypoType}) => {

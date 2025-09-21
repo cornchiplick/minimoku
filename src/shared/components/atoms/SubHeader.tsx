@@ -4,7 +4,7 @@ import {URL, URL_TITLE_MAP} from "@/shared/constants/url";
 import {useAuth} from "@/shared/lib/hooks/useAuth";
 import {getPathnameArray} from "@/shared/lib/utils/commonUtils";
 import {usePathname} from "next/navigation";
-import Typography from "../home/atomic/Typography";
+import Typography from "../../home/atomic/Typography";
 import Icon from "./Icon";
 
 const SubHeader = () => {

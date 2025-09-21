@@ -1,7 +1,7 @@
 "use client";
 
-import Icon from "@/shared/common/Icon";
-import SentenceCard from "@/shared/common/SentenceCard";
+import Icon from "@/shared/components/common/Icon";
+import SentenceCard from "@/shared/components/common/SentenceCard";
 import {SAMPLE_PHRASES} from "@/shared/constants/examples";
 import {URL} from "@/shared/constants/url";
 import {Phrase} from "@/shared/types/phrase";

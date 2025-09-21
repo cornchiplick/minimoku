@@ -1,4 +1,4 @@
-import Nav from "@/shared/common/Nav";
+import Nav from "@/shared/components/common/Nav";
 import Typography from "@/shared/home/atomic/Typography";
 import type {Metadata} from "next";
 

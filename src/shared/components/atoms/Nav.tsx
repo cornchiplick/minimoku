@@ -1,6 +1,6 @@
 "use client";
 
-import Icon from "@/shared/common/Icon";
+import Icon from "@/shared/components/common/Icon";
 import {URL} from "@/shared/constants/url";
 import {useAuth} from "@/shared/lib/hooks/useAuth";
 import {signOut} from "next-auth/react";

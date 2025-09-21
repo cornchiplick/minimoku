@@ -1,5 +1,5 @@
-import AuthButton from "@/shared/auth/AuthButton";
-import UserInfo from "@/shared/auth/UserInfo";
+import AuthButton from "@/widgets/auth/AuthButton";
+import UserInfo from "@/widgets/auth/UserInfo";
 import Head from "next/head";
 
 const LoginPage = () => {

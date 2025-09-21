@@ -1,6 +1,6 @@
 import "@/app/globals.css";
 import Providers from "@/shared/providers/providers";
-import ThemeBody from "@/widgets/theme/ThemeBody";
+import ThemeProvider from "@/widgets/theme/ThemeProvider";
 import type {Metadata} from "next";
 
 export const metadata: Metadata = {
@@ -16,10 +16,10 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className="antialiased">
-        <ThemeBody>
+        <ThemeProvider>
           {/* SessionProvider is a client component, so it's separated into a component with 'use client' directive */}
           <Providers>{children}</Providers>
-        </ThemeBody>
+        </ThemeProvider>
       </body>
     </html>
   );
