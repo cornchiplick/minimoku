@@ -1,0 +1,12 @@
+export const FilterConstants = {
+  FILTER_ALL: "ALL",
+  FILTER_UNREAD: "UNREAD",
+  FILTER_FAVORITE: "FAVORITE",
+  FILTER_NOTIFIED: "NOTIFIED",
+};
+
+export const FolderConstants = {
+  FOLDER_WORK: "WORK",
+  FOLDER_PERSONAL: "PERSONAL",
+  FOLDER_ARCHIVE: "ARCHIVE",
+};
