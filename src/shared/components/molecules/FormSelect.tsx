@@ -1,5 +1,5 @@
+import {Select, SelectTrigger, SelectValue} from "@/shared/components/atoms/select";
 import {cn} from "@/shared/lib/utils/commonUtils";
-import {Select, SelectTrigger, SelectValue} from "@/shared/ui/select";
 import {
   Controller,
   FieldValue,

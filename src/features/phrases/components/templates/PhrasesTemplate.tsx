@@ -3,6 +3,7 @@
 import {InitialPhrases} from "@/app/(japanese)/japanese/(menu)/phrases/page";
 import SearchForm from "@/features/phrases/components/organisms/SearchForm";
 import {deletePhrase} from "@/features/phrases/services/phrases.service";
+import {SelectContent, SelectItem} from "@/shared/components/atoms/select";
 import FormButton from "@/shared/components/common/FormButton";
 import FormResetButton from "@/shared/components/common/FormResetButton";
 import FormSelect from "@/shared/components/common/FormSelect";
@@ -12,7 +13,6 @@ import SortButton from "@/shared/components/common/SortButton";
 import {URL} from "@/shared/constants/url";
 import {useAuth} from "@/shared/lib/hooks/useAuth";
 import {SearchInputs} from "@/shared/types/phrase";
-import {SelectContent, SelectItem} from "@/shared/ui/select";
 import Link from "next/link";
 import {useRouter, useSearchParams} from "next/navigation";
 import {KeyboardEventHandler, useCallback} from "react";

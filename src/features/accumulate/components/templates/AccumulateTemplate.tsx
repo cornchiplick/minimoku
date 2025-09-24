@@ -2,10 +2,10 @@
 
 import CardForm from "@/features/accumulate/components/organisms/CardForm";
 import {addCardAction} from "@/features/accumulate/services/accumulate.service";
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/shared/components/atoms/tabs";
 import {PhraseConstants} from "@/shared/constants/phrase";
 import Typography from "@/shared/home/atomic/Typography";
 import {CardInputs} from "@/shared/types/phrase";
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/shared/ui/tabs";
 import clsx from "clsx";
 import {useRouter} from "next/navigation";
 import {useEffect, useState} from "react";

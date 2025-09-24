@@ -13,10 +13,13 @@ horizontal일 때는 w-full, h-px, border-t 사용
 const Divider = ({direction = "horizontal", className = ""}: DividerProps) => {
   if (direction === "vertical") {
     return (
-      <div className={`h-full w-px border-l border-gray-100 ${className}`} aria-hidden="true" />
+      <div
+        className={`bg-semi-background border-semi-background h-full w-px border-l ${className}`}
+        aria-hidden="true"
+      />
     );
   }
-  return <hr className={`h-px w-full border-t border-gray-100 ${className}`} aria-hidden="true" />;
+  return <hr className={`h-px w-full bg-semi-background border-semi-background ${className}`} aria-hidden="true" />;
 };
 
 export default Divider;

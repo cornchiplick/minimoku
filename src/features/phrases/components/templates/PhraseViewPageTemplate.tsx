@@ -1,9 +1,9 @@
+import {Button} from "@/shared/components/atoms/button";
+import {Separator} from "@/shared/components/atoms/separator";
 import ReadCell from "@/shared/components/common/ReadCell";
 import SentenceCard from "@/shared/components/common/SentenceCard";
 import Typography from "@/shared/home/atomic/Typography";
 import {Phrase} from "@/shared/types/phrase";
-import {Button} from "@/shared/ui/button";
-import {Separator} from "@/shared/ui/separator";
 
 interface PhraseViewPageTemplateProps {
   phrase: Phrase;

@@ -1,6 +1,6 @@
 "use client";
 
-import Icon from "@/shared/components/atoms/Icon";
+import Icon from "@/shared/components/molecules/Icon";
 import Typography from "@/shared/home/atomic/Typography";
 import {useThemeStore} from "@/shared/store/themeStore";
 import {MenuItemType} from "@/shared/types/menu";
