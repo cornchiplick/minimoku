@@ -1,11 +1,6 @@
-// import {PrismaClient} from "@prisma/client";
-// const db = new PrismaClient();
-// export default db;
-
 import {PrismaClient} from "@prisma/client";
 
 declare global {
-  // eslint-disable-next-line no-var
   var prismaClient: PrismaClient | undefined;
 }
 

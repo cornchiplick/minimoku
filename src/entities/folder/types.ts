@@ -1,6 +1,7 @@
 export interface FolderInterface {
-  id: string;
+  id: number;
   name: string;
-  icon: React.ElementType;
   count: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
