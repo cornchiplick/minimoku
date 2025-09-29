@@ -8,14 +8,20 @@
   --color-background: #ffffff;
   --color-foreground: #364153;
   --color-semi-background: #e5e7eb;
+  --color-minimoku-neutral: #a0a0a0;
+  --color-minimoku-neutral-bold: #6a7282;
   --color-minimoku: #2b7fff;
+  --color-minimoku-hover: #155dfc;
 }
 
 :root.dark {
   --color-background: #1e2939;
   --color-foreground: #e5e7eb;
   --color-semi-background: #242f3f;
+  --color-minimoku-neutral: #a0a0a0;
+  --color-minimoku-neutral-bold: #6a7282;
   --color-minimoku: #2b7fff;
+  --color-minimoku-hover: #155dfc;
 }
 
 @theme {
@@ -29,7 +35,10 @@
   --color-background: var(--color-background);
   --color-foreground: var(--color-foreground);
   --color-semi-background: var(--color-semi-background);
+  --color-minimoku-neutral: var(--color-minimoku-neutral);
+  --color-minimoku-neutral-bold: var(--color-minimoku-neutral-bold);
   --color-minimoku: var(--color-minimoku);
+  --color-minimoku-hover: var(--color-minimoku-hover);
 }
 
 body {
