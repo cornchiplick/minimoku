@@ -5,23 +5,35 @@
     "Geist Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
     sans-serif;
   --font-mono: "Geist Mono", monospace;
-  --color-background: #ffffff;
   --color-foreground: #364153;
-  --color-semi-background: #e5e7eb;
+  --color-foreground-reverse: #e5e7eb;
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #e5e7eb;
+  --color-background-tertiary: #ffffff;
+  --color-background-reverse-primary: #1e2939;
+  --color-background-reverse-secondary: #3d425e;
+  --color-minimoku-input: #e5e7eb;
   --color-minimoku-neutral: #a0a0a0;
   --color-minimoku-neutral-bold: #6a7282;
   --color-minimoku: #2b7fff;
   --color-minimoku-hover: #155dfc;
+  --color-overlay-black: rgba(0, 0, 0, 0.4);
 }
 
 :root.dark {
-  --color-background: #1e2939;
   --color-foreground: #e5e7eb;
-  --color-semi-background: #242f3f;
+  --color-foreground-reverse: #364153;
+  --color-background-primary: #1e2939;
+  --color-background-secondary: #242f3f;
+  --color-background-tertiary: #212b36;
+  --color-background-reverse-primary: #ffffff;
+  --color-background-reverse-secondary: #e0e0e0;
+  --color-minimoku-input: #374151;
   --color-minimoku-neutral: #a0a0a0;
   --color-minimoku-neutral-bold: #6a7282;
   --color-minimoku: #2b7fff;
   --color-minimoku-hover: #155dfc;
+  --color-overlay-black: rgba(0, 0, 0, 0.4);
 }
 
 @theme {
@@ -32,13 +44,19 @@
 
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
-  --color-background: var(--color-background);
   --color-foreground: var(--color-foreground);
-  --color-semi-background: var(--color-semi-background);
+  --color-foreground-reverse: var(--color-foreground-reverse);
+  --color-background-primary: var(--color-background-primary);
+  --color-background-secondary: var(--color-background-secondary);
+  --color-background-tertiary: var(--color-background-tertiary);
+  --color-background-reverse-primary: var(--color-background-reverse-primary);
+  --color-background-reverse-secondary: var(--color-background-reverse-secondary);
+  --color-minimoku-input: var(--color-minimoku-input);
   --color-minimoku-neutral: var(--color-minimoku-neutral);
   --color-minimoku-neutral-bold: var(--color-minimoku-neutral-bold);
   --color-minimoku: var(--color-minimoku);
   --color-minimoku-hover: var(--color-minimoku-hover);
+  --color-overlay-black: var(--color-overlay-black);
 }
 
 body {
