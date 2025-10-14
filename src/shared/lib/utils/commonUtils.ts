@@ -1,5 +1,6 @@
-import {clsx, type ClassValue} from "clsx";
-import {twMerge} from "tailwind-merge";
+import { APIConstants } from "@/shared/constants/api";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -24,3 +25,14 @@ export const getPathnameArray = (pathname: string): string[] => {
     .map((path) => `/${path}`);
   return pathArray;
 };
+
+export const getQueryString = (params: Record<string, string | number | boolean> = {}) => {
+  const query = Object.entries(params)
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
+    .join("&");
+  return query ? `?${query}` : "";
+};
+
+export const getTags = (userId: number, api: string) => {
+  return `${userId}${APIConstants.DELIMITER}${api}`;
+}

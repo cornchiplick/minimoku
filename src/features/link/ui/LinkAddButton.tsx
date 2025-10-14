@@ -16,7 +16,7 @@ const LinkAddButton = () => {
         <Plus className="h-4 w-4" />
         <Typography.P1 className="text-white">링크 추가</Typography.P1>
       </button>
-      {isShowLinkAddModal.value && <LinkAddModal handleClose={isShowLinkAddModal.onFalse} />}
+      <LinkAddModal modalState={isShowLinkAddModal} />
     </>
   );
 };
