@@ -1,16 +1,20 @@
 import {Button, ButtonProps} from "@/shared/components/atoms/button";
 import clsx from "clsx";
 import {Loader2} from "lucide-react";
-import {useFormStatus} from "react-dom";
+import {useFormContext} from "react-hook-form";
 
 const FormButton = ({children, className, ...props}: ButtonProps) => {
-  const {pending} = useFormStatus();
+  const formContext = useFormContext();
+  const pending = formContext?.formState?.isSubmitting || false;
 
   return (
     <Button
       type="submit"
       disabled={pending}
-      className={clsx("bg-indigo-600 ease-in-out hover:bg-indigo-700", className)}
+      className={clsx(
+        "bg-background-reverse-primary hover:bg-background-reverse-secondary ease-in-out",
+        className
+      )}
       {...props}>
       {pending ? (
         <>

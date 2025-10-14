@@ -14,12 +14,17 @@ const Divider = ({direction = "horizontal", className = ""}: DividerProps) => {
   if (direction === "vertical") {
     return (
       <div
-        className={`bg-semi-background border-semi-background h-full w-px border-l ${className}`}
+        className={`bg-background-secondary border-background-secondary h-full w-px border-l ${className}`}
         aria-hidden="true"
       />
     );
   }
-  return <hr className={`h-px w-full bg-semi-background border-semi-background ${className}`} aria-hidden="true" />;
+  return (
+    <hr
+      className={`bg-background-secondary border-background-secondary h-px w-full ${className}`}
+      aria-hidden="true"
+    />
+  );
 };
 
 export default Divider;

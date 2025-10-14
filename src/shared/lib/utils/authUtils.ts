@@ -1,5 +1,4 @@
 import {authOptions} from "@/shared/lib/auth";
-import db from "@/shared/lib/db";
 import {getServerSession} from "next-auth";
 
 /**
@@ -14,18 +13,12 @@ export const getSessionUser = async () => {
     return null;
   }
 
-  // user 추출
-  const user = await db.user.findUnique({
-    where: {
-      provider_provider_id: {
-        provider: session.user.provider!,
-        provider_id: session.user.id!,
-      },
-    },
-  });
-
-  if (!user) {
-    return null;
-  }
+  const user = {
+    id: session.user.userId,
+    username: session.user.name,
+    provider: session.user.provider,
+    provider_id: session.user.id,
+    avatar: session.user.image || null,
+  };
   return user;
 };

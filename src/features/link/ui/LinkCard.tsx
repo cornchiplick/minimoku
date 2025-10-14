@@ -9,6 +9,7 @@ import FavoriteButton from "@/shared/components/molecules/buttons/FavoriteButton
 import Typography from "@/shared/home/atomic/Typography";
 import {format} from "date-fns";
 import {Copy} from "lucide-react";
+import Image from "next/image";
 
 interface LinkCardProps {
   data: LinkInterface;
@@ -17,16 +18,23 @@ interface LinkCardProps {
 const LinkCard = ({data}: LinkCardProps) => {
   const {onClickAlarm, onClickFavorite, onClickRead} = useLinkAction();
 
+  const cloudflareLoader = ({src, width}: {src: string; width: number}) => {
+    return `${src}/width=${width},height=${width},fit=cover`;
+  };
+
   return (
-    <div className="bg-background hover:bg-background flex w-full flex-col rounded-lg p-3 transition-colors">
+    <div className="bg-background-primary hover:bg-background-primary flex w-full flex-col rounded-lg p-3 transition-colors">
       <div className="flex items-start space-x-4">
         {/* Thumbnail */}
         <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-lg bg-gray-600">
           {data.imageUrl ? (
-            <img
-              src={data.imageUrl}
+            <Image
               alt={data.title}
-              className="h-full w-full rounded-lg object-cover"
+              src={`${data.imageUrl}`}
+              width={80}
+              height={80}
+              loader={cloudflareLoader}
+              className="object-cover"
             />
           ) : (
             <span className="text-lg font-bold text-white">日</span>

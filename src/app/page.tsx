@@ -1,11 +1,11 @@
-import {menus} from "@/shared/constants/menu";
+import { menus } from "@/shared/constants/menu";
 import MenuItem from "@/widgets/menu/MenuItem";
 import ThemeToggleButton from "@/widgets/sidebar/ThemeToggleButton";
 
 const RootHome = () => {
   return (
     <div
-      className={`bg-background text-foreground flex min-h-screen flex-col transition-colors duration-300`}>
+      className={`bg-background-primary text-foreground flex min-h-screen flex-col transition-colors duration-300`}>
       {/* 메인 컨텐츠 */}
       <div className="flex flex-1 flex-col items-center justify-start p-6">
         {/* 상단 타이틀 */}

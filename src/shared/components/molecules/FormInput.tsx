@@ -24,13 +24,19 @@ const FormInput = <T extends FieldValues>({
     formState: {errors},
   } = useFormContext<T>();
 
+  const {required} = registerOptions || {};
+
   return (
-    <div className="flex w-full flex-col gap-1">
-      {label && <Label className="text-gray-700">{label}</Label>}
+    <div className="flex w-full flex-col gap-2">
+      {label && (
+        <Label className="text-foreground block text-sm font-semibold">
+          {label} {required && <span className="text-red-400">*</span>}
+        </Label>
+      )}
       <input
         {...register(name, registerOptions)}
         className={cn(
-          "border-input file:text-foreground placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-1 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+          "focus:border-minimoku border-minimoku-neutral-bold bg-minimoku-input text-foreground placeholder:text-minimoku-neutral w-full rounded-lg border px-3.5 py-2.5 text-sm shadow-sm transition-all duration-200 outline-none",
           className
         )}
         {...props}

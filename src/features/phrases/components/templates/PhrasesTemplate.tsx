@@ -3,13 +3,13 @@
 import {InitialPhrases} from "@/app/(japanese)/japanese/(menu)/phrases/page";
 import SearchForm from "@/features/phrases/components/organisms/SearchForm";
 import {deletePhrase} from "@/features/phrases/services/phrases.service";
-import {SelectContent, SelectItem} from "@/shared/components/atoms/select";
-import FormButton from "@/shared/components/common/FormButton";
-import FormResetButton from "@/shared/components/common/FormResetButton";
-import FormSelect from "@/shared/components/common/FormSelect";
-import Icon from "@/shared/components/common/Icon";
-import SentenceCard from "@/shared/components/common/SentenceCard";
-import SortButton from "@/shared/components/common/SortButton";
+import {SelectItem} from "@/shared/components/atoms/select";
+import FormButton from "@/shared/components/molecules/buttons/FormButton";
+import FormResetButton from "@/shared/components/molecules/buttons/FormResetButton";
+import SortButton from "@/shared/components/molecules/buttons/SortButton";
+import FormSelect from "@/shared/components/molecules/FormSelect";
+import Icon from "@/shared/components/molecules/Icon";
+import SentenceCard from "@/shared/components/molecules/SentenceCard";
 import {URL} from "@/shared/constants/url";
 import {useAuth} from "@/shared/lib/hooks/useAuth";
 import {SearchInputs} from "@/shared/types/phrase";
@@ -95,13 +95,11 @@ const PhrasesTemplate = ({sort = "desc", initialPhrases}: PhrasesTemplateProps) 
         <FormProvider {...formMethods}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-row gap-2 self-stretch *:items-center">
-              <FormSelect name="searchType" defaultValue="japanese" className="w-[180px]">
-                <SelectContent>
-                  <SelectItem value="japanese">일어</SelectItem>
-                  <SelectItem value="romaji">영어발음</SelectItem>
-                  <SelectItem value="pronunciation">한글발음</SelectItem>
-                  <SelectItem value="translation">의미</SelectItem>
-                </SelectContent>
+              <FormSelect name="searchType" placeholder="선택" className="w-[180px]">
+                <SelectItem value="japanese">일어</SelectItem>
+                <SelectItem value="romaji">영어발음</SelectItem>
+                <SelectItem value="pronunciation">한글발음</SelectItem>
+                <SelectItem value="translation">의미</SelectItem>
               </FormSelect>
               <SearchForm onKeyUp={onKeyUp} />
               <FormButton className="w-20">검색</FormButton>

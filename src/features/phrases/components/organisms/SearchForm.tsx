@@ -1,5 +1,5 @@
-import FormInput from "@/shared/components/common/FormInput";
-import Icon from "@/shared/components/common/Icon";
+import FormInput from "@/shared/components/molecules/FormInput";
+import Icon from "@/shared/components/molecules/Icon";
 import {KeyboardEventHandler} from "react";
 
 interface SearchFormProps {

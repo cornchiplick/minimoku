@@ -1,4 +1,4 @@
-import Icon from "@/shared/components/common/Icon";
+import Icon from "@/shared/components/molecules/Icon";
 
 interface SortButtonProps {
   name: string;

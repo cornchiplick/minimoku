@@ -9,6 +9,7 @@ declare module "next-auth" {
     user: {
       id?: string;
       provider?: string;
+      userId?: number;
     } & DefaultSession["user"];
   }
 }
@@ -56,7 +57,7 @@ export const authOptions: AuthOptions = {
 
         // 유저 정보 db에 없으면 db에 추가
         if (!existingUser) {
-          await db.user.create({
+          const newUser = await db.user.create({
             data: {
               username: user.name ?? "Unknown",
               provider: account.provider,
@@ -64,6 +65,9 @@ export const authOptions: AuthOptions = {
               avatar: user.image,
             },
           });
+          token.userId = newUser.id;
+        } else {
+          token.userId = existingUser.id;
         }
       }
       return token;
@@ -72,9 +76,10 @@ export const authOptions: AuthOptions = {
       // 세션에 추가 정보를 포함
       session.accessToken = token.accessToken as string;
       if (session.user) {
-        // 세션 user 객체에 id, provider 추가
+        // 세션 user 객체에 id(github db 관리), provider, userId(minimoku db 관리) 추가
         session.user.id = token.id as string;
         session.user.provider = token.provider as string;
+        session.user.userId = token.userId as number;
       }
       return session;
     },
