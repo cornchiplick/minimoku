@@ -1,4 +1,4 @@
-import SubHeader from "@/shared/components/common/SubHeader";
+import SubHeader from "@/shared/components/molecules/SubHeader";
 import {ReactNode} from "react";
 
 const LayoutMenu = ({children}: Readonly<{children: ReactNode}>) => {
