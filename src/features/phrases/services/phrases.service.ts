@@ -4,9 +4,9 @@ import db from "@/shared/lib/db";
 import {getSessionUser} from "@/shared/lib/utils/authUtils";
 
 interface GetPhrasesParams {
-  searchType?: string | undefined;
+  searchType?: string;
   keyword?: string;
-  order?: string | undefined;
+  order?: string;
 }
 
 // export async function getPhrases(page: number) {
