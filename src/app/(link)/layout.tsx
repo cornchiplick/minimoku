@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description: "Nihongo Advanced Words",
 };
 
-export default function LinkHomeLayout({
+export default function LinkRootHomeLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
