@@ -1,4 +1,3 @@
-// @ts-ignore: side-effect CSS import without type declarations
 import "@/app/globals.css";
 import Providers from "@/shared/providers/providers";
 import ThemeProvider from "@/widgets/theme/ThemeProvider";
