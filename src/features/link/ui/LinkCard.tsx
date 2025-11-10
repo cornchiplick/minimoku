@@ -6,6 +6,7 @@ import AlarmButton from "@/shared/components/molecules/buttons/AlarmButton";
 import CheckButton from "@/shared/components/molecules/buttons/CheckButton";
 import ExternalLinkButton from "@/shared/components/molecules/buttons/ExternalLinkButton";
 import FavoriteButton from "@/shared/components/molecules/buttons/FavoriteButton";
+import TrashButton from "@/shared/components/molecules/buttons/TrashButton";
 import Typography from "@/shared/home/atomic/Typography";
 import {format} from "date-fns";
 import {Copy} from "lucide-react";
@@ -16,7 +17,7 @@ interface LinkCardProps {
 }
 
 const LinkCard = ({data}: LinkCardProps) => {
-  const {onClickAlarm, onClickFavorite, onClickRead} = useLinkAction();
+  const {onClickAlarm, onClickFavorite, onClickRead, onDeleteLink} = useLinkAction();
 
   const cloudflareLoader = ({src, width}: {src: string; width: number}) => {
     return `${src}/width=${width},height=${width},fit=cover`;
@@ -71,10 +72,15 @@ const LinkCard = ({data}: LinkCardProps) => {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center space-x-1">
-              <AlarmButton isAlarm={data.isAlarm} onClick={onClickAlarm} />
-              <FavoriteButton isFavorite={data.isFavorite} onClick={onClickFavorite} />
-              <CheckButton isChecked={data.isRead} onClick={onClickRead} />
+            <div className="flex min-h-fit flex-col items-center justify-between self-stretch">
+              <div className="flex h-full min-h-0 flex-1 grow items-start space-x-1">
+                <AlarmButton isAlarm={data.isAlarm} onClick={onClickAlarm} />
+                <FavoriteButton isFavorite={data.isFavorite} onClick={onClickFavorite} />
+                <CheckButton isChecked={data.isRead} onClick={onClickRead} />
+              </div>
+              <div className="mt-auto flex w-full items-center justify-end">
+                <TrashButton onClick={() => onDeleteLink({id: data.id})} />
+              </div>
             </div>
           </div>
 

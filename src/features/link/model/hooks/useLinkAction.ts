@@ -1,3 +1,4 @@
+import {deleteLink} from "@/features/link/model/services/links.service";
 import {useCallback} from "react";
 
 const useLinkAction = () => {
@@ -13,10 +14,15 @@ const useLinkAction = () => {
     console.log("Read clicked");
   }, []);
 
+  const onDeleteLink = useCallback(async ({id}: {id: number}) => {
+    await deleteLink({linkId: id});
+  }, []);
+
   return {
     onClickAlarm,
     onClickFavorite,
     onClickRead,
+    onDeleteLink,
   };
 };
 
