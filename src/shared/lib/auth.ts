@@ -29,7 +29,7 @@ export const authOptions: AuthOptions = {
     KakaoProvider({
       clientId: process.env.KAKAO_CLIENT_ID as string,
       clientSecret: process.env.KAKAO_CLIENT_SECRET as string,
-    })
+    }),
   ],
   session: {
     strategy: "jwt",
@@ -65,8 +65,8 @@ export const authOptions: AuthOptions = {
           },
         });
 
-        // 유저 정보 db에 없으면 db에 추가
         if (!existingUser) {
+          // 유저 정보 db에 없으면 db에 추가
           const newUser = await db.user.create({
             data: {
               username: user.name ?? "Unknown",
@@ -76,6 +76,14 @@ export const authOptions: AuthOptions = {
             },
           });
           token.userId = newUser.id;
+
+          // 유저 신규 생성 시 기본 폴더 추가
+          await db.folder.create({
+            data: {
+              name: "기본",
+              userId: newUser.id,
+            },
+          });
         } else {
           token.userId = existingUser.id;
         }
