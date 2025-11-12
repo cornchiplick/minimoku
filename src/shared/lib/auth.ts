@@ -2,6 +2,8 @@ import db from "@/shared/lib/db";
 import {Account, AuthOptions, DefaultSession, Session, User} from "next-auth";
 import {JWT} from "next-auth/jwt";
 import GithubProvider from "next-auth/providers/github";
+import GoogleProvider from "next-auth/providers/google";
+import KakaoProvider from "next-auth/providers/kakao";
 
 declare module "next-auth" {
   interface Session {
@@ -20,6 +22,14 @@ export const authOptions: AuthOptions = {
       clientId: process.env.GITHUB_CLIENT_ID as string,
       clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    }),
+    KakaoProvider({
+      clientId: process.env.KAKAO_CLIENT_ID as string,
+      clientSecret: process.env.KAKAO_CLIENT_SECRET as string,
+    })
   ],
   session: {
     strategy: "jwt",
