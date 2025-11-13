@@ -3,6 +3,7 @@
 import {LinkInterface} from "@/entities/link/types";
 import LinkCard from "@/features/link/ui/LinkCard";
 import Divider from "@/shared/components/molecules/Divider";
+import Icon from "@/shared/components/molecules/Icon";
 import Typography from "@/shared/home/atomic/Typography";
 import ThemeToggleButton from "@/widgets/sidebar/ThemeToggleButton";
 
@@ -24,9 +25,16 @@ export default function LinkLockerMain({initialLinks}: LinkLockerMainProps) {
       {/* Content Area */}
       <div className="bg-background-secondary flex-1 overflow-y-auto p-6">
         <div className="w-full space-y-4">
-          {initialLinks.map((linkData) => (
-            <LinkCard key={linkData.id} data={linkData} />
-          ))}
+          {!!initialLinks.length ? (
+            initialLinks.map((linkData) => <LinkCard key={linkData.id} data={linkData} />)
+          ) : (
+            <div className="flex min-h-[400px] flex-col items-center justify-center space-y-4">
+              <Icon name="box" size={120} color="white" />
+              <Typography.SubTitle1 className="opacity-50">
+                추가된 링크가 없습니다.
+              </Typography.SubTitle1>
+            </div>
+          )}
         </div>
       </div>
     </div>
