@@ -186,6 +186,6 @@ export async function deleteLink({linkId}: {linkId: number}) {
     return {success: true};
   } catch (error) {
     console.error("Delete Link Error : ", error);
-    throw error;
+    return {error: true};
   }
 }
