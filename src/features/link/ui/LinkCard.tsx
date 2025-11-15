@@ -17,7 +17,7 @@ interface LinkCardProps {
 }
 
 const LinkCard = ({data}: LinkCardProps) => {
-  const {onClickAlarm, onClickFavorite, onClickRead, onDeleteLink} = useLinkAction();
+  const {onClickAlarm, onClickFavorite, onClickRead, onDeleteLink, onCopyLink} = useLinkAction();
 
   const cloudflareLoader = ({src, width}: {src: string; width: number}) => {
     return `${src}/width=${width},height=${width},fit=cover`;
@@ -54,7 +54,11 @@ const LinkCard = ({data}: LinkCardProps) => {
                 <Typography.P2 className="text-minimoku-neutral-bold max-w-2xl truncate">
                   {data.url}
                 </Typography.P2>
-                <Copy className="h-4 w-4" stroke="#a0a0a0" />
+                <div
+                  className="hover:bg-minimoku flex h-6 w-6 cursor-pointer items-center justify-center rounded-lg text-gray-500 duration-200 hover:text-white"
+                  onClick={() => onCopyLink({url: data.url})}>
+                  <Copy className="h-4 w-4" />
+                </div>
               </div>
               <div className="text-minimoku-neutral-bold flex items-center space-x-4 text-sm">
                 <span>개발자료</span>
