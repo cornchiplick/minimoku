@@ -67,23 +67,28 @@ export const authOptions: AuthOptions = {
 
         if (!existingUser) {
           // 유저 정보 db에 없으면 db에 추가
-          const newUser = await db.user.create({
-            data: {
-              username: user.name ?? "Unknown",
-              provider: account.provider,
-              provider_id: user.id,
-              avatar: user.image,
-            },
-          });
-          token.userId = newUser.id;
+          const newUser = await db.$transaction(async (tx) => {
+            const newUserData = await tx.user.create({
+              data: {
+                username: user.name ?? "Unknown",
+                provider: account.provider,
+                provider_id: user.id,
+                avatar: user.image,
+              },
+            });
 
-          // 유저 신규 생성 시 기본 폴더 추가
-          await db.folder.create({
-            data: {
-              name: "기본",
-              userId: newUser.id,
-            },
+            // 유저 신규 생성 시 기본 폴더 추가
+            await tx.folder.create({
+              data: {
+                name: "기본",
+                userId: newUserData.id,
+              },
+            });
+
+            return newUserData;
           });
+
+          token.userId = newUser.id;
         } else {
           token.userId = existingUser.id;
         }
