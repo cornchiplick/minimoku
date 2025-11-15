@@ -5,7 +5,7 @@ import {URL} from "@/shared/constants/url";
 import {cn} from "@/shared/lib/utils/commonUtils";
 import {signIn} from "next-auth/react";
 
-type ProviderType = "github" | "naver" | "kakao";
+type ProviderType = "github" | "google" | "kakao";
 
 interface LoginButtonProps {
   redirect?: string;
@@ -16,8 +16,8 @@ const loginButtonMap: Record<ProviderType, {title: string; style: string}> = {
     title: "GitHub 로그인",
     style: "bg-gray-900 hover:bg-gray-900 text-white",
   },
-  naver: {
-    title: "Naver 로그인",
+  google: {
+    title: "Google 로그인",
     style: "bg-green-600 hover:bg-green-700 text-white",
   },
   kakao: {
@@ -52,7 +52,7 @@ const BaseLoginButton = ({
 
 export const LoginButton = {
   Github: (props: LoginButtonProps) => <BaseLoginButton provider="github" {...props} />,
-  Naver: (props: LoginButtonProps) => <BaseLoginButton provider="naver" {...props} />,
+  Google: (props: LoginButtonProps) => <BaseLoginButton provider="google" {...props} />,
   Kakao: (props: LoginButtonProps) => <BaseLoginButton provider="kakao" {...props} />,
 };
 

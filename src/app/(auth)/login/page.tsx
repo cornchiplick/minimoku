@@ -25,7 +25,7 @@ const LoginPage = () => {
         </div>
         <div className="flex w-full flex-col gap-4">
           <LoginButton.Github redirect={URL.HOME} />
-          <LoginButton.Naver redirect={URL.HOME} />
+          <LoginButton.Google redirect={URL.HOME} />
           <LoginButton.Kakao redirect={URL.HOME} />
         </div>
         <div className="mt-8 text-center text-xs text-gray-500">

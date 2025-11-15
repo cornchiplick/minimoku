@@ -2,6 +2,8 @@ import db from "@/shared/lib/db";
 import {Account, AuthOptions, DefaultSession, Session, User} from "next-auth";
 import {JWT} from "next-auth/jwt";
 import GithubProvider from "next-auth/providers/github";
+import GoogleProvider from "next-auth/providers/google";
+import KakaoProvider from "next-auth/providers/kakao";
 
 declare module "next-auth" {
   interface Session {
@@ -19,6 +21,14 @@ export const authOptions: AuthOptions = {
     GithubProvider({
       clientId: process.env.GITHUB_CLIENT_ID as string,
       clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    }),
+    KakaoProvider({
+      clientId: process.env.KAKAO_CLIENT_ID as string,
+      clientSecret: process.env.KAKAO_CLIENT_SECRET as string,
     }),
   ],
   session: {
@@ -55,16 +65,29 @@ export const authOptions: AuthOptions = {
           },
         });
 
-        // 유저 정보 db에 없으면 db에 추가
         if (!existingUser) {
-          const newUser = await db.user.create({
-            data: {
-              username: user.name ?? "Unknown",
-              provider: account.provider,
-              provider_id: user.id,
-              avatar: user.image,
-            },
+          // 유저 정보 db에 없으면 db에 추가
+          const newUser = await db.$transaction(async (tx) => {
+            const newUserData = await tx.user.create({
+              data: {
+                username: user.name ?? "Unknown",
+                provider: account.provider,
+                provider_id: user.id,
+                avatar: user.image,
+              },
+            });
+
+            // 유저 신규 생성 시 기본 폴더 추가
+            await tx.folder.create({
+              data: {
+                name: "기본",
+                userId: newUserData.id,
+              },
+            });
+
+            return newUserData;
           });
+
           token.userId = newUser.id;
         } else {
           token.userId = existingUser.id;
