@@ -32,19 +32,29 @@ export async function getFolders() {
 }
 
 export async function getFolder({folderId}: {folderId: number}) {
-  const result = await db.folder.findUnique({
-    select: {
-      id: true,
-      name: true,
-      count: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-    where: {
-      id: folderId,
-    },
-  });
-  return result;
+  try {
+    const result = await db.folder.findUnique({
+      select: {
+        id: true,
+        name: true,
+        count: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      where: {
+        id: folderId,
+      },
+    });
+
+    if (result === null) {
+      return {error: true};
+    }
+
+    return {error: false, ...result};
+  } catch (error) {
+    console.error("Get Folder Error : ", error);
+    return {error: true};
+  }
 }
 
 export async function getLinks(
@@ -116,7 +126,7 @@ export async function postLink(formData: FormData) {
   // 폴더가 실제로 존재하는지 확인
   const folderId = Number(result.data.folderId);
   const folder = await getFolder({folderId});
-  if (!folder) {
+  if (folder.error) {
     return {folderId: "존재하지 않는 폴더입니다."};
   }
 
