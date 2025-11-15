@@ -24,11 +24,21 @@ const useLinkAction = () => {
     }
   }, []);
 
+  const onCopyLink = useCallback(async ({url}: {url: string}) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Copied");
+    } catch (error) {
+      toast.error("Copy failed");
+    }
+  }, []);
+
   return {
     onClickAlarm,
     onClickFavorite,
     onClickRead,
     onDeleteLink,
+    onCopyLink,
   };
 };
 
