@@ -1,6 +1,9 @@
+"use client";
+
+import Icon from "@/shared/components/molecules/Icon";
 import {URL} from "@/shared/constants/url";
 import Typography from "@/shared/home/atomic/Typography";
-import {Settings, User} from "lucide-react";
+import {User} from "lucide-react";
 import {signOut, useSession} from "next-auth/react";
 import Image from "next/image";
 
@@ -37,9 +40,10 @@ const ProfileSection = () => {
           <div className="text-sm text-gray-500">계정관리</div>
         </div>
         <button
+          title="Logout"
           className="cursor-pointer rounded p-1 hover:bg-gray-100"
           onClick={() => signOut({callbackUrl: URL.HOME})}>
-          <Settings className="h-4 w-4 text-gray-400" />
+          <Icon name="logout" color="#99a1af" size={20} />
         </button>
       </div>
     </div>

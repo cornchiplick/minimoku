@@ -1,3 +1,5 @@
+"use client";
+
 import {FolderInterface} from "@/entities/folder/types";
 import {useFolderStore} from "@/features/folder/model/store/folderStore";
 import FolderItem from "@/features/navigation/ui/FolderItem";
