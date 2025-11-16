@@ -1,8 +1,14 @@
 import {getFolders} from "@/features/link/model/services/links.service";
 import Sidebar from "@/widgets/sidebar/Sidebar";
-import { unstable_noStore as noStore } from "next/cache";
+import {unstable_noStore as noStore} from "next/cache";
 
-const LinkHomeLayout = async ({children}: {children: React.ReactNode}) => {
+const LinkHomeLayout = async ({
+  children,
+  searchParams,
+}: {
+  children: React.ReactNode;
+  searchParams: {[key: string]: string | string[] | undefined};
+}) => {
   noStore();
   const initialFolders = await getFolders();
 

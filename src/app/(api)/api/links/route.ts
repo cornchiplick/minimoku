@@ -1,9 +1,14 @@
 import db from "@/shared/lib/db";
-import { NextResponse } from "next/server";
+import {NextResponse} from "next/server";
 
 export async function GET(request: Request) {
   const {searchParams} = new URL(request.url);
   const userId = Number(searchParams.get("userId")!);
+  let folderId = null;
+  const value = searchParams.get("folderId");
+  if (value) {
+    folderId = Number(value);
+  }
 
   try {
     const links = await db.link.findMany({
@@ -23,6 +28,7 @@ export async function GET(request: Request) {
       },
       where: {
         folder: {
+          ...(folderId !== null && {id: folderId}),
           userId: userId,
         },
       },

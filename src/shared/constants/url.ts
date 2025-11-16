@@ -1,5 +1,7 @@
 export const URL = {
   HOME: "/",
+  LINK: "/link",
+
   PHRASES: "/phrases",
   HIRAKATA: "/hirakata",
   LOGIN: "/login",
@@ -13,6 +15,10 @@ export const URL = {
   ALPHABET_KATAKANA: "/alphabet/katakana",
   ALPHABET_ROMAJI: "/alphabet/romaji",
   ALPHABET_KANJI: "/alphabet/kanji",
+};
+
+export const QueryKeys = {
+  FILTER: "filter",
 };
 
 type UrlTitleMap = {
