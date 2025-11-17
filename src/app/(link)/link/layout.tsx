@@ -1,4 +1,4 @@
-import {getFolders} from "@/features/link/model/services/links.service";
+import {getFolders} from "@/features/folder/model/services/folders.service";
 import Sidebar from "@/widgets/sidebar/Sidebar";
 import {unstable_noStore as noStore} from "next/cache";
 

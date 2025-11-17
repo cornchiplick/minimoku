@@ -1,6 +1,7 @@
 "use client";
 
 import {FolderInterface} from "@/entities/folder/types";
+import Icon from "@/shared/components/molecules/Icon";
 import Typography from "@/shared/home/atomic/Typography";
 import {useThemeStore} from "@/shared/store/themeStore";
 import clsx from "clsx";
@@ -16,7 +17,7 @@ const FolderItem = ({folder, onClick}: FolderItemProps) => {
   const FolderIcon = folder.id === 0 ? Archive : Folder;
 
   return (
-    <button
+    <div
       className={clsx(
         "flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left transition-colors",
         isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
@@ -29,9 +30,12 @@ const FolderItem = ({folder, onClick}: FolderItemProps) => {
           fill={isDarkMode ? "white" : "none"}
         />
         <Typography.P2>{folder.name}</Typography.P2>
+        <Typography.P3>{folder.count}</Typography.P3>
       </div>
-      <Typography.P3>{folder.count}</Typography.P3>
-    </button>
+      <button type="button">
+        <Icon name="more" color="#99a1af" size={16} />
+      </button>
+    </div>
   );
 };
 
