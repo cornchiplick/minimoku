@@ -2,8 +2,8 @@
 
 import {FolderInterface} from "@/entities/folder/types";
 import {useFolderStore} from "@/features/folder/model/store/folderStore";
+import FolderAddButton from "@/features/folder/ui/FolderAddButton";
 import FolderItem from "@/features/navigation/ui/FolderItem";
-import Icon from "@/shared/components/molecules/Icon";
 import {URL} from "@/shared/constants/url";
 import Typography from "@/shared/home/atomic/Typography";
 import {useRouter} from "next/navigation";
@@ -31,11 +31,7 @@ const FolderList = ({folders}: FolderListProps) => {
     <div className="flex flex-col gap-3 p-4">
       <div className="flex w-full items-center justify-between pr-3">
         <Typography.P2 className="font-medium">폴더</Typography.P2>
-        <button type="button">
-          <Typography.P2 className="font-medium">
-            <Icon name="add" color="#99a1af" size={16} />
-          </Typography.P2>
-        </button>
+        <FolderAddButton />
       </div>
       <div className="space-y-1">
         {folders.map((folder) => (
