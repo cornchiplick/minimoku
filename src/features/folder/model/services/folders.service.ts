@@ -64,7 +64,7 @@ export async function postFolder(formData: FormData) {
   }
 
   const data = {
-    title: formData.get("title"),
+    name: formData.get("name"),
   };
 
   // schema 검증
@@ -76,7 +76,7 @@ export async function postFolder(formData: FormData) {
   try {
     await db.folder.create({
       data: {
-        name: result.data.title,
+        name: result.data.name,
         userId: user.id!,
       },
     });
@@ -84,6 +84,47 @@ export async function postFolder(formData: FormData) {
     revalidateTag(getTags(user.id!, APIConstants.API_FOLDERS));
   } catch (error) {
     console.error("Post Folder Error : ", error);
+    return {error: true};
+  }
+}
+
+export async function updateFolder(formData: FormData) {
+  const user = await getSessionUser();
+  if (!user) {
+    throw new Error("로그인이 필요합니다.");
+  }
+
+  const data = {
+    folderId: Number(formData.get("folderId")),
+    name: formData.get("name"),
+  };
+
+  // schema 검증
+  const result = folderSchema.safeParse(data);
+  if (!result.success) {
+    return result.error.flatten();
+  }
+
+  // 폴더가 실제로 존재하는지 확인
+  const folderId = data.folderId;
+  const folder = await getFolder({folderId});
+  if (folder.error) {
+    return {folderId: "존재하지 않는 폴더입니다."};
+  }
+
+  try {
+    await db.folder.update({
+      data: {
+        name: result.data.name,
+      },
+      where: {
+        id: folderId,
+      },
+    });
+
+    revalidateTag(getTags(user.id!, APIConstants.API_FOLDERS));
+  } catch (error) {
+    console.error("Update Folder Error : ", error);
     return {error: true};
   }
 }

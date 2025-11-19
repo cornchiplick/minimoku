@@ -1,5 +1,6 @@
+import {FolderInterface} from "@/entities/folder/types";
 import {folderSchema, FolderSchemaType} from "@/features/folder/model/schema/folderSchema";
-import {postFolder} from "@/features/folder/model/services/folders.service";
+import {postFolder, updateFolder} from "@/features/folder/model/services/folders.service";
 import {Button} from "@/shared/components/atoms/button";
 import {
   Dialog,
@@ -13,34 +14,49 @@ import FormInput from "@/shared/components/molecules/FormInput";
 import Typography from "@/shared/home/atomic/Typography";
 import {useBoolean} from "@/shared/hooks/useBoolean";
 import {zodResolver} from "@hookform/resolvers/zod";
+import {useEffect} from "react";
 import {FormProvider, SubmitHandler, useForm} from "react-hook-form";
 
 interface FolderAddModalProps {
+  isEdit?: boolean;
   modalState: ReturnType<typeof useBoolean>;
+  originValue?: FolderInterface;
 }
 
-const FolderAddModal = ({modalState}: FolderAddModalProps) => {
+const defaultValues = {name: ""};
+
+const FolderFormModal = ({isEdit, modalState, originValue}: FolderAddModalProps) => {
   const formMethods = useForm<FolderSchemaType>({
     resolver: zodResolver(folderSchema),
     defaultValues: {
-      title: "",
+      ...defaultValues,
+      ...originValue,
     },
   });
 
-  const {reset, setValue, handleSubmit} = formMethods;
+  const {reset, handleSubmit} = formMethods;
 
   const handleClose = () => {
-    reset();
-    modalState.onFalse();
+    reset({...defaultValues});
+
+    setTimeout(() => {
+      modalState.onFalse();
+    }, 0);
   };
 
   const onSubmit: SubmitHandler<FolderSchemaType> = async (data, e) => {
     console.log("data :: ", data);
 
     const formData = new FormData();
-    formData.append("title", data.title);
+    formData.append("name", data.name);
 
-    const errors = await postFolder(formData);
+    let errors = null;
+    if (isEdit && originValue) {
+      formData.append("folderId", originValue.id.toString());
+      errors = await updateFolder(formData);
+    } else {
+      errors = await postFolder(formData);
+    }
     // if (errors) {
     //   setError("")
     // }
@@ -49,12 +65,31 @@ const FolderAddModal = ({modalState}: FolderAddModalProps) => {
     handleClose();
   };
 
+  useEffect(() => {
+    if (modalState.value && originValue) {
+      reset({
+        ...defaultValues,
+        ...originValue,
+      });
+    }
+  }, [modalState.value, originValue, reset]);
+
   return (
     <Dialog
       open={modalState.value}
-      onOpenChange={(open) => (open ? modalState.onTrue() : handleClose())}>
+      onOpenChange={(open) => {
+        if (!open) {
+          handleClose();
+        }
+      }}
+      modal={true}>
       <FormProvider {...formMethods}>
-        <DialogContent className="bg-background-tertiary p-5">
+        <DialogContent
+          className="bg-background-tertiary p-5"
+          onInteractOutside={(e) => {
+            e.preventDefault();
+            handleClose();
+          }}>
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
             <DialogHeader>
               <DialogTitle>
@@ -64,7 +99,7 @@ const FolderAddModal = ({modalState}: FolderAddModalProps) => {
 
             <div className="flex flex-1 flex-col gap-3">
               <FormInput
-                name="title"
+                name="name"
                 label="폴더명"
                 placeholder="폴더명을 입력하세요"
                 registerOptions={{required: "폴더명은 필수입니다."}}
@@ -79,7 +114,11 @@ const FolderAddModal = ({modalState}: FolderAddModalProps) => {
                 type="button"
                 variant="outline"
                 className="border-background-reverse-primary cursor-pointer"
-                onClick={handleClose}>
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleClose();
+                }}>
                 <Typography.P1>Cancel</Typography.P1>
               </Button>
             </DialogFooter>
@@ -90,4 +129,4 @@ const FolderAddModal = ({modalState}: FolderAddModalProps) => {
   );
 };
 
-export default FolderAddModal;
+export default FolderFormModal;

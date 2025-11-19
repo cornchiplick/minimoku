@@ -12,19 +12,24 @@ import Typography from "@/shared/home/atomic/Typography";
 import {useThemeStore} from "@/shared/store/themeStore";
 import clsx from "clsx";
 import {Archive, Folder} from "lucide-react";
+import {useState} from "react";
 
 interface FolderItemProps {
   folder: FolderInterface;
   onClick?: () => void;
+  onEdit?: () => void;
 }
 
-const FolderItem = ({folder, onClick}: FolderItemProps) => {
+const FolderItem = ({folder, onClick, onEdit}: FolderItemProps) => {
   const {isDarkMode} = useThemeStore();
+  const [open, setOpen] = useState(false);
   const FolderIcon = folder.id === 0 ? Archive : Folder;
 
-  const handleClickMore = (e: any) => {
-    e.stopPropagation();
-    console.log("test");
+  const handleEdit = () => {
+    setOpen(false);
+    setTimeout(() => {
+      onEdit?.();
+    }, 100);
   };
 
   return (
@@ -43,17 +48,26 @@ const FolderItem = ({folder, onClick}: FolderItemProps) => {
         <Typography.P2>{folder.name}</Typography.P2>
         <Typography.P3>{folder.count}</Typography.P3>
       </div>
-      <DropdownMenu>
+      <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
-          <button type="button" className="cursor-pointer rounded-full p-1 hover:bg-gray-300">
+          <button
+            type="button"
+            className="cursor-pointer rounded-full p-1 hover:bg-gray-300"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}>
             <Icon name="more" color="#99a1af" size={16} />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
           side="right"
           align="start"
-          className="bg-background-primary w-28 border border-gray-400">
-          <DropdownMenuItem>
+          className="bg-background-primary w-28 border border-gray-400"
+          onClick={(e) => e.stopPropagation()}>
+          <DropdownMenuItem
+            onSelect={handleEdit}
+            className="hover:bg-background-secondary cursor-pointer">
             <Typography.P2>수정</Typography.P2>
           </DropdownMenuItem>
           <DropdownMenuItem>

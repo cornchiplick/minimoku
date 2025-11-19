@@ -3,11 +3,13 @@
 import {FolderInterface} from "@/entities/folder/types";
 import {useFolderStore} from "@/features/folder/model/store/folderStore";
 import FolderAddButton from "@/features/folder/ui/FolderAddButton";
+import FolderFormModal from "@/features/folder/ui/FolderFormModal";
 import FolderItem from "@/features/navigation/ui/FolderItem";
 import {URL} from "@/shared/constants/url";
 import Typography from "@/shared/home/atomic/Typography";
+import {useBoolean} from "@/shared/hooks/useBoolean";
 import {useRouter} from "next/navigation";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 
 interface FolderListProps {
   folders: FolderInterface[];
@@ -16,6 +18,8 @@ interface FolderListProps {
 const FolderList = ({folders}: FolderListProps) => {
   const router = useRouter();
   const {setFolderList} = useFolderStore();
+  const isShowFolderEditModal = useBoolean();
+  const [selectedFolder, setSelectedFolder] = useState<FolderInterface | null>(null);
 
   const handleFolderClick = (folderId: string) => {
     // link => link/{folderId} 로 이동
@@ -23,28 +27,41 @@ const FolderList = ({folders}: FolderListProps) => {
     router.push(nextPath);
   };
 
+  const handleFolderEdit = (folder: FolderInterface) => {
+    setSelectedFolder(folder);
+    isShowFolderEditModal.onTrue();
+  };
+
   useEffect(() => {
     setFolderList(folders);
-  }, [folders]);
+  }, [folders, setFolderList]);
 
   return (
-    <div className="flex flex-col gap-3 p-4">
-      <div className="flex w-full items-center justify-between pr-3">
-        <Typography.P2 className="font-medium">폴더</Typography.P2>
-        <FolderAddButton />
+    <>
+      <div className="flex flex-col gap-3 p-4">
+        <div className="flex w-full items-center justify-between pr-3">
+          <Typography.P2 className="font-medium">폴더</Typography.P2>
+          <FolderAddButton />
+        </div>
+        <div className="space-y-1">
+          {folders.map((folder) => (
+            <FolderItem
+              key={folder.id}
+              folder={folder}
+              onClick={() => handleFolderClick(folder.id.toString())}
+              onEdit={() => handleFolderEdit(folder)}
+            />
+          ))}
+        </div>
       </div>
-      <div className="space-y-1">
-        {folders.map((folder) => (
-          <FolderItem
-            key={folder.id}
-            folder={folder}
-            onClick={() => {
-              handleFolderClick(folder.id.toString());
-            }}
-          />
-        ))}
-      </div>
-    </div>
+      {selectedFolder && (
+        <FolderFormModal
+          isEdit={true}
+          modalState={isShowFolderEditModal}
+          originValue={selectedFolder}
+        />
+      )}
+    </>
   );
 };
 
