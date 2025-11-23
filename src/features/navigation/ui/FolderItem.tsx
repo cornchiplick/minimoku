@@ -18,9 +18,11 @@ interface FolderItemProps {
   folder: FolderInterface;
   onClick?: () => void;
   onEdit?: () => void;
+  onDelete?: () => void;
+  onEmpty?: () => void;
 }
 
-const FolderItem = ({folder, onClick, onEdit}: FolderItemProps) => {
+const FolderItem = ({folder, onClick, onEdit, onDelete, onEmpty}: FolderItemProps) => {
   const {isDarkMode} = useThemeStore();
   const [open, setOpen] = useState(false);
   const FolderIcon = folder.id === 0 ? Archive : Folder;
@@ -29,6 +31,18 @@ const FolderItem = ({folder, onClick, onEdit}: FolderItemProps) => {
     setOpen(false);
     setTimeout(() => {
       onEdit?.();
+    }, 100);
+  };
+
+  const handleDelete = () => {
+    setTimeout(() => {
+      onDelete?.();
+    }, 100);
+  };
+
+  const handleEmpty = () => {
+    setTimeout(() => {
+      onEmpty?.();
     }, 100);
   };
 
@@ -70,10 +84,14 @@ const FolderItem = ({folder, onClick, onEdit}: FolderItemProps) => {
             className="hover:bg-background-secondary cursor-pointer">
             <Typography.P2>수정</Typography.P2>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            className="hover:bg-background-secondary cursor-pointer"
+            onSelect={handleDelete}>
             <Typography.P2>삭제</Typography.P2>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            className="hover:bg-background-secondary cursor-pointer"
+            onSelect={handleEmpty}>
             <Typography.P2>비우기</Typography.P2>
           </DropdownMenuItem>
         </DropdownMenuContent>

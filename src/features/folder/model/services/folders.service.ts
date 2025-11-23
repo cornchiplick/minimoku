@@ -128,3 +128,57 @@ export async function updateFolder(formData: FormData) {
     return {error: true};
   }
 }
+
+export async function deleteFolder(folderId: number) {
+  const user = await getSessionUser();
+  if (!user) {
+    throw new Error("로그인이 필요합니다.");
+  }
+
+  try {
+    // 폴더 내 모든 링크 먼저 삭제
+    await db.link.deleteMany({
+      where: {
+        folderId: folderId,
+      },
+    });
+
+    // 폴더 삭제
+    await db.folder.delete({
+      where: {
+        id: folderId,
+      },
+    });
+
+    revalidateTag(getTags(user.id!, APIConstants.API_LINKS));
+    revalidateTag(getTags(user.id!, APIConstants.API_FOLDERS));
+
+    return {success: true};
+  } catch (error) {
+    console.error("Delete Folder Error : ", error);
+    return {error: true};
+  }
+}
+
+export async function emptyFolder(folderId: number) {
+  const user = await getSessionUser();
+  if (!user) {
+    throw new Error("로그인이 필요합니다.");
+  }
+
+  try {
+    // 폴더 내 모든 링크 삭제
+    await db.link.deleteMany({
+      where: {
+        folderId: folderId,
+      },
+    });
+
+    revalidateTag(getTags(user.id!, APIConstants.API_LINKS));
+
+    return {success: true};
+  } catch (error) {
+    console.error("Empty Folder Error : ", error);
+    return {error: true};
+  }
+}

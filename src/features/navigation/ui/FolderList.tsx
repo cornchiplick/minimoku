@@ -1,6 +1,7 @@
 "use client";
 
 import {FolderInterface} from "@/entities/folder/types";
+import useFolderAction from "@/features/folder/model/hooks/useFolderAction";
 import {useFolderStore} from "@/features/folder/model/store/folderStore";
 import FolderAddButton from "@/features/folder/ui/FolderAddButton";
 import FolderFormModal from "@/features/folder/ui/FolderFormModal";
@@ -27,6 +28,8 @@ const FolderList = ({folders}: FolderListProps) => {
     router.push(nextPath);
   };
 
+  const {onDeleteFolder, onEmptyFolder} = useFolderAction();
+
   const handleFolderEdit = (folder: FolderInterface) => {
     setSelectedFolder(folder);
     isShowFolderEditModal.onTrue();
@@ -50,6 +53,8 @@ const FolderList = ({folders}: FolderListProps) => {
               folder={folder}
               onClick={() => handleFolderClick(folder.id.toString())}
               onEdit={() => handleFolderEdit(folder)}
+              onDelete={() => onDeleteFolder({id: Number(folder.id)})}
+              onEmpty={() => onEmptyFolder({id: Number(folder.id)})}
             />
           ))}
         </div>
