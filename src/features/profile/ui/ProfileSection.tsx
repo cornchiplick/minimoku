@@ -3,12 +3,23 @@
 import Icon from "@/shared/components/molecules/Icon";
 import {URL} from "@/shared/constants/url";
 import Typography from "@/shared/home/atomic/Typography";
+import {useDialogContext} from "@/shared/providers/DialogProvider";
 import {User} from "lucide-react";
 import {signOut, useSession} from "next-auth/react";
 import Image from "next/image";
 
 const ProfileSection = () => {
   const {data: session, status} = useSession();
+  const {showDialog} = useDialogContext();
+
+  const onLogout = async () => {
+    const ok = await showDialog("정말 로그아웃 하시겠습니까?", {
+      variant: "confirm",
+    });
+    if (!ok) return;
+
+    signOut({callbackUrl: URL.HOME});
+  };
 
   if (status === "loading" || session == null) {
     // TODO skeleton loader
@@ -42,7 +53,7 @@ const ProfileSection = () => {
         <button
           title="Logout"
           className="cursor-pointer rounded p-1 hover:bg-gray-100"
-          onClick={() => signOut({callbackUrl: URL.HOME})}>
+          onClick={onLogout}>
           <Icon name="logout" color="#99a1af" size={20} />
         </button>
       </div>
