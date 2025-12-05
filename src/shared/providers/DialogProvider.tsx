@@ -1,5 +1,13 @@
-import {AlertDialog, AlertDialogTitle} from "@/shared/components/atoms/alertDialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/shared/components/atoms/alertDialog";
 import {Button} from "@/shared/components/atoms/button";
+import Typography from "@/shared/home/atomic/Typography";
 import {DialogContextType, ShowDialogOptions} from "@/shared/types/dialog.types";
 import {createContext, useCallback, useContext, useMemo, useRef, useState} from "react";
 
@@ -53,9 +61,29 @@ export function DialogProvider({children}: {children: React.ReactNode}) {
     <DialogContext.Provider value={value}>
       {children}
       <AlertDialog open={isOpen}>
-        <AlertDialogTitle>{message}</AlertDialogTitle>
-        <Button onClick={handleConfirm}>확인</Button>
-        {options.variant === "confirm" && <Button onClick={handleCancel}>취소</Button>}
+        <AlertDialogContent className="bg-gray-50 text-[#637381]">
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              <Typography.P2 className="text-gray-600">알림</Typography.P2>
+            </AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogDescription className="font-medium whitespace-pre-line text-gray-800">
+            {message}
+          </AlertDialogDescription>
+          <AlertDialogFooter>
+            {options.variant === "confirm" && (
+              <Button className="text-black hover:bg-gray-100" onClick={handleCancel}>
+                취소
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              className="text-white hover:bg-gray-600"
+              onClick={handleConfirm}>
+              확인
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
       </AlertDialog>
     </DialogContext.Provider>
   );
