@@ -17,6 +17,9 @@ export async function GET(request: Request) {
       where: {
         userId: userId,
       },
+      orderBy: {
+        createdAt: "asc",
+      },
     });
 
     return NextResponse.json(folders, {status: 200});

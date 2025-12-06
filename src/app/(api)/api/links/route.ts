@@ -32,6 +32,9 @@ export async function GET(request: Request) {
           userId: userId,
         },
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     return NextResponse.json(links, {status: 200});
