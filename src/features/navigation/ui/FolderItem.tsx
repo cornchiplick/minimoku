@@ -35,12 +35,14 @@ const FolderItem = ({folder, onClick, onEdit, onDelete, onEmpty}: FolderItemProp
   };
 
   const handleDelete = () => {
+    setOpen(false);
     setTimeout(() => {
       onDelete?.();
     }, 100);
   };
 
   const handleEmpty = () => {
+    setOpen(false);
     setTimeout(() => {
       onEmpty?.();
     }, 100);

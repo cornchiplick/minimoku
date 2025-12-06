@@ -28,7 +28,7 @@ const useLinkAction = () => {
     if (!ok) return;
 
     const {error} = await deleteLink({linkId: id});
-    if (error) {
+    if (!!error) {
       toast.error("링크 삭제에 실패했습니다.");
     } else {
       toast.success("링크가 삭제되었습니다.");

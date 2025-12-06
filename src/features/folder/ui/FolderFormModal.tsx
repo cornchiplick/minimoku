@@ -45,8 +45,6 @@ const FolderFormModal = ({isEdit, modalState, originValue}: FolderAddModalProps)
   };
 
   const onSubmit: SubmitHandler<FolderSchemaType> = async (data, e) => {
-    console.log("data :: ", data);
-
     const formData = new FormData();
     formData.append("name", data.name);
 

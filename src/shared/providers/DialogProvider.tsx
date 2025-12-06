@@ -22,10 +22,10 @@ export const useDialogContext = () => {
 };
 
 export function DialogProvider({children}: {children: React.ReactNode}) {
-  const [isOpen, setOpen] = useState(false);
+  const [isOpen, setOpen] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [options, setOptions] = useState<ShowDialogOptions>({variant: "alert"});
-  const resolverRef = useRef<(value: boolean | void) => void>(null);
+  const resolverRef = useRef<((value: boolean | PromiseLike<boolean>) => void) | null>(null);
 
   // showDialog에서 Promise 생성 & Dialog 오픈
   const showDialog = useCallback((msg: string, opt: ShowDialogOptions = {variant: "alert"}) => {
@@ -33,7 +33,7 @@ export function DialogProvider({children}: {children: React.ReactNode}) {
     setOptions(opt);
     setOpen(true);
 
-    return new Promise<boolean | void>((resolve) => {
+    return new Promise<boolean>((resolve) => {
       resolverRef.current = resolve;
     });
   }, []);

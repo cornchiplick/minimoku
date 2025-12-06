@@ -53,8 +53,8 @@ const FolderList = ({folders}: FolderListProps) => {
               folder={folder}
               onClick={() => handleFolderClick(folder.id.toString())}
               onEdit={() => handleFolderEdit(folder)}
-              onDelete={() => onDeleteFolder({id: Number(folder.id)})}
-              onEmpty={() => onEmptyFolder({id: Number(folder.id)})}
+              onDelete={() => onDeleteFolder({id: folder.id})}
+              onEmpty={() => onEmptyFolder({id: folder.id})}
             />
           ))}
         </div>
