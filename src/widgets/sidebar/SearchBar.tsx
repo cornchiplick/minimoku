@@ -1,11 +1,12 @@
-import { Search } from "lucide-react";
+"use client";
 
-interface SearchBarProps {
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-}
+import {Search} from "lucide-react";
 
-const SearchBar = ({searchQuery, setSearchQuery}: SearchBarProps) => {
+const SearchBar = () => {
+  // TODO 검색
+  const searchQuery = "";
+  const setSearchQuery = (query: string) => {};
+
   return (
     <div className="relative">
       <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
