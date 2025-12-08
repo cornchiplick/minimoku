@@ -153,3 +153,77 @@ export async function deleteLink({linkId}: {linkId: number}) {
     return {error: true};
   }
 }
+
+export async function favoriteLink({linkId}: {linkId: number}) {
+  const user = await getSessionUser();
+  if (!user) {
+    throw new Error("로그인이 필요합니다.");
+  }
+
+  try {
+    const link = await db.link.findFirst({
+      where: {
+        id: linkId,
+        folder: {
+          userId: user.id,
+        },
+      },
+    });
+
+    if (!link) {
+      throw new Error("존재하지 않는 링크이거나 권한이 없습니다.");
+    }
+
+    await db.link.update({
+      where: {
+        id: linkId,
+      },
+      data: {
+        isFavorite: !link.isFavorite,
+      },
+    });
+
+    revalidateTag(getTags(user.id!, APIConstants.API_LINKS));
+    return {success: true};
+  } catch (error) {
+    console.error("Favorite Link Error : ", error);
+    return {error: true};
+  }
+}
+
+export async function readLink({linkId}: {linkId: number}) {
+  const user = await getSessionUser();
+  if (!user) {
+    throw new Error("로그인이 필요합니다.");
+  }
+
+  try {
+    const link = await db.link.findFirst({
+      where: {
+        id: linkId,
+        folder: {
+          userId: user.id,
+        },
+      },
+    });
+
+    if (!link) {
+      throw new Error("존재하지 않는 링크이거나 권한이 없습니다.");
+    }
+
+    await db.link.update({
+      where: {
+        id: linkId,
+      },
+      data: {
+        isRead: !link.isRead,
+      },
+    });
+
+    revalidateTag(getTags(user.id!, APIConstants.API_LINKS));
+    return {success: true};
+  } catch (error) {
+    console.error("Read Link Error : ", error);
+    return {error: true};
+  }
+}
