@@ -1,14 +1,18 @@
+import {FilterConstants} from "@/shared/constants/navigation";
 import db from "@/shared/lib/db";
 import {NextResponse} from "next/server";
 
 export async function GET(request: Request) {
   const {searchParams} = new URL(request.url);
+
+  // 사용자 ID 가져오기
   const userId = Number(searchParams.get("userId")!);
-  let folderId = null;
-  const value = searchParams.get("folderId");
-  if (value) {
-    folderId = Number(value);
-  }
+
+  // folderId 파라미터 처리
+  const folderId = searchParams.get("folderId") ? Number(searchParams.get("folderId")) : null;
+
+  // filter 처리
+  const filterValue = validFilterValue(searchParams.get("filter"));
 
   try {
     const links = await db.link.findMany({
@@ -31,6 +35,7 @@ export async function GET(request: Request) {
           ...(folderId !== null && {id: folderId}),
           userId: userId,
         },
+        ...(filterValue && filterValue),
       },
       orderBy: {
         createdAt: "desc",
@@ -43,3 +48,16 @@ export async function GET(request: Request) {
     return NextResponse.json({error: "링크 조회 실패"}, {status: 500});
   }
 }
+
+const validFilterValue = (filter: string | null) => {
+  if (!filter) return null;
+
+  switch (filter) {
+    case FilterConstants.FILTER_UNREAD:
+      return {isRead: false};
+    case FilterConstants.FILTER_FAVORITE:
+      return {isFavorite: true};
+    default:
+      return null;
+  }
+};

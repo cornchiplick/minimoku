@@ -2,23 +2,37 @@
 
 import {FilterInterface} from "@/entities/filter/types";
 import {useFilterStore} from "@/features/navigation/model/store/filterStore";
+import {FilterConstants} from "@/shared/constants/navigation";
+import {URL} from "@/shared/constants/url";
 import Typography from "@/shared/home/atomic/Typography";
 import {useThemeStore} from "@/shared/store/themeStore";
 import clsx from "clsx";
+import {useRouter} from "next/navigation";
 
 interface FilterItemProps {
   filter: FilterInterface;
 }
 
 const FilterItem = ({filter}: FilterItemProps) => {
+  const router = useRouter();
   const {isDarkMode} = useThemeStore();
   const {selectedFilterId, setSelectedFilterId} = useFilterStore();
   const isSelectedFilter = selectedFilterId === filter.id;
 
+  const handleFilterClick = () => {
+    setSelectedFilterId(filter.id);
+
+    if (filter.id === FilterConstants.FILTER_ALL) {
+      router.push(URL.LINK);
+    } else {
+      router.push(`${URL.LINK}?filter=${filter.id}`);
+    }
+  };
+
   return (
     <button
       key={filter.id}
-      onClick={() => setSelectedFilterId(filter.id)}
+      onClick={handleFilterClick}
       className={clsx(
         "flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left transition-colors",
         isSelectedFilter
