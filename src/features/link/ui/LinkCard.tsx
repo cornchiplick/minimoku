@@ -11,6 +11,7 @@ import Typography from "@/shared/home/atomic/Typography";
 import {format} from "date-fns";
 import {Copy} from "lucide-react";
 import Image from "next/image";
+import {useEffect, useState} from "react";
 
 interface LinkCardProps {
   data: LinkInterface;
@@ -19,9 +20,43 @@ interface LinkCardProps {
 const LinkCard = ({data}: LinkCardProps) => {
   const {onClickAlarm, onClickFavorite, onClickRead, onDeleteLink, onCopyLink} = useLinkAction();
 
+  // 낙관적 업데이트를 위한 상태
+  const [isFavorite, setIsFavorite] = useState<boolean>(data.isFavorite);
+  const [isRead, setIsRead] = useState<boolean>(data.isRead);
+
+  const handleFavorite = async (id: number) => {
+    setIsFavorite((prev) => !prev);
+
+    await onClickFavorite({
+      id,
+      onError: () => {
+        setIsFavorite((prev) => !prev);
+      },
+    });
+  };
+
+  const handleRead = async (id: number) => {
+    setIsRead((prev) => !prev);
+
+    await onClickRead({
+      id,
+      onError: () => {
+        setIsRead((prev) => !prev);
+      },
+    });
+  };
+
   const cloudflareLoader = ({src, width}: {src: string; width: number}) => {
     return `${src}/width=${width},height=${width},fit=cover`;
   };
+
+  useEffect(() => {
+    setIsFavorite(data.isFavorite);
+  }, [data.isFavorite]);
+
+  useEffect(() => {
+    setIsRead(data.isRead);
+  }, [data.isRead]);
 
   return (
     <div className="bg-background-primary hover:bg-background-primary flex w-full flex-col rounded-lg p-3 transition-colors">
@@ -79,8 +114,8 @@ const LinkCard = ({data}: LinkCardProps) => {
             <div className="flex min-h-fit flex-col items-center justify-between self-stretch">
               <div className="flex h-full min-h-0 flex-1 grow items-start space-x-1">
                 <AlarmButton isAlarm={data.isAlarm} onClick={onClickAlarm} />
-                <FavoriteButton isFavorite={data.isFavorite} onClick={onClickFavorite} />
-                <CheckButton isChecked={data.isRead} onClick={onClickRead} />
+                <FavoriteButton isFavorite={isFavorite} onClick={() => handleFavorite(data.id)} />
+                <CheckButton isChecked={isRead} onClick={() => handleRead(data.id)} />
               </div>
               <div className="mt-auto flex w-full items-center justify-end">
                 <TrashButton onClick={() => onDeleteLink({id: data.id})} />

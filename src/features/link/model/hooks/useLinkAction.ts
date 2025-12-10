@@ -1,4 +1,4 @@
-import {deleteLink} from "@/features/link/model/services/links.service";
+import {deleteLink, favoriteLink, readLink} from "@/features/link/model/services/links.service";
 import {useDialogContext} from "@/shared/providers/DialogProvider";
 import {useCallback} from "react";
 import {toast} from "sonner";
@@ -11,14 +11,30 @@ const useLinkAction = () => {
     console.log("Alarm clicked");
   }, []);
 
-  // TODO
-  const onClickFavorite = useCallback(() => {
-    console.log("Favorite clicked");
+  const onClickFavorite = useCallback(async ({id, onError}: {id: number; onError?: () => void}) => {
+    const {error} = await favoriteLink({linkId: id});
+
+    // 즐겨찾기 체크는 토스트, 알림 아무것도 하지 않고 바로 반영
+    if (error) {
+      if (onError && typeof onError === "function") onError();
+      toast.error("즐겨찾기 중 알 수 없는 오류가 발생했어요.");
+      return {error: true};
+    }
+
+    return {success: true};
   }, []);
 
-  // TODO
-  const onClickRead = useCallback(() => {
-    console.log("Read clicked");
+  const onClickRead = useCallback(async ({id, onError}: {id: number; onError?: () => void}) => {
+    const {error} = await readLink({linkId: id});
+
+    // 즐겨찾기 체크는 토스트, 알림 아무것도 하지 않고 바로 반영
+    if (error) {
+      if (onError && typeof onError === "function") onError();
+      toast.error("읽음 처리 중 알 수 없는 오류가 발생했어요.");
+      return {error: true};
+    }
+
+    return {success: true};
   }, []);
 
   const onDeleteLink = useCallback(async ({id}: {id: number}) => {
