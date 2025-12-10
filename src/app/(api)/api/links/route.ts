@@ -33,9 +33,9 @@ export async function GET(request: Request) {
       where: {
         folder: {
           ...(folderId !== null && {id: folderId}),
-          userId: userId,
+          userId,
         },
-        ...(filterValue && filterValue),
+        ...(filterValue ?? {}),
       },
       orderBy: {
         createdAt: "desc",
