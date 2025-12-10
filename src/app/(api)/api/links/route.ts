@@ -9,7 +9,9 @@ export async function GET(request: Request) {
   const userId = Number(searchParams.get("userId")!);
 
   // folderId 파라미터 처리
-  const folderId = searchParams.get("folderId") ? Number(searchParams.get("folderId")) : null;
+  const folderIdParam = searchParams.get("folderId");
+  const folderId =
+    folderIdParam !== null && !Number.isNaN(Number(folderIdParam)) ? Number(folderIdParam) : null;
 
   // filter 처리
   const filterValue = validFilterValue(searchParams.get("filter"));

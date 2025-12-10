@@ -30,7 +30,7 @@ const useLinkAction = () => {
     // 즐겨찾기 체크는 토스트, 알림 아무것도 하지 않고 바로 반영
     if (error) {
       if (onError && typeof onError === "function") onError();
-      toast.error("즐겨찾기 중 알 수 없는 오류가 발생했어요.");
+      toast.error("읽음 처리 중 알 수 없는 오류가 발생했어요.");
       return {error: true};
     }
 
