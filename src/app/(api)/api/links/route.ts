@@ -16,6 +16,9 @@ export async function GET(request: Request) {
   // filter 처리
   const filterValue = validFilterValue(searchParams.get("filter"));
 
+  // 검색어 처리
+  const keyword = searchParams.get("keyword");
+
   try {
     const links = await db.link.findMany({
       select: {
@@ -37,7 +40,16 @@ export async function GET(request: Request) {
           ...(folderId !== null && {id: folderId}),
           userId,
         },
+        // 필터 조건
         ...(filterValue ?? {}),
+
+        // 검색어 조건
+        ...(keyword && {
+          title: {
+            contains: keyword,
+            mode: "insensitive",
+          },
+        }),
       },
       orderBy: {
         createdAt: "desc",

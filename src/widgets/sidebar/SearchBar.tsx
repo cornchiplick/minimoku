@@ -1,22 +1,48 @@
 "use client";
 
+import {
+  linkSearchSchema,
+  LinkSearchSchemaType,
+} from "@/features/link/model/schema/linkSearchSchema";
+import FormInput from "@/shared/components/molecules/FormInput";
+import {URL} from "@/shared/constants/url";
+import {zodResolver} from "@hookform/resolvers/zod";
 import {Search} from "lucide-react";
+import {useRouter} from "next/navigation";
+import {FormProvider, useForm} from "react-hook-form";
 
 const SearchBar = () => {
-  // TODO 검색
-  const searchQuery = "";
-  const setSearchQuery = (query: string) => {};
+  const router = useRouter();
+
+  const formMethod = useForm<LinkSearchSchemaType>({
+    resolver: zodResolver(linkSearchSchema),
+    defaultValues: {
+      keyword: "",
+    },
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
+  });
+
+  const {handleSubmit} = formMethod;
+
+  const onSubmit = (data: LinkSearchSchemaType): void => {
+    const keyword = data.keyword || "";
+
+    router.push(`${URL.LINK}?keyword=${encodeURIComponent(keyword)}`);
+  };
 
   return (
     <div className="relative">
-      <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
-      <input
-        type="text"
-        placeholder="링크 검색"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        className="w-full rounded-lg border-0 bg-gray-100 py-2 pr-4 pl-10 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
-      />
+      <FormProvider {...formMethod}>
+        <form onSubmit={handleSubmit(onSubmit)} className="relative">
+          <Search className="pointer-events-none absolute top-2.5 left-3 z-10 h-4 w-4 text-gray-400" />
+          <FormInput
+            name="keyword"
+            placeholder="검색어를 입력하세요"
+            className="bg-background-secondary text-foreground w-full rounded-lg border-0 py-2 pr-4 pl-10 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          />
+        </form>
+      </FormProvider>
     </div>
   );
 };

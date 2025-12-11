@@ -7,6 +7,7 @@ type TypoType = "Head1" | "Head2" | "Head3" | "SubTitle1" | "P1" | "P2" | "P3" |
 interface TypographyProps {
   children: React.ReactNode;
   className?: string;
+  keyword?: string | null;
 }
 
 const typoTypeMap: Record<TypoType, string> = {
@@ -20,10 +21,42 @@ const typoTypeMap: Record<TypoType, string> = {
   Error: "text-xs text-red-600 text-foreground",
 };
 
-const BaseTypography = ({type, children, className}: TypographyProps & {type: TypoType}) => {
+const BaseTypography = ({
+  type,
+  children,
+  className,
+  keyword,
+}: TypographyProps & {type: TypoType}) => {
   const style = typoTypeMap[type];
+
+  const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  const highlightKeyword = (text: string, keyword: string | null) => {
+    if (!keyword?.trim()) return text;
+
+    const escaped = escapeRegExp(keyword.trim());
+
+    const parts = text.split(new RegExp(`(${escaped})`, "gi"));
+    return parts.map((part, index) =>
+      part.toLowerCase() === keyword.toLowerCase() ? (
+        <span key={index} className="text-minimoku">
+          {part}
+        </span>
+      ) : (
+        part
+      )
+    );
+  };
+
+  const renderContent = () => {
+    if (!keyword || typeof children !== "string") {
+      return children;
+    }
+    return highlightKeyword(children, keyword);
+  };
+
   // TODO tag의 정확한 용법을 위해 추후 Head1 > h1 태그로 변경하는 등의 사전 작업 필요
-  return <p className={cn(style, className)}>{children}</p>;
+  return <p className={cn(style, className)}>{renderContent()}</p>;
 };
 
 export const Typography = {

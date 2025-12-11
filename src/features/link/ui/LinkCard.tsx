@@ -15,9 +15,10 @@ import {useEffect, useState} from "react";
 
 interface LinkCardProps {
   data: LinkInterface;
+  keyword?: string | null;
 }
 
-const LinkCard = ({data}: LinkCardProps) => {
+const LinkCard = ({data, keyword}: LinkCardProps) => {
   const {onClickAlarm, onClickFavorite, onClickRead, onDeleteLink, onCopyLink} = useLinkAction();
 
   // 낙관적 업데이트를 위한 상태
@@ -83,7 +84,9 @@ const LinkCard = ({data}: LinkCardProps) => {
             <div className="w-full flex-1 space-y-2">
               <h3 className="flex items-center space-x-2">
                 <ExternalLinkButton url={data.url} />
-                <Typography.P1 className="font-medium">{data.title}</Typography.P1>
+                <Typography.P1 className="font-medium" keyword={keyword}>
+                  {data.title}
+                </Typography.P1>
               </h3>
               <div className="flex flex-row items-center gap-2 pb-1">
                 <Typography.P2 className="text-minimoku-neutral-bold max-w-2xl truncate">
