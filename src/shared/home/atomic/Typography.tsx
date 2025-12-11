@@ -29,10 +29,14 @@ const BaseTypography = ({
 }: TypographyProps & {type: TypoType}) => {
   const style = typoTypeMap[type];
 
-  const highlightKeyword = (text: string, keyword: string | null) => {
-    if (!keyword) return text;
+  const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-    const parts = text.split(new RegExp(`(${keyword})`, "gi"));
+  const highlightKeyword = (text: string, keyword: string | null) => {
+    if (!keyword?.trim()) return text;
+
+    const escaped = escapeRegExp(keyword.trim());
+
+    const parts = text.split(new RegExp(`(${escaped})`, "gi"));
     return parts.map((part, index) =>
       part.toLowerCase() === keyword.toLowerCase() ? (
         <span key={index} className="text-minimoku">
