@@ -9,7 +9,7 @@ import FavoriteButton from "@/shared/components/molecules/buttons/FavoriteButton
 import TrashButton from "@/shared/components/molecules/buttons/TrashButton";
 import Typography from "@/shared/home/atomic/Typography";
 import {format} from "date-fns";
-import {Copy} from "lucide-react";
+import {ChevronDown, ChevronUp, Copy, FileText} from "lucide-react";
 import Image from "next/image";
 import {useEffect, useState} from "react";
 
@@ -24,6 +24,9 @@ const LinkCard = ({data, keyword}: LinkCardProps) => {
   // 낙관적 업데이트를 위한 상태
   const [isFavorite, setIsFavorite] = useState<boolean>(data.isFavorite);
   const [isRead, setIsRead] = useState<boolean>(data.isRead);
+
+  // 메모 펼치기
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const handleFavorite = async (id: number) => {
     setIsFavorite((prev) => !prev);
@@ -60,7 +63,7 @@ const LinkCard = ({data, keyword}: LinkCardProps) => {
   }, [data.isRead]);
 
   return (
-    <div className="bg-background-primary hover:bg-background-primary flex w-full flex-col rounded-lg p-3 transition-colors">
+    <div className="bg-background-primary hover:bg-background-primary flex w-full flex-col rounded-lg p-3 shadow-md shadow-neutral-800 transition-colors">
       <div className="flex items-start space-x-4">
         {/* Thumbnail */}
         <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-lg bg-gray-600">
@@ -116,6 +119,18 @@ const LinkCard = ({data, keyword}: LinkCardProps) => {
             {/* Actions */}
             <div className="flex min-h-fit flex-col items-center justify-between self-stretch">
               <div className="flex h-full min-h-0 flex-1 grow items-start space-x-1">
+                {!!data.memo && (
+                  <button
+                    className="flex h-8 cursor-pointer items-center justify-center gap-1 rounded-md px-2 transition-colors hover:bg-gray-300"
+                    onClick={() => setIsExpanded((prev) => !prev)}>
+                    <FileText className="h-4 w-4" stroke="#99a1af" fill="none" />
+                    {isExpanded ? (
+                      <ChevronUp className="h-4 w-4" stroke="#99a1af" fill="none" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4" stroke="#99a1af" fill="none" />
+                    )}
+                  </button>
+                )}
                 <AlarmButton isAlarm={data.isAlarm} onClick={onClickAlarm} />
                 <FavoriteButton isFavorite={isFavorite} onClick={() => handleFavorite(data.id)} />
                 <CheckButton isChecked={isRead} onClick={() => handleRead(data.id)} />
@@ -126,12 +141,26 @@ const LinkCard = ({data, keyword}: LinkCardProps) => {
             </div>
           </div>
 
-          {/* memo */}
-          {/* {data.memo && (
-            <div className="mt-4 rounded-lg border border-gray-100 bg-gray-50 p-3">
-              <div className="text-sm leading-relaxed text-gray-600">{data.memo}</div>
+          {/* Expand - memo */}
+          <div
+            className={`overflow-hidden transition-all duration-300 ${
+              isExpanded ? "max-h-96 pt-2" : "max-h-0"
+            }`}>
+            <div className="border-t border-slate-600 pt-2 pr-4 pb-4">
+              <div className="mb-2 flex items-center gap-2 text-sm text-gray-500">
+                <FileText className="h-4 w-4" />
+                <Typography.SubTitle1 className="text-sm">메모</Typography.SubTitle1>
+              </div>
+
+              {!!data.memo && (
+                <div className="bg-background-secondary rounded p-3">
+                  <Typography.P2 className="break-all whitespace-pre-wrap">
+                    {data.memo}
+                  </Typography.P2>
+                </div>
+              )}
             </div>
-          )} */}
+          </div>
         </div>
       </div>
     </div>
