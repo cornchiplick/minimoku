@@ -62,12 +62,21 @@ export async function postLink(formData: FormData) {
     throw new Error("로그인이 필요합니다.");
   }
 
+  // 태그 JSON 문자열을 배열로 파싱
+  const tagsString = formData.get("tags") as string;
+  let parsedTags: string[] = [];
+  try {
+    parsedTags = tagsString ? JSON.parse(tagsString) : [];
+  } catch {
+    parsedTags = [];
+  }
+
   const data = {
     title: formData.get("title"),
     url: formData.get("url"),
     imageUrl: formData.get("imageUrl"),
     folderId: formData.get("folderId"),
-    tags: formData.get("tags") || "",
+    tags: parsedTags,
     memo: formData.get("memo"),
   };
 
@@ -84,10 +93,6 @@ export async function postLink(formData: FormData) {
     return {folderId: "존재하지 않는 폴더입니다."};
   }
 
-  // if (result.data.tags?.split(" ")) {
-  //   return {tags: "올바르지 않은 태그 형식입니다."};
-  // }
-
   try {
     await db.link.create({
       data: {
@@ -95,7 +100,7 @@ export async function postLink(formData: FormData) {
         url: result.data.url,
         imageUrl: result.data.imageUrl || "",
         folderId: Number(result.data.folderId),
-        tags: [],
+        tags: result.data.tags,
         memo: result.data.memo || "",
       },
     });
