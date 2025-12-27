@@ -15,7 +15,7 @@ export const linkSchema = z.object({
     },
     {message: "올바르지 않은 폴더입니다."}
   ),
-  tags: z.string().optional(),
+  tags: z.array(z.string()),
   memo: z.string().optional().or(z.literal("")),
 });
 

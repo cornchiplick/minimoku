@@ -15,6 +15,7 @@ import {SelectItem} from "@/shared/components/atoms/select";
 import FormButton from "@/shared/components/molecules/buttons/FormButton";
 import FormInput from "@/shared/components/molecules/FormInput";
 import FormSelect from "@/shared/components/molecules/FormSelect";
+import FormTagInput from "@/shared/components/molecules/FormTagInput";
 import Typography from "@/shared/home/atomic/Typography";
 import {useBoolean} from "@/shared/hooks/useBoolean";
 import {useUploadImage} from "@/shared/hooks/useUploadImage";
@@ -38,7 +39,7 @@ const LinkAddModal = ({modalState}: LinkAddModalProps) => {
       url: "",
       imageUrl: "",
       folderId: "",
-      tags: "",
+      tags: [],
       memo: "",
     },
   });
@@ -60,7 +61,8 @@ const LinkAddModal = ({modalState}: LinkAddModalProps) => {
     formData.append("url", data.url);
     formData.append("folderId", String(data.folderId));
     formData.append("imageUrl", data.imageUrl || "");
-    formData.append("tags", data.tags ?? "");
+    // 태그 배열을 JSON 문자열로 변환하여 전송
+    formData.append("tags", JSON.stringify(data.tags ?? []));
     formData.append("memo", data.memo ?? "");
 
     const errors = await postLink(formData);
@@ -164,7 +166,7 @@ const LinkAddModal = ({modalState}: LinkAddModalProps) => {
                   </SelectItem>
                 ))}
               </FormSelect>
-              <FormInput name="tags" label="태그" placeholder="태그를 입력하고 Enter를 누르세요" />
+              <FormTagInput name="tags" label="태그" placeholder="태그를 입력하고 Enter 또는 Space를 누르세요" />
               <FormInput name="memo" label="메모" placeholder="링크에 대한 메모를 작성하세요..." />
             </div>
             <DialogFooter>
