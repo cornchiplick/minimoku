@@ -98,7 +98,8 @@ const LinkAddModal = ({modalState}: LinkAddModalProps) => {
         <DialogContent
           className="bg-background-tertiary p-5"
           disableEscapeClose
-          disableOutsideClose>
+          disableOutsideClose
+          hideCloseButton>
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
             <DialogHeader>
               <DialogTitle>
