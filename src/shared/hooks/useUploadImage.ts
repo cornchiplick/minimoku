@@ -9,7 +9,7 @@ export const useUploadImage = () => {
   const [file, setFile] = useState<File | null>(null);
 
   const onImageChange = useCallback(
-    async (event: React.ChangeEvent<HTMLInputElement>, successFn: (id: any) => void) => {
+    async (event: React.ChangeEvent<HTMLInputElement>, successFn: (id: string) => void) => {
       const {
         target: {files},
       } = event;

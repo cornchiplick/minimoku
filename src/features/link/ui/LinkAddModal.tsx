@@ -15,11 +15,12 @@ import {SelectItem} from "@/shared/components/atoms/select";
 import FormButton from "@/shared/components/molecules/buttons/FormButton";
 import FormInput from "@/shared/components/molecules/FormInput";
 import FormSelect from "@/shared/components/molecules/FormSelect";
+import FormTagInput from "@/shared/components/molecules/FormTagInput";
 import Typography from "@/shared/home/atomic/Typography";
 import {useBoolean} from "@/shared/hooks/useBoolean";
 import {useUploadImage} from "@/shared/hooks/useUploadImage";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {Image} from "lucide-react";
+import {Image as ImageIcon} from "lucide-react";
 import {FormProvider, SubmitHandler, useForm} from "react-hook-form";
 
 interface LinkAddModalProps {
@@ -38,12 +39,12 @@ const LinkAddModal = ({modalState}: LinkAddModalProps) => {
       url: "",
       imageUrl: "",
       folderId: "",
-      tags: "",
+      tags: [],
       memo: "",
     },
   });
 
-  const {reset, setValue, handleSubmit} = formMethods;
+  const {reset, setValue, setError, handleSubmit} = formMethods;
 
   const handleClose = () => {
     setPreview("");
@@ -52,8 +53,7 @@ const LinkAddModal = ({modalState}: LinkAddModalProps) => {
     modalState.onFalse();
   };
 
-  const onSubmit: SubmitHandler<LinkSchemaType> = async (data, e) => {
-    console.log("data :: ", data);
+  const onSubmit: SubmitHandler<LinkSchemaType> = async (data) => {
     await uploadImage({file, uploadUrl});
 
     const formData = new FormData();
@@ -61,13 +61,30 @@ const LinkAddModal = ({modalState}: LinkAddModalProps) => {
     formData.append("url", data.url);
     formData.append("folderId", String(data.folderId));
     formData.append("imageUrl", data.imageUrl || "");
-    formData.append("tags", data.tags ?? "");
+    // 태그 배열을 JSON 문자열로 변환하여 전송
+    formData.append("tags", JSON.stringify(data.tags ?? []));
     formData.append("memo", data.memo ?? "");
 
     const errors = await postLink(formData);
-    // if (errors) {
-    //   setError("")
-    // }
+
+    // 에러가 있으면 각 필드에 에러 메시지 설정
+    if (errors) {
+      // Zod flatten 형태의 에러 처리
+      if ("fieldErrors" in errors) {
+        Object.entries(errors.fieldErrors).forEach(([field, messages]) => {
+          console.log("field:", field, "messages:", messages);
+          if (messages && messages.length > 0) {
+            setError(field as keyof LinkSchemaType, {message: messages[0]});
+          }
+        });
+      } else {
+        // 단순 객체 형태의 에러 처리 (예: {folderId: "존재하지 않는 폴더입니다."})
+        Object.entries(errors).forEach(([field, message]) => {
+          setError(field as keyof LinkSchemaType, {message: message as string});
+        });
+      }
+      return;
+    }
 
     reset();
     handleClose();
@@ -78,7 +95,10 @@ const LinkAddModal = ({modalState}: LinkAddModalProps) => {
       open={modalState.value}
       onOpenChange={(open) => (open ? modalState.onTrue() : handleClose())}>
       <FormProvider {...formMethods}>
-        <DialogContent className="bg-background-tertiary p-5">
+        <DialogContent
+          className="bg-background-tertiary p-5"
+          disableEscapeClose
+          disableOutsideClose>
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
             <DialogHeader>
               <DialogTitle>
@@ -89,7 +109,7 @@ const LinkAddModal = ({modalState}: LinkAddModalProps) => {
               <div className="flex flex-1 flex-row justify-center gap-2 self-stretch">
                 <div className="flex h-full w-24 flex-shrink-0 flex-col items-center justify-center gap-2 pt-3.5">
                   <div
-                    className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-lg border-gray-600 bg-gray-700 text-xs text-gray-500"
+                    className="bg-minimoku-input flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-lg border-gray-600 text-xs text-gray-500"
                     style={{
                       backgroundImage: preview ? `url(${preview})` : undefined,
                       backgroundSize: "cover",
@@ -101,14 +121,14 @@ const LinkAddModal = ({modalState}: LinkAddModalProps) => {
                   <label
                     htmlFor="photo"
                     className="bg-minimoku-input flex w-full cursor-pointer items-center justify-center gap-2 rounded-md px-2 py-2 text-xs transition-all duration-200">
-                    <Image className="h-4 w-4" stroke="#a0a0a0" />
+                    <ImageIcon className="h-4 w-4" stroke="#a0a0a0" />
                     <Typography.P3>업로드</Typography.P3>
                   </label>
                   <FormInput
                     id="photo"
                     type="file"
                     onChange={(e) =>
-                      onImageChange(e, (id: any) =>
+                      onImageChange(e, (id) =>
                         setValue(
                           "imageUrl",
                           `https://imagedelivery.net/iZyA_W41y4aQU_gSa-cmmA/${id}`
@@ -146,7 +166,7 @@ const LinkAddModal = ({modalState}: LinkAddModalProps) => {
                   </SelectItem>
                 ))}
               </FormSelect>
-              <FormInput name="tags" label="태그" placeholder="태그를 입력하고 Enter를 누르세요" />
+              <FormTagInput name="tags" label="태그" placeholder="태그를 입력하고 Enter 또는 Space를 누르세요" />
               <FormInput name="memo" label="메모" placeholder="링크에 대한 메모를 작성하세요..." />
             </div>
             <DialogFooter>
