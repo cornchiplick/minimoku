@@ -1,11 +1,11 @@
 import {getLinks} from "@/features/link/model/services/links.service";
 import LinkLockerMain from "@/widgets/link/LinkLockerMain";
 
-// searchParams를 prop으로 받습니다
+// searchParams를 prop으로 받습니다 (Next.js 15에서 Promise 타입)
 const LinkHome = async ({
   searchParams,
 }: {
-  searchParams: {[key: string]: string | string[] | undefined};
+  searchParams: Promise<{[key: string]: string | string[] | undefined}>;
 }) => {
   try {
     const queryString = await searchParams;
