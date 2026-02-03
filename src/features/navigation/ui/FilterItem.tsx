@@ -1,13 +1,20 @@
 "use client";
 
-import {FilterInterface} from "@/entities/filter/types";
+import {FilterIconName, FilterInterface} from "@/entities/filter/types";
 import {useFilterStore} from "@/features/navigation/model/store/filterStore";
 import {FilterConstants} from "@/shared/constants/navigation";
 import {URL} from "@/shared/constants/url";
 import Typography from "@/shared/home/atomic/Typography";
 import {useThemeStore} from "@/shared/store/themeStore";
 import clsx from "clsx";
+import {Bell, Star} from "lucide-react";
 import {useRouter} from "next/navigation";
+
+// 아이콘 이름을 실제 컴포넌트로 매핑
+const iconMap: Record<FilterIconName, React.ElementType> = {
+  Star,
+  Bell,
+};
 
 interface FilterItemProps {
   filter: FilterInterface;
@@ -18,6 +25,9 @@ const FilterItem = ({filter}: FilterItemProps) => {
   const {isDarkMode} = useThemeStore();
   const {selectedFilterId, setSelectedFilterId} = useFilterStore();
   const isSelectedFilter = selectedFilterId === filter.id;
+
+  // iconName을 실제 아이콘 컴포넌트로 변환
+  const Icon = iconMap[filter.iconName];
 
   const handleFilterClick = () => {
     setSelectedFilterId(filter.id);
@@ -40,7 +50,7 @@ const FilterItem = ({filter}: FilterItemProps) => {
           : ["text-foreground", isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"]
       )}>
       <div className="flex items-center space-x-3">
-        <filter.icon className="h-4 w-4" />
+        <Icon className="h-4 w-4" />
         <Typography.P2 className={clsx(isSelectedFilter && "text-white")}>
           {filter.name}
         </Typography.P2>
