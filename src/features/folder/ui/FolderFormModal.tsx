@@ -84,6 +84,7 @@ const FolderFormModal = ({isEdit, modalState, originValue}: FolderAddModalProps)
       <FormProvider {...formMethods}>
         <DialogContent
           className="bg-background-tertiary p-5"
+          hideCloseButton
           onInteractOutside={(e) => {
             e.preventDefault();
             handleClose();

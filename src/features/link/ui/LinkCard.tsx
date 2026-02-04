@@ -9,7 +9,7 @@ import FavoriteButton from "@/shared/components/molecules/buttons/FavoriteButton
 import TrashButton from "@/shared/components/molecules/buttons/TrashButton";
 import Typography from "@/shared/home/atomic/Typography";
 import {format} from "date-fns";
-import {ChevronDown, ChevronUp, Copy, FileText} from "lucide-react";
+import {ChevronDown, ChevronUp, Copy, FileText, Link} from "lucide-react";
 import Image from "next/image";
 import {useEffect, useState} from "react";
 
@@ -77,7 +77,7 @@ const LinkCard = ({data, keyword}: LinkCardProps) => {
               className="object-cover"
             />
           ) : (
-            <span className="text-lg font-bold text-white">日</span>
+            <Link className="h-8 w-8 text-white" />
           )}
         </div>
 

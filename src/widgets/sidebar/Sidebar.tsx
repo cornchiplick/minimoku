@@ -6,6 +6,7 @@ import ProfileSection from "@/features/profile/ui/ProfileSection";
 import Divider from "@/shared/components/molecules/Divider";
 import Typography from "@/shared/home/atomic/Typography";
 import SearchBar from "@/widgets/sidebar/SearchBar";
+import {Link} from "lucide-react";
 
 interface SidebarProps {
   initialFolders: FolderInterface[];
@@ -19,7 +20,7 @@ const Sidebar = ({initialFolders}: SidebarProps) => {
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className="bg-minimoku flex h-8 w-8 items-center justify-center rounded-lg">
-              <Typography.P2 className="font-bold">日</Typography.P2>
+              <Link className="h-5 w-5 text-white" />
             </div>
             <Typography.P1 className="font-semibold">LinkLocker</Typography.P1>
           </div>

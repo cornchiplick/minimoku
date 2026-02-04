@@ -34,6 +34,8 @@ interface DialogContentProps
   disableEscapeClose?: boolean;
   // 외부 클릭으로 닫히는 것을 비활성화
   disableOutsideClose?: boolean;
+  // 우측 상단 X 버튼 숨기기
+  hideCloseButton?: boolean;
 }
 
 const DialogContent = React.forwardRef<
@@ -46,6 +48,7 @@ const DialogContent = React.forwardRef<
       children,
       disableEscapeClose,
       disableOutsideClose,
+      hideCloseButton,
       onEscapeKeyDown,
       onPointerDownOutside,
       onInteractOutside,
@@ -75,10 +78,12 @@ const DialogContent = React.forwardRef<
         }}
         {...props}>
         {children}
-        <DialogPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none">
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </DialogPrimitive.Close>
+        {!hideCloseButton && (
+          <DialogPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </DialogPrimitive.Close>
+        )}
       </DialogPrimitive.Content>
     </DialogPortal>
   )
