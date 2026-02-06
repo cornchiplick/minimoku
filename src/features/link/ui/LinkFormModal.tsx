@@ -65,6 +65,7 @@ const LinkFormModal = ({isEdit, modalState, originValue}: LinkFormModalProps) =>
     setFile(null);
     reset({...defaultValues});
 
+    // 폼 상태 리셋이 완전히 완료된 후 모달을 닫기 위해 다음 이벤트 루프로 지연
     setTimeout(() => {
       modalState.onFalse();
     }, 0);
@@ -115,7 +116,6 @@ const LinkFormModal = ({isEdit, modalState, originValue}: LinkFormModalProps) =>
       return;
     }
 
-    reset();
     handleClose();
   };
 

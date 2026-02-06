@@ -314,6 +314,6 @@ export async function updateLink(formData: FormData) {
     revalidateTag(getTags(user.id!, APIConstants.API_LINKS));
   } catch (error) {
     console.error("Update Link Error : ", error);
-    throw error;
+    return {_form: "링크 업데이트 중 오류가 발생했습니다."};
   }
 }
