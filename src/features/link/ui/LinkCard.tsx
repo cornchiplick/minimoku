@@ -2,12 +2,15 @@
 
 import {LinkInterface} from "@/entities/link/types";
 import useLinkAction from "@/features/link/model/hooks/useLinkAction";
+import LinkFormModal from "@/features/link/ui/LinkFormModal";
 import AlarmButton from "@/shared/components/molecules/buttons/AlarmButton";
 import CheckButton from "@/shared/components/molecules/buttons/CheckButton";
+import EditButton from "@/shared/components/molecules/buttons/EditButton";
 import ExternalLinkButton from "@/shared/components/molecules/buttons/ExternalLinkButton";
 import FavoriteButton from "@/shared/components/molecules/buttons/FavoriteButton";
 import TrashButton from "@/shared/components/molecules/buttons/TrashButton";
 import Typography from "@/shared/home/atomic/Typography";
+import {useBoolean} from "@/shared/hooks/useBoolean";
 import {format} from "date-fns";
 import {ChevronDown, ChevronUp, Copy, FileText, Link} from "lucide-react";
 import Image from "next/image";
@@ -27,6 +30,9 @@ const LinkCard = ({data, keyword}: LinkCardProps) => {
 
   // 메모 펼치기
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // 수정 모달 상태
+  const isShowEditModal = useBoolean();
 
   const handleFavorite = async (id: number) => {
     setIsFavorite((prev) => !prev);
@@ -63,6 +69,7 @@ const LinkCard = ({data, keyword}: LinkCardProps) => {
   }, [data.isRead]);
 
   return (
+    <>
     <div className="bg-background-primary hover:bg-background-primary flex w-full flex-col rounded-lg p-3 shadow-md shadow-neutral-800 transition-colors">
       <div className="flex items-start space-x-4">
         {/* Thumbnail */}
@@ -135,7 +142,8 @@ const LinkCard = ({data, keyword}: LinkCardProps) => {
                 <FavoriteButton isFavorite={isFavorite} onClick={() => handleFavorite(data.id)} />
                 <CheckButton isChecked={isRead} onClick={() => handleRead(data.id)} />
               </div>
-              <div className="mt-auto flex w-full items-center justify-end">
+              <div className="mt-auto flex w-full items-center justify-end gap-1">
+                <EditButton onClick={isShowEditModal.onTrue} />
                 <TrashButton onClick={() => onDeleteLink({id: data.id})} />
               </div>
             </div>
@@ -164,6 +172,8 @@ const LinkCard = ({data, keyword}: LinkCardProps) => {
         </div>
       </div>
     </div>
+    <LinkFormModal isEdit modalState={isShowEditModal} originValue={data} />
+    </>
   );
 };
 

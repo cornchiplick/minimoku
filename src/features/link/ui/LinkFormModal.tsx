@@ -1,8 +1,9 @@
 "use client";
 
+import {LinkInterface} from "@/entities/link/types";
 import {useFolderStore} from "@/features/folder/model/store/folderStore";
 import {linkSchema, LinkSchemaType} from "@/features/link/model/schema/linkSchema";
-import {postLink} from "@/features/link/model/services/links.service";
+import {postLink, updateLink} from "@/features/link/model/services/links.service";
 import {Button} from "@/shared/components/atoms/button";
 import {
   Dialog,
@@ -21,13 +22,25 @@ import {useBoolean} from "@/shared/hooks/useBoolean";
 import {useUploadImage} from "@/shared/hooks/useUploadImage";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Image as ImageIcon} from "lucide-react";
+import {useEffect} from "react";
 import {FormProvider, SubmitHandler, useForm} from "react-hook-form";
 
-interface LinkAddModalProps {
+interface LinkFormModalProps {
+  isEdit?: boolean;
   modalState: ReturnType<typeof useBoolean>;
+  originValue?: LinkInterface;
 }
 
-const LinkAddModal = ({modalState}: LinkAddModalProps) => {
+const defaultValues: LinkSchemaType = {
+  title: "",
+  url: "",
+  imageUrl: "",
+  folderId: "",
+  tags: [],
+  memo: "",
+};
+
+const LinkFormModal = ({isEdit, modalState, originValue}: LinkFormModalProps) => {
   const {folderList} = useFolderStore();
   const {preview, uploadUrl, file, setPreview, setFile, onImageChange, uploadImage} =
     useUploadImage();
@@ -35,22 +48,27 @@ const LinkAddModal = ({modalState}: LinkAddModalProps) => {
   const formMethods = useForm<LinkSchemaType>({
     resolver: zodResolver(linkSchema),
     defaultValues: {
-      title: "",
-      url: "",
-      imageUrl: "",
-      folderId: "",
-      tags: [],
-      memo: "",
+      ...defaultValues,
     },
   });
 
-  const {reset, setValue, setError, handleSubmit} = formMethods;
+  const {
+    reset,
+    setValue,
+    setError,
+    handleSubmit,
+    formState: {errors},
+  } = formMethods;
 
   const handleClose = () => {
     setPreview("");
     setFile(null);
-    reset();
-    modalState.onFalse();
+    reset({...defaultValues});
+
+    // 폼 상태 리셋이 완전히 완료된 후 모달을 닫기 위해 다음 이벤트 루프로 지연
+    setTimeout(() => {
+      modalState.onFalse();
+    }, 0);
   };
 
   const onSubmit: SubmitHandler<LinkSchemaType> = async (data) => {
@@ -65,35 +83,69 @@ const LinkAddModal = ({modalState}: LinkAddModalProps) => {
     formData.append("tags", JSON.stringify(data.tags ?? []));
     formData.append("memo", data.memo ?? "");
 
-    const errors = await postLink(formData);
+    let errors = null;
+
+    // 수정 모드일 경우 updateLink 호출
+    if (isEdit && originValue) {
+      formData.append("linkId", originValue.id.toString());
+      errors = await updateLink(formData);
+    } else {
+      errors = await postLink(formData);
+    }
 
     // 에러가 있으면 각 필드에 에러 메시지 설정
     if (errors) {
       // Zod flatten 형태의 에러 처리
       if ("fieldErrors" in errors) {
         Object.entries(errors.fieldErrors).forEach(([field, messages]) => {
-          console.log("field:", field, "messages:", messages);
           if (messages && messages.length > 0) {
             setError(field as keyof LinkSchemaType, {message: messages[0]});
           }
         });
       } else {
-        // 단순 객체 형태의 에러 처리 (예: {folderId: "존재하지 않는 폴더입니다."})
+        // 단순 객체 형태의 에러 처리
         Object.entries(errors).forEach(([field, message]) => {
-          setError(field as keyof LinkSchemaType, {message: message as string});
+          // _form 에러는 폼 전체 에러로 처리 (root 에러)
+          if (field === "_form") {
+            setError("root", {message: message as string});
+          } else {
+            setError(field as keyof LinkSchemaType, {message: message as string});
+          }
         });
       }
       return;
     }
 
-    reset();
     handleClose();
   };
+
+  // 모달이 열릴 때 originValue로 폼 초기화 (수정 모드)
+  useEffect(() => {
+    if (modalState.value && originValue) {
+      reset({
+        title: originValue.title,
+        url: originValue.url,
+        imageUrl: originValue.imageUrl || "",
+        folderId: String(originValue.folderId),
+        tags: originValue.tags || [],
+        memo: originValue.memo || "",
+      });
+      // 기존 이미지가 있으면 미리보기 설정
+      if (originValue.imageUrl) {
+        setPreview(`${originValue.imageUrl}/width=96,height=96,fit=cover`);
+      }
+    }
+  }, [modalState.value, originValue, reset, setPreview]);
 
   return (
     <Dialog
       open={modalState.value}
-      onOpenChange={(open) => (open ? modalState.onTrue() : handleClose())}>
+      onOpenChange={(open) => {
+        if (!open) {
+          handleClose();
+        }
+      }}
+      modal={true}>
       <FormProvider {...formMethods}>
         <DialogContent
           className="bg-background-tertiary p-5"
@@ -103,9 +155,15 @@ const LinkAddModal = ({modalState}: LinkAddModalProps) => {
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
             <DialogHeader>
               <DialogTitle>
-                <Typography.Head3>Link 추가</Typography.Head3>
+                <Typography.Head3>{isEdit ? "Link 수정" : "Link 추가"}</Typography.Head3>
               </DialogTitle>
             </DialogHeader>
+            {/* 폼 전체 에러 메시지 (권한 없음 등) */}
+            {errors.root && (
+              <div className="rounded-md bg-red-100 p-3 text-sm text-red-600">
+                {errors.root.message}
+              </div>
+            )}
             <div className="flex flex-1 flex-col gap-3">
               <div className="flex flex-1 flex-row justify-center gap-2 self-stretch">
                 <div className="flex h-full w-24 flex-shrink-0 flex-col items-center justify-center gap-2 pt-3.5">
@@ -189,4 +247,4 @@ const LinkAddModal = ({modalState}: LinkAddModalProps) => {
   );
 };
 
-export default LinkAddModal;
+export default LinkFormModal;

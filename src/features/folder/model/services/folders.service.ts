@@ -31,9 +31,15 @@ export async function getFolders(
   return res ?? [];
 }
 
-export async function getFolder({folderId}: {folderId: number}) {
+export async function getFolder({
+  folderId,
+  userId,
+}: {
+  folderId: number;
+  userId?: number; // userId가 제공되면 소유권 검증
+}) {
   try {
-    const result = await db.folder.findUnique({
+    const result = await db.folder.findFirst({
       select: {
         id: true,
         name: true,
@@ -43,6 +49,7 @@ export async function getFolder({folderId}: {folderId: number}) {
       },
       where: {
         id: folderId,
+        ...(userId && {userId}), // userId가 있으면 소유권 검증
       },
     });
 
@@ -105,11 +112,11 @@ export async function updateFolder(formData: FormData) {
     return result.error.flatten();
   }
 
-  // 폴더가 실제로 존재하는지 확인
+  // 폴더가 현재 사용자 소유인지 확인 (보안)
   const folderId = data.folderId;
-  const folder = await getFolder({folderId});
+  const folder = await getFolder({folderId, userId: user.id});
   if (folder.error) {
-    return {folderId: "존재하지 않는 폴더입니다."};
+    return {folderId: "존재하지 않거나 접근 권한이 없는 폴더입니다."};
   }
 
   try {

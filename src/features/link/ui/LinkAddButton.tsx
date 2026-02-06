@@ -1,6 +1,6 @@
 "use client";
 
-import LinkAddModal from "@/features/link/ui/LinkAddModal";
+import LinkFormModal from "@/features/link/ui/LinkFormModal";
 import Typography from "@/shared/home/atomic/Typography";
 import { useBoolean } from "@/shared/hooks/useBoolean";
 import { Plus } from "lucide-react";
@@ -16,7 +16,7 @@ const LinkAddButton = () => {
         <Plus className="h-4 w-4" />
         <Typography.P1 className="text-white">링크 추가</Typography.P1>
       </button>
-      <LinkAddModal modalState={isShowLinkAddModal} />
+      <LinkFormModal modalState={isShowLinkAddModal} />
     </>
   );
 };

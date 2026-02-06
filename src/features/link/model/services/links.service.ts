@@ -86,11 +86,11 @@ export async function postLink(formData: FormData) {
     return result.error.flatten();
   }
 
-  // 폴더가 실제로 존재하는지 확인
+  // 폴더가 현재 사용자 소유인지 확인 (보안)
   const folderId = Number(result.data.folderId);
-  const folder = await getFolder({folderId});
+  const folder = await getFolder({folderId, userId: user.id});
   if (folder.error) {
-    return {folderId: "존재하지 않는 폴더입니다."};
+    return {folderId: "존재하지 않거나 접근 권한이 없는 폴더입니다."};
   }
 
   try {
@@ -230,5 +230,90 @@ export async function readLink({linkId}: {linkId: number}) {
   } catch (error) {
     console.error("Read Link Error : ", error);
     return {error: true};
+  }
+}
+
+export async function updateLink(formData: FormData) {
+  const user = await getSessionUser();
+  if (!user) {
+    throw new Error("로그인이 필요합니다.");
+  }
+
+  const linkId = Number(formData.get("linkId"));
+
+  // 태그 JSON 문자열을 배열로 파싱
+  const tagsString = formData.get("tags") as string;
+  let parsedTags: string[] = [];
+  try {
+    parsedTags = tagsString ? JSON.parse(tagsString) : [];
+  } catch {
+    parsedTags = [];
+  }
+
+  const data = {
+    title: formData.get("title"),
+    url: formData.get("url"),
+    imageUrl: formData.get("imageUrl"),
+    folderId: formData.get("folderId"),
+    tags: parsedTags,
+    memo: formData.get("memo"),
+  };
+
+  // schema 검증
+  const result = linkSchema.safeParse(data);
+  if (!result.success) {
+    return result.error.flatten();
+  }
+
+  // 폴더가 현재 사용자 소유인지 확인 (보안)
+  const folderId = Number(result.data.folderId);
+  const folder = await getFolder({folderId, userId: user.id});
+  if (folder.error) {
+    return {folderId: "존재하지 않거나 접근 권한이 없는 폴더입니다."};
+  }
+
+  try {
+    // 링크가 사용자 소유인지 확인
+    const existingLink = await db.link.findFirst({
+      where: {
+        id: linkId,
+        folder: {
+          userId: user.id,
+        },
+      },
+    });
+
+    if (!existingLink) {
+      // _form 키로 반환하여 폼 레벨 에러로 처리
+      return {_form: "존재하지 않는 링크이거나 권한이 없습니다."};
+    }
+
+    // 이미지가 변경되었고 기존 이미지가 있으면 삭제
+    if (existingLink.imageUrl && existingLink.imageUrl !== result.data.imageUrl) {
+      const imageIdMatch = existingLink.imageUrl.match(/\/([^\/]+)$/);
+      if (imageIdMatch) {
+        const imageId = imageIdMatch[1];
+        await deleteImage(imageId);
+      }
+    }
+
+    await db.link.update({
+      where: {
+        id: linkId,
+      },
+      data: {
+        title: result.data.title,
+        url: result.data.url,
+        imageUrl: result.data.imageUrl || "",
+        folderId: Number(result.data.folderId),
+        tags: result.data.tags,
+        memo: result.data.memo || "",
+      },
+    });
+
+    revalidateTag(getTags(user.id!, APIConstants.API_LINKS));
+  } catch (error) {
+    console.error("Update Link Error : ", error);
+    return {_form: "링크 업데이트 중 오류가 발생했습니다."};
   }
 }
