@@ -1,6 +1,6 @@
 "use client";
 
-import {LinkInterface} from "@/entities/link/types";
+import { LinkInterface } from "@/entities/link/types";
 import useLinkAction from "@/features/link/model/hooks/useLinkAction";
 import LinkFormModal from "@/features/link/ui/LinkFormModal";
 import AlarmButton from "@/shared/components/molecules/buttons/AlarmButton";
@@ -10,11 +10,11 @@ import ExternalLinkButton from "@/shared/components/molecules/buttons/ExternalLi
 import FavoriteButton from "@/shared/components/molecules/buttons/FavoriteButton";
 import TrashButton from "@/shared/components/molecules/buttons/TrashButton";
 import Typography from "@/shared/home/atomic/Typography";
-import {useBoolean} from "@/shared/hooks/useBoolean";
-import {format} from "date-fns";
-import {ChevronDown, ChevronUp, Copy, FileText, Link} from "lucide-react";
+import { useBoolean } from "@/shared/hooks/useBoolean";
+import { format } from "date-fns";
+import { ChevronDown, ChevronUp, Copy, FileText, Link } from "lucide-react";
 import Image from "next/image";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 
 interface LinkCardProps {
   data: LinkInterface;
@@ -70,7 +70,7 @@ const LinkCard = ({data, keyword}: LinkCardProps) => {
 
   return (
     <>
-    <div className="bg-background-primary hover:bg-background-primary flex w-full flex-col rounded-lg p-3 shadow-md shadow-neutral-800 transition-colors">
+    <div className="link-card-shadow bg-background-primary hover:bg-background-primary flex w-full flex-col rounded-lg p-3 transition-colors">
       <div className="flex items-start space-x-4">
         {/* Thumbnail */}
         <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-lg bg-gray-600">

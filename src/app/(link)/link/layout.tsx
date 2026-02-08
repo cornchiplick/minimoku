@@ -7,7 +7,7 @@ const LinkHomeLayout = async ({children}: {children: React.ReactNode}) => {
   const initialFolders = await getFolders();
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden">
       <Sidebar initialFolders={initialFolders} />
       {children}
     </div>

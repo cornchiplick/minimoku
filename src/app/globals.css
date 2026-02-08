@@ -24,7 +24,7 @@
   --color-foreground: #e5e7eb;
   --color-foreground-reverse: #364153;
   --color-background-primary: #1e2939;
-  --color-background-secondary: #242f3f;
+  --color-background-secondary: #2a3647;
   --color-background-tertiary: #212b36;
   --color-background-reverse-primary: #ffffff;
   --color-background-reverse-secondary: #e0e0e0;
@@ -61,4 +61,13 @@
 
 body {
   font-family: var(--font-sans);
+}
+
+/* LinkCard 전용 그림자 스타일 */
+.link-card-shadow {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+:root.dark .link-card-shadow {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
 }

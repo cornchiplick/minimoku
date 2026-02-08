@@ -44,6 +44,7 @@ export async function getFolder({
         id: true,
         name: true,
         count: true,
+        sortOrder: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -81,10 +82,18 @@ export async function postFolder(formData: FormData) {
   }
 
   try {
+    // 현재 사용자의 폴더 중 가장 큰 sortOrder를 찾아서 +1
+    const maxSortOrder = await db.folder.findFirst({
+      where: {userId: user.id!},
+      orderBy: {sortOrder: "desc"},
+      select: {sortOrder: true},
+    });
+
     await db.folder.create({
       data: {
         name: result.data.name,
         userId: user.id!,
+        sortOrder: (maxSortOrder?.sortOrder ?? -1) + 1,
       },
     });
 
@@ -186,6 +195,40 @@ export async function emptyFolder(folderId: number) {
     return {success: true};
   } catch (error) {
     console.error("Empty Folder Error : ", error);
+    return {error: true};
+  }
+}
+
+/**
+ * 폴더 순서 업데이트
+ * @param folderOrders - {id: number, sortOrder: number}[] 형태의 배열
+ */
+export async function updateFolderOrders(folderOrders: {id: number; sortOrder: number}[]) {
+  const user = await getSessionUser();
+  if (!user) {
+    throw new Error("로그인이 필요합니다.");
+  }
+
+  try {
+    // 트랜잭션으로 여러 폴더의 순서를 한 번에 업데이트
+    await db.$transaction(
+      folderOrders.map(({id, sortOrder}) =>
+        db.folder.update({
+          where: {
+            id,
+            userId: user.id!, // 보안: 본인 소유 폴더만 업데이트
+          },
+          data: {sortOrder},
+        })
+      )
+    );
+
+    // 캐시 무효화
+    revalidateTag(getTags(user.id!, APIConstants.API_FOLDERS));
+
+    return {success: true};
+  } catch (error) {
+    console.error("Update Folder Orders Error:", error);
     return {error: true};
   }
 }
