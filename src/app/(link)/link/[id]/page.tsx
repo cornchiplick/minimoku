@@ -19,7 +19,7 @@ const LinkFolderHome = async ({params}: {params: Promise<{id: string}>}) => {
     ]);
 
     // 폴더가 존재하지 않거나 접근 권한이 없는 경우
-    if (folder.error) {
+    if (folder.error || !("name" in folder)) {
       return <div>존재하지 않거나 접근 권한이 없는 폴더입니다.</div>;
     }
 
