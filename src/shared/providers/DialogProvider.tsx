@@ -72,13 +72,16 @@ export function DialogProvider({children}: {children: React.ReactNode}) {
           </AlertDialogDescription>
           <AlertDialogFooter>
             {options.variant === "confirm" && (
-              <Button className="text-black hover:bg-gray-100" onClick={handleCancel}>
+              <Button
+                variant="outline"
+                className="bg-gray-800 text-white border-gray-800 hover:bg-gray-900 dark:bg-gray-200 dark:text-gray-900 dark:border-gray-200 dark:hover:bg-gray-100"
+                onClick={handleCancel}>
                 취소
               </Button>
             )}
             <Button
               variant="outline"
-              className="text-white hover:bg-gray-600"
+              className="bg-white text-gray-800 border-gray-300 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-800"
               onClick={handleConfirm}>
               확인
             </Button>
