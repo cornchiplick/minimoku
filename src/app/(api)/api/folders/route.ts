@@ -11,6 +11,7 @@ export async function GET(request: Request) {
       select: {
         id: true,
         name: true,
+        sortOrder: true,
         createdAt: true,
         updatedAt: true,
         _count: {
@@ -21,7 +22,7 @@ export async function GET(request: Request) {
         userId: userId,
       },
       orderBy: {
-        createdAt: "asc",
+        sortOrder: "asc",
       },
     });
 
@@ -29,6 +30,7 @@ export async function GET(request: Request) {
     const foldersWithCount = folders.map((folder) => ({
       id: folder.id,
       name: folder.name,
+      sortOrder: folder.sortOrder,
       createdAt: folder.createdAt,
       updatedAt: folder.updatedAt,
       count: folder._count.links,
