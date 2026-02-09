@@ -186,20 +186,19 @@ const FolderSortModal = ({folders, modalState}: FolderSortModalProps) => {
         <DialogFooter>
           <Button
             type="button"
-            onClick={handleSave}
+            variant="outline"
+            onClick={handleCancel}
             disabled={isSaving}
-            className="cursor-pointer">
-            <Typography.P1 className="text-foreground-reverse">
-              {isSaving ? "저장 중..." : "저장"}
-            </Typography.P1>
+            className="bg-gray-800 text-white border-gray-800 hover:bg-gray-900 dark:bg-gray-200 dark:text-gray-900 dark:border-gray-200 dark:hover:bg-gray-100">
+            취소
           </Button>
           <Button
             type="button"
             variant="outline"
-            onClick={handleCancel}
+            onClick={handleSave}
             disabled={isSaving}
-            className="cursor-pointer border-background-reverse-primary">
-            <Typography.P1>취소</Typography.P1>
+            className="bg-white text-gray-800 border-gray-300 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-800">
+            {isSaving ? "저장 중..." : "저장"}
           </Button>
         </DialogFooter>
       </DialogContent>
