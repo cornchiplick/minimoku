@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className="antialiased">
+      <body className="text-foreground antialiased">
         <ThemeProvider>
           <Toaster />
           {/* SessionProvider is a client component, so it's separated into a component with 'use client' directive */}
