@@ -9,6 +9,16 @@ export const formatDate = (date: Date | string): string => {
   return `${year}.${month}.${day}`;
 };
 
+const DAY_NAMES = ["일", "월", "화", "수", "목", "금", "토"] as const;
+
+/**
+ * 날짜를 "YYYY.MM.DD (요일)" 형식으로 포맷
+ */
+export const formatDateWithDay = (date: Date | string): string => {
+  const d = new Date(date);
+  return `${formatDate(d)} (${DAY_NAMES[d.getDay()]})`;
+};
+
 /**
  * 현재 날짜 기준으로 N일 전부터 오늘까지의 날짜 구간 반환
  */

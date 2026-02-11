@@ -2,6 +2,7 @@ import { getCashRecordSummary } from "@/features/pigmoney/model/services/cashRec
 import { useCashRecordStore } from "@/features/pigmoney/model/store/cashRecordStore";
 import {
   formatDate,
+  formatDateWithDay,
   getCustomMonthRange,
   getCustomWeekRange,
   toDateString,
@@ -39,7 +40,7 @@ const useSidebarSummary = () => {
 
       setWeekSummary({
         label: "이주의 가계",
-        period: `${formatDate(weekRange.from)} ~ ${formatDate(weekRange.to)}`,
+        period: `${formatDateWithDay(weekRange.from)} ~ ${formatDateWithDay(weekRange.to)}`,
         income: weekResult.income,
         expense: weekResult.expense,
       });
