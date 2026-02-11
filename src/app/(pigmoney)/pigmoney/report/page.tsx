@@ -1,14 +1,26 @@
-import { BarChart3 } from "lucide-react";
+import { getCashRecords } from "@/features/pigmoney/model/services/cashRecords.service";
+import { getSettings } from "@/features/pigmoney/model/services/settings.service";
+import PigMoneyReport from "@/widgets/pigmoney/PigMoneyReport";
+import { getCustomMonthRangeFor, toDateString } from "@/shared/lib/utils/dateUtils";
 
-// 보고서 페이지 (Phase 2 구현 예정)
-const ReportPage = () => {
-  return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-4">
-      <BarChart3 className="h-12 w-12 text-minimoku-neutral-bold" />
-      <p className="text-lg font-medium text-minimoku-neutral-bold">보고서 — 준비 중</p>
-      <p className="text-sm text-minimoku-neutral-bold">월별·카테고리별 분석 기능이 곧 추가됩니다.</p>
-    </div>
-  );
+const ReportPage = async () => {
+  try {
+    const settings = await getSettings();
+
+    // 현재 월 범위 데이터 조회
+    const { from, to } = getCustomMonthRangeFor(new Date(), settings.monthStartDay);
+    const initialRecords = await getCashRecords({
+      params: {
+        fromDate: toDateString(from),
+        toDate: toDateString(to),
+      },
+    });
+
+    return <PigMoneyReport initialRecords={initialRecords} initialSettings={settings} />;
+  } catch (error) {
+    console.error("Error in ReportPage:", error);
+    return <div>오류가 발생했습니다. 다시 시도해주세요.</div>;
+  }
 };
 
 export default ReportPage;
