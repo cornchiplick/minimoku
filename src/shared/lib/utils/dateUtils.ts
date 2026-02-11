@@ -38,3 +38,66 @@ export const normalizeDate = (date: Date): Date => {
 export const toDateString = (date: Date): string => {
   return date.toISOString().split("T")[0];
 };
+
+/**
+ * 사용자 설정 기반 "이번 달" 범위 계산
+ * monthStartDay=25 → 1/25~2/24, 2/25~3/24 ...
+ */
+export const getCustomMonthRange = (
+  monthStartDay: number,
+): { from: Date; to: Date; label: string } => {
+  return getCustomMonthRangeFor(new Date(), monthStartDay);
+};
+
+/**
+ * 특정 날짜가 속하는 "월" 범위 (사용자 설정 monthStartDay 반영)
+ */
+export const getCustomMonthRangeFor = (
+  date: Date,
+  monthStartDay: number,
+): { from: Date; to: Date; label: string } => {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = d.getMonth(); // 0-based
+
+  let from: Date;
+  let to: Date;
+
+  if (d.getDate() >= monthStartDay) {
+    // 현재 날짜 >= 시작일 → from: 이번달 시작일, to: 다음달 시작일 - 1
+    from = new Date(year, month, monthStartDay, 0, 0, 0, 0);
+    to = new Date(year, month + 1, monthStartDay - 1, 23, 59, 59, 999);
+  } else {
+    // 현재 날짜 < 시작일 → from: 저번달 시작일, to: 이번달 시작일 - 1
+    from = new Date(year, month - 1, monthStartDay, 0, 0, 0, 0);
+    to = new Date(year, month, monthStartDay - 1, 23, 59, 59, 999);
+  }
+
+  const label = `${from.getMonth() + 1}월`;
+
+  return { from, to, label };
+};
+
+/**
+ * 사용자 설정 기반 "이번 주" 범위 계산
+ * weekStartDay=5(금) → 금~목
+ */
+export const getCustomWeekRange = (
+  weekStartDay: number,
+): { from: Date; to: Date } => {
+  const now = new Date();
+  const currentDay = now.getDay(); // 0=일, 1=월, ..., 6=토
+
+  // 현재 요일에서 주 시작 요일까지의 차이
+  const diff = (currentDay - weekStartDay + 7) % 7;
+
+  const from = new Date(now);
+  from.setDate(from.getDate() - diff);
+  from.setHours(0, 0, 0, 0);
+
+  const to = new Date(from);
+  to.setDate(to.getDate() + 6);
+  to.setHours(23, 59, 59, 999);
+
+  return { from, to };
+};

@@ -1,4 +1,9 @@
-import { CashRecordInterface, CategoryInterface } from "@/entities/pigmoney/types";
+import {
+  CashRecordInterface,
+  CategoryInterface,
+  PigMoneySettingsInterface,
+  SummaryData,
+} from "@/entities/pigmoney/types";
 import { create } from "zustand";
 
 interface CashRecordStore {
@@ -16,6 +21,18 @@ interface CashRecordStore {
   setDateRange: (range: { from: Date | null; to: Date | null }) => void;
   showAll: boolean;
   setShowAll: (value: boolean) => void;
+
+  // 사용자 설정
+  settings: PigMoneySettingsInterface | null;
+  setSettings: (settings: PigMoneySettingsInterface) => void;
+
+  // 사이드바 요약
+  monthSummary: SummaryData | null;
+  setMonthSummary: (summary: SummaryData | null) => void;
+  weekSummary: SummaryData | null;
+  setWeekSummary: (summary: SummaryData | null) => void;
+  summaryVersion: number;
+  invalidateSummary: () => void;
 }
 
 export const useCashRecordStore = create<CashRecordStore>((set) => ({
@@ -36,4 +53,16 @@ export const useCashRecordStore = create<CashRecordStore>((set) => ({
   setDateRange: (range) => set({ dateRange: range }),
   showAll: false,
   setShowAll: (value) => set({ showAll: value }),
+
+  // 사용자 설정
+  settings: null,
+  setSettings: (settings) => set({ settings }),
+
+  // 사이드바 요약 (CRUD 후 summaryVersion 증가 → 자동 재조회 트리거)
+  monthSummary: null,
+  setMonthSummary: (summary) => set({ monthSummary: summary }),
+  weekSummary: null,
+  setWeekSummary: (summary) => set({ weekSummary: summary }),
+  summaryVersion: 0,
+  invalidateSummary: () => set((state) => ({ summaryVersion: state.summaryVersion + 1 })),
 }));

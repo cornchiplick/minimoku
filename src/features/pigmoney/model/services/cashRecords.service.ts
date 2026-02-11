@@ -134,6 +134,44 @@ export async function updateCashRecord(formData: FormData) {
   }
 }
 
+// 기간별 수입/지출 합계 조회 (사이드바 요약용)
+export async function getCashRecordSummary({
+  fromDate,
+  toDate,
+}: {
+  fromDate: string;
+  toDate: string;
+}): Promise<{ income: number; expense: number }> {
+  const user = await getSessionUser();
+  if (!user) {
+    throw new Error("로그인이 필요합니다.");
+  }
+
+  const [incomeResult, expenseResult] = await Promise.all([
+    db.cashRecord.aggregate({
+      where: {
+        userId: user.id,
+        type: "INCOME",
+        date: { gte: new Date(fromDate), lte: new Date(toDate) },
+      },
+      _sum: { amount: true },
+    }),
+    db.cashRecord.aggregate({
+      where: {
+        userId: user.id,
+        type: "EXPENSE",
+        date: { gte: new Date(fromDate), lte: new Date(toDate) },
+      },
+      _sum: { amount: true },
+    }),
+  ]);
+
+  return {
+    income: incomeResult._sum.amount ?? 0,
+    expense: expenseResult._sum.amount ?? 0,
+  };
+}
+
 // 거래 삭제
 export async function deleteCashRecord({ recordId }: { recordId: number }) {
   const user = await getSessionUser();
