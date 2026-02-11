@@ -1,14 +1,26 @@
-import { CalendarDays } from "lucide-react";
+import { getCashRecords } from "@/features/pigmoney/model/services/cashRecords.service";
+import { getSettings } from "@/features/pigmoney/model/services/settings.service";
+import PigMoneyCalendar from "@/widgets/pigmoney/PigMoneyCalendar";
+import { getCustomMonthRangeFor, toDateString } from "@/shared/lib/utils/dateUtils";
 
-// 달력 페이지 (Phase 2 구현 예정)
-const CalendarPage = () => {
-  return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-4">
-      <CalendarDays className="h-12 w-12 text-minimoku-neutral-bold" />
-      <p className="text-lg font-medium text-minimoku-neutral-bold">달력 — 준비 중</p>
-      <p className="text-sm text-minimoku-neutral-bold">일별 수입·지출을 달력에서 확인할 수 있습니다.</p>
-    </div>
-  );
+const CalendarPage = async () => {
+  try {
+    const settings = await getSettings();
+
+    // 현재 월 범위 데이터 조회
+    const { from, to } = getCustomMonthRangeFor(new Date(), settings.monthStartDay);
+    const initialRecords = await getCashRecords({
+      params: {
+        fromDate: toDateString(from),
+        toDate: toDateString(to),
+      },
+    });
+
+    return <PigMoneyCalendar initialRecords={initialRecords} initialSettings={settings} />;
+  } catch (error) {
+    console.error("Error in CalendarPage:", error);
+    return <div>오류가 발생했습니다. 다시 시도해주세요.</div>;
+  }
 };
 
 export default CalendarPage;
