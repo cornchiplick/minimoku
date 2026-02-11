@@ -1,6 +1,6 @@
 "use client";
 
-import { CashRecordInterface, CategoryInterface } from "@/entities/pigmoney/types";
+import { CashRecordInterface, CategoryInterface, PigMoneySettingsInterface } from "@/entities/pigmoney/types";
 import useCashRecordFilter from "@/features/pigmoney/model/hooks/useCashRecordFilter";
 import { useCashRecordStore } from "@/features/pigmoney/model/store/cashRecordStore";
 import { getCashRecords } from "@/features/pigmoney/model/services/cashRecords.service";
@@ -21,11 +21,12 @@ import useCashRecordAction from "@/features/pigmoney/model/hooks/useCashRecordAc
 interface PigMoneyMainProps {
   initialRecords: CashRecordInterface[];
   initialCategories: CategoryInterface[];
+  initialSettings: PigMoneySettingsInterface;
 }
 
 // PigMoney 메인 위젯 (서브 헤더 + 테이블 뷰)
-const PigMoneyMain = ({ initialRecords, initialCategories }: PigMoneyMainProps) => {
-  const { setRecords, setCategories, setDateRange, dateRange, showAll, setShowAll, categories } =
+const PigMoneyMain = ({ initialRecords, initialCategories, initialSettings }: PigMoneyMainProps) => {
+  const { setRecords, setCategories, setDateRange, setSettings, dateRange, showAll, setShowAll, categories } =
     useCashRecordStore();
   const { incomeRecords, expenseRecords, totalIncome, totalExpense } = useCashRecordFilter();
   const { onDeleteRecord } = useCashRecordAction();
@@ -41,9 +42,10 @@ const PigMoneyMain = ({ initialRecords, initialCategories }: PigMoneyMainProps) 
   useEffect(() => {
     setRecords(initialRecords);
     setCategories(initialCategories);
+    setSettings(initialSettings);
     const { from, to } = getDateRange(DEFAULT_DATE_RANGE_DAYS);
     setDateRange({ from, to });
-  }, [initialRecords, initialCategories, setRecords, setCategories, setDateRange]);
+  }, [initialRecords, initialCategories, initialSettings, setRecords, setCategories, setSettings, setDateRange]);
 
   // 검색 실행
   const handleSearch = useCallback(async () => {

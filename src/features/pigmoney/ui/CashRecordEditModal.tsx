@@ -6,6 +6,7 @@ import {
   CashRecordSchemaType,
 } from "@/features/pigmoney/model/schema/cashRecordSchema";
 import { updateCashRecord } from "@/features/pigmoney/model/services/cashRecords.service";
+import { useCashRecordStore } from "@/features/pigmoney/model/store/cashRecordStore";
 import { Button } from "@/shared/components/atoms/button";
 import { DatePicker } from "@/shared/components/atoms/date-picker";
 import {
@@ -39,6 +40,7 @@ const CashRecordEditModal = ({
   categories,
   originValue,
 }: CashRecordEditModalProps) => {
+  const { invalidateSummary } = useCashRecordStore();
   const formMethods = useForm<CashRecordSchemaType>({
     resolver: zodResolver(cashRecordSchema),
   });
@@ -99,6 +101,7 @@ const CashRecordEditModal = ({
     }
 
     toast.success("수정되었습니다.");
+    invalidateSummary();
     handleClose();
   };
 

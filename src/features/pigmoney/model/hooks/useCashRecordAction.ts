@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 const useCashRecordAction = () => {
   const { showDialog } = useDialogContext();
-  const { removeRecord } = useCashRecordStore();
+  const { removeRecord, invalidateSummary } = useCashRecordStore();
 
   // 거래 삭제
   const onDeleteRecord = useCallback(
@@ -24,9 +24,10 @@ const useCashRecordAction = () => {
         toast.error("거래 삭제에 실패했습니다.");
       } else {
         toast.success("거래가 삭제되었습니다.");
+        invalidateSummary();
       }
     },
-    [showDialog, removeRecord],
+    [showDialog, removeRecord, invalidateSummary],
   );
 
   return {

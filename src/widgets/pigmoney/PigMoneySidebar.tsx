@@ -1,19 +1,18 @@
 "use client";
 
 import CategoryManageModal from "@/features/pigmoney/ui/CategoryManageModal";
+import useSidebarSummary from "@/features/pigmoney/model/hooks/useSidebarSummary";
+import { useCashRecordStore } from "@/features/pigmoney/model/store/cashRecordStore";
 import ProfileSection from "@/features/profile/ui/ProfileSection";
 import Divider from "@/shared/components/molecules/Divider";
-import {
-  MOCK_MONTH_SUMMARY,
-  MOCK_WEEK_SUMMARY,
-  PIGMONEY_NAV_ITEMS,
-} from "@/shared/constants/pigmoney";
+import { PIGMONEY_NAV_ITEMS } from "@/shared/constants/pigmoney";
 import { useBoolean } from "@/shared/hooks/useBoolean";
 import {
   BarChart3,
   CalendarDays,
   ChevronDown,
   ChevronRight,
+  Loader2,
   PenLine,
   PiggyBank,
   Settings,
@@ -22,11 +21,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
-// 아이콘 매핑
+// 아이콘 매핑 (네비게이션용)
 const ICON_MAP = {
   PenLine,
   BarChart3,
   CalendarDays,
+  Settings,
 } as const;
 
 // 가계 요약 섹션 (이달의 가계 / 이주의 가계)
@@ -35,9 +35,10 @@ interface SummarySectionProps {
   period: string;
   income: number;
   expense: number;
+  isLoading?: boolean;
 }
 
-const SummarySection = ({ label, period, income, expense }: SummarySectionProps) => {
+const SummarySection = ({ label, period, income, expense, isLoading }: SummarySectionProps) => {
   const [isOpen, setIsOpen] = useState(true);
   const balance = income - expense;
 
@@ -59,32 +60,41 @@ const SummarySection = ({ label, period, income, expense }: SummarySectionProps)
       {/* 접히는 본문 */}
       {isOpen && (
         <div className="mt-2 flex flex-col gap-1.5 pl-5">
-          {/* 기간 */}
-          <span className="text-xs text-minimoku-neutral-bold">{period}</span>
+          {isLoading ? (
+            <div className="flex items-center gap-2 py-2">
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-minimoku-neutral-bold" />
+              <span className="text-xs text-minimoku-neutral-bold">로딩 중...</span>
+            </div>
+          ) : (
+            <>
+              {/* 기간 */}
+              <span className="text-xs text-minimoku-neutral-bold">{period}</span>
 
-          {/* 수입 - 지출 (잔액) */}
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-minimoku-neutral-bold">= 수입 - 지출</span>
-            <span className="text-sm font-semibold text-pigmoney-balance">
-              {balance.toLocaleString()} 원
-            </span>
-          </div>
+              {/* 수입 - 지출 (잔액) */}
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-minimoku-neutral-bold">= 수입 - 지출</span>
+                <span className="text-sm font-semibold text-pigmoney-balance">
+                  {balance.toLocaleString()} 원
+                </span>
+              </div>
 
-          {/* 수입 */}
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-minimoku-neutral-bold">+ 수입</span>
-            <span className="text-sm font-medium text-pigmoney-income">
-              {income.toLocaleString()} 원
-            </span>
-          </div>
+              {/* 수입 */}
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-minimoku-neutral-bold">+ 수입</span>
+                <span className="text-sm font-medium text-pigmoney-income">
+                  {income.toLocaleString()} 원
+                </span>
+              </div>
 
-          {/* 지출 */}
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-minimoku-neutral-bold">- 지출</span>
-            <span className="text-sm font-medium text-pigmoney-expense">
-              {expense.toLocaleString()} 원
-            </span>
-          </div>
+              {/* 지출 */}
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-minimoku-neutral-bold">- 지출</span>
+                <span className="text-sm font-medium text-pigmoney-expense">
+                  {expense.toLocaleString()} 원
+                </span>
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>
@@ -95,6 +105,10 @@ const SummarySection = ({ label, period, income, expense }: SummarySectionProps)
 const PigMoneySidebar = () => {
   const categoryModalState = useBoolean();
   const pathname = usePathname();
+  const { monthSummary, weekSummary } = useCashRecordStore();
+
+  // 사이드바 요약 데이터 자동 조회/갱신
+  useSidebarSummary();
 
   // 현재 경로와 네비게이션 항목 비교 (정확 매칭)
   const isActive = (href: string) => {
@@ -149,20 +163,22 @@ const PigMoneySidebar = () => {
 
         {/* 이달의 가계 */}
         <SummarySection
-          label={MOCK_MONTH_SUMMARY.label}
-          period={MOCK_MONTH_SUMMARY.period}
-          income={MOCK_MONTH_SUMMARY.income}
-          expense={MOCK_MONTH_SUMMARY.expense}
+          label={monthSummary?.label ?? "이달의 가계"}
+          period={monthSummary?.period ?? ""}
+          income={monthSummary?.income ?? 0}
+          expense={monthSummary?.expense ?? 0}
+          isLoading={!monthSummary}
         />
 
         <Divider />
 
         {/* 이주의 가계 */}
         <SummarySection
-          label={MOCK_WEEK_SUMMARY.label}
-          period={MOCK_WEEK_SUMMARY.period}
-          income={MOCK_WEEK_SUMMARY.income}
-          expense={MOCK_WEEK_SUMMARY.expense}
+          label={weekSummary?.label ?? "이주의 가계"}
+          period={weekSummary?.period ?? ""}
+          income={weekSummary?.income ?? 0}
+          expense={weekSummary?.expense ?? 0}
+          isLoading={!weekSummary}
         />
 
         <Divider />
@@ -175,13 +191,6 @@ const PigMoneySidebar = () => {
           >
             <Settings className="h-4 w-4 text-minimoku-neutral-bold" />
             <span>카테고리 관리</span>
-          </button>
-          <button
-            className="flex w-full cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-minimoku-neutral-bold hover:bg-accent"
-            disabled
-          >
-            <Settings className="h-4 w-4" />
-            <span>설정</span>
           </button>
         </div>
 

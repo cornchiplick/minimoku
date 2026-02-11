@@ -1,5 +1,6 @@
 import { getCashRecords } from "@/features/pigmoney/model/services/cashRecords.service";
 import { getCategories, seedDefaultCategories } from "@/features/pigmoney/model/services/categories.service";
+import { getSettings } from "@/features/pigmoney/model/services/settings.service";
 import PigMoneyMain from "@/widgets/pigmoney/PigMoneyMain";
 import { DEFAULT_DATE_RANGE_DAYS } from "@/shared/constants/pigmoney";
 import { getDateRange, toDateString } from "@/shared/lib/utils/dateUtils";
@@ -18,13 +19,17 @@ const PigMoneyPage = async () => {
       },
     });
 
-    // 카테고리 목록 조회
-    const initialCategories = await getCategories();
+    // 카테고리 목록 + 사용자 설정 동시 조회
+    const [initialCategories, initialSettings] = await Promise.all([
+      getCategories(),
+      getSettings(),
+    ]);
 
     return (
       <PigMoneyMain
         initialRecords={initialRecords}
         initialCategories={initialCategories}
+        initialSettings={initialSettings}
       />
     );
   } catch (error) {

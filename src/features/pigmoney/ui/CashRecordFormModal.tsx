@@ -6,6 +6,7 @@ import {
   CashRecordBatchSchemaType,
 } from "@/features/pigmoney/model/schema/cashRecordBatchSchema";
 import { postCashRecords } from "@/features/pigmoney/model/services/cashRecords.service";
+import { useCashRecordStore } from "@/features/pigmoney/model/store/cashRecordStore";
 import CashRecordRow from "./CashRecordRow";
 import { Button } from "@/shared/components/atoms/button";
 import {
@@ -40,6 +41,7 @@ const getDefaultRow = () => ({
 
 // 거래 작성 모달 (다중 행)
 const CashRecordFormModal = ({ modalState, categories }: CashRecordFormModalProps) => {
+  const { invalidateSummary } = useCashRecordStore();
   const formMethods = useForm<CashRecordBatchSchemaType>({
     resolver: zodResolver(cashRecordBatchSchema),
     defaultValues: {
@@ -90,6 +92,7 @@ const CashRecordFormModal = ({ modalState, categories }: CashRecordFormModalProp
     }
 
     toast.success("저장되었습니다.");
+    invalidateSummary();
     handleClose();
   };
 
