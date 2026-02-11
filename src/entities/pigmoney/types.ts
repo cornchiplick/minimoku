@@ -34,3 +34,18 @@ export interface CategoryBreakdown {
   total: number;
   type: CashRecordType;
 }
+
+// PigMoney 사용자 설정
+export interface PigMoneySettingsInterface {
+  id: number;
+  monthStartDay: number; // 1~28
+  weekStartDay: number; // 0=일, 1=월, ..., 6=토
+}
+
+// 사이드바 요약 데이터 (이달의 가계 / 이주의 가계)
+export interface SummaryData {
+  label: string;
+  period: string;
+  income: number;
+  expense: number;
+}
