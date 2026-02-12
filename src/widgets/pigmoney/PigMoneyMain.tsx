@@ -18,7 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/at
 import { DEFAULT_DATE_RANGE_DAYS } from "@/shared/constants/pigmoney";
 import { getDateRange, toDateString } from "@/shared/lib/utils/dateUtils";
 import { Loader2, Plus, Save, Search } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FormProvider, useFormContext } from "react-hook-form";
 import { toast } from "sonner";
 import { InlineBatchForm } from "@/features/pigmoney/model/hooks/useInlineCashRecord";
@@ -61,14 +61,20 @@ const PigMoneyMain = ({
   // 현재 선택된 탭
   const [activeTab, setActiveTab] = useState<"expense" | "income">("expense");
   const [isSaving, setIsSaving] = useState(false);
+  const isInitializedRef = useRef(false);
 
-  // 초기 데이터 로드
+  // 첫 마운트 시에만 records + dateRange 초기화
+  // (revalidateTag로 서버 컴포넌트 재렌더 시 dateRange 리셋 방지)
   useEffect(() => {
-    setRecords(initialRecords);
+    if (!isInitializedRef.current) {
+      setRecords(initialRecords);
+      const { from, to } = getDateRange(DEFAULT_DATE_RANGE_DAYS);
+      setDateRange({ from, to });
+      isInitializedRef.current = true;
+    }
+    // 카테고리/설정은 항상 최신 서버 값으로 업데이트
     setCategories(initialCategories);
     setSettings(initialSettings);
-    const { from, to } = getDateRange(DEFAULT_DATE_RANGE_DAYS);
-    setDateRange({ from, to });
   }, [
     initialRecords,
     initialCategories,

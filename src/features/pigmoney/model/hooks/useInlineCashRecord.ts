@@ -28,13 +28,13 @@ const getDefaultRow = (type: "INCOME" | "EXPENSE"): InlineRowValues => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   return {
-  _id: undefined,
-  type,
+    _id: undefined,
+    type,
     date: today,
-  categoryId: "",
-  description: "",
-  amount: "",
-  note: "",
+    categoryId: "",
+    description: "",
+    amount: "",
+    note: "",
   };
 };
 
@@ -203,6 +203,11 @@ const useInlineCashRecord = () => {
       if (results.length > 0) {
         toast.success(results.join(", ") + " 완료");
         invalidateSummary();
+
+        // 저장 완료된 새 행을 폼에서 제거 (중복 저장 방지)
+        // handleSearch → setRecords → loadRecords 시 서버에서 _id가 있는 행으로 다시 로드됨
+        const existingRows = form.getValues("records").filter((r) => !!r._id);
+        form.reset({ records: existingRows });
       }
 
       return { success: true };
