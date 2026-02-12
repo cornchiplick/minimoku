@@ -15,12 +15,12 @@ export async function GET(request: Request) {
         userId,
         // 타입 필터
         ...(type && { type: type as "INCOME" | "EXPENSE" }),
-        // 날짜 구간 필터
+        // 날짜 구간 필터 (로컬 시간대 기준 자정~23:59)
         ...(fromDate &&
           toDate && {
             date: {
-              gte: new Date(fromDate),
-              lte: new Date(toDate),
+              gte: new Date(`${fromDate}T00:00:00`),
+              lte: new Date(`${toDate}T23:59:59.999`),
             },
           }),
       },

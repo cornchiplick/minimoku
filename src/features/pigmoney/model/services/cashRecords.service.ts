@@ -147,12 +147,16 @@ export async function getCashRecordSummary({
     throw new Error("로그인이 필요합니다.");
   }
 
+  // 날짜 범위의 시작과 끝을 명시적으로 설정 (로컬 시간대 기준)
   const [incomeResult, expenseResult] = await Promise.all([
     db.cashRecord.aggregate({
       where: {
         userId: user.id,
         type: "INCOME",
-        date: { gte: new Date(fromDate), lte: new Date(toDate) },
+        date: {
+          gte: new Date(`${fromDate}T00:00:00`),
+          lte: new Date(`${toDate}T23:59:59.999`),
+        },
       },
       _sum: { amount: true },
     }),
@@ -160,7 +164,10 @@ export async function getCashRecordSummary({
       where: {
         userId: user.id,
         type: "EXPENSE",
-        date: { gte: new Date(fromDate), lte: new Date(toDate) },
+        date: {
+          gte: new Date(`${fromDate}T00:00:00`),
+          lte: new Date(`${toDate}T23:59:59.999`),
+        },
       },
       _sum: { amount: true },
     }),

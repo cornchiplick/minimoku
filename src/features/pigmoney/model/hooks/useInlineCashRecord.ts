@@ -23,16 +23,20 @@ export interface InlineBatchForm {
   records: InlineRowValues[];
 }
 
-// 새 행 기본값 생성
-const getDefaultRow = (type: "INCOME" | "EXPENSE"): InlineRowValues => ({
+// 새 행 기본값 생성 (날짜는 오늘 0시로 정규화)
+const getDefaultRow = (type: "INCOME" | "EXPENSE"): InlineRowValues => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return {
   _id: undefined,
   type,
-  date: new Date(),
+    date: today,
   categoryId: "",
   description: "",
   amount: "",
   note: "",
-});
+  };
+};
 
 // 기존 거래를 인라인 행 형태로 변환
 const recordToRow = (record: CashRecordInterface): InlineRowValues => ({
