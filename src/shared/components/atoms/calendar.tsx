@@ -4,24 +4,31 @@ import { cn } from "@/shared/lib/utils/commonUtils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import * as React from "react";
 import { DayPicker } from "react-day-picker";
+import { ko } from "react-day-picker/locale";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
+
+// 드롭다운 연도 범위
+const START_MONTH = new Date(2000, 0);
+const END_MONTH = new Date(new Date().getFullYear() + 1, 11);
 
 function Calendar({ className, classNames, showOutsideDays = true, ...props }: CalendarProps) {
   return (
     <DayPicker
+      locale={ko}
+      captionLayout="dropdown"
+      startMonth={START_MONTH}
+      endMonth={END_MONTH}
       showOutsideDays={showOutsideDays}
       className={cn("p-3", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
         month_caption: "flex justify-center pt-1 relative items-center",
-        caption_label: "text-sm font-medium",
-        nav: "space-x-1 flex items-center",
-        button_previous:
-          "absolute left-1 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 inline-flex items-center justify-center",
-        button_next:
-          "absolute right-1 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 inline-flex items-center justify-center",
+        caption_label: "hidden",
+        dropdowns: "flex items-center gap-2",
+        dropdown: "bg-transparent text-sm font-medium cursor-pointer border rounded-md px-1 py-0.5",
+        nav: "hidden",
         month_grid: "w-full border-collapse space-y-1",
         weekdays: "flex",
         weekday: "text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]",
