@@ -21,6 +21,8 @@ export const config = {
   matcher: [
     "/link",
     "/link/:path*",
+    "/pigmoney",
+    "/pigmoney/:path*",
     "/accumulate",
     "/accumulate/:path*",
     "/quiz",

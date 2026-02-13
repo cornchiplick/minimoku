@@ -21,11 +21,11 @@ const ThemeToggleButton = () => {
   }, [value]);
 
   return (
-    <button className="rounded-lg p-2 hover:bg-gray-100" onClick={toggleTheme}>
+    <button className="rounded-lg p-2 hover:bg-accent" onClick={toggleTheme}>
       <Moon
-        className="h-5 w-5 text-gray-600"
-        fill={isDarkMode ? "#7d7d7d" : "none"}
-        stroke={isDarkMode ? "none" : "#7d7d7d"}
+        className="h-5 w-5 text-minimoku-neutral-bold"
+        fill={isDarkMode ? "currentColor" : "none"}
+        stroke={isDarkMode ? "none" : "currentColor"}
       />
     </button>
   );
