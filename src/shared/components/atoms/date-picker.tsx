@@ -6,6 +6,7 @@ import { Calendar } from "@/shared/components/atoms/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/atoms/popover";
 import { formatDate } from "@/shared/lib/utils/dateUtils";
 import { CalendarIcon } from "lucide-react";
+import { useState } from "react";
 
 interface DatePickerProps {
   selected?: Date | null;
@@ -22,8 +23,16 @@ const DatePicker = ({
   className,
   disabled,
 }: DatePickerProps) => {
+  const [open, setOpen] = useState(false);
+
+  // 날짜 선택 시 Popover 닫기
+  const handleSelect = (date: Date | undefined) => {
+    onSelect(date);
+    setOpen(false);
+  };
+
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -42,7 +51,8 @@ const DatePicker = ({
         <Calendar
           mode="single"
           selected={selected ?? undefined}
-          onSelect={onSelect}
+          onSelect={handleSelect}
+          defaultMonth={selected ?? undefined}
         />
       </PopoverContent>
     </Popover>
