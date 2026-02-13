@@ -78,7 +78,7 @@ const PigMoneySettings = ({ initialSettings }: PigMoneySettingsProps) => {
               <SelectTrigger className="w-40">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-60">
                 {Array.from({ length: 28 }, (_, i) => i + 1).map((day) => (
                   <SelectItem key={day} value={String(day)}>
                     {day}일
