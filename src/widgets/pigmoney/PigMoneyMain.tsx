@@ -15,8 +15,7 @@ import { Button } from "@/shared/components/atoms/button";
 import { DatePicker } from "@/shared/components/atoms/date-picker";
 import { Switch } from "@/shared/components/atoms/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/atoms/tabs";
-import { DEFAULT_DATE_RANGE_DAYS } from "@/shared/constants/pigmoney";
-import { getDateRange, toDateString } from "@/shared/lib/utils/dateUtils";
+import { getCustomMonthRange, toDateString } from "@/shared/lib/utils/dateUtils";
 import { Loader2, Plus, Save, Search } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FormProvider, useFormContext } from "react-hook-form";
@@ -68,7 +67,8 @@ const PigMoneyMain = ({
   useEffect(() => {
     if (!isInitializedRef.current) {
       setRecords(initialRecords);
-      const { from, to } = getDateRange(DEFAULT_DATE_RANGE_DAYS);
+      // 설정된 월 시작일 기준으로 기본 조회 기간 세팅
+      const { from, to } = getCustomMonthRange(initialSettings.monthStartDay);
       setDateRange({ from, to });
       isInitializedRef.current = true;
     }
@@ -126,45 +126,47 @@ const PigMoneyMain = ({
         onValueChange={(v) => setActiveTab(v as "expense" | "income")}
         className="flex flex-1 flex-col overflow-hidden"
       >
-        {/* 서브 헤더: 탭 + 필터 + 액션 */}
-        <div className="bg-background-primary flex flex-wrap items-center gap-3 border-b px-6 py-3">
-          {/* 지출/수입 탭 */}
-          <TabsList>
-            <TabsTrigger value="expense">지출 ({expenseRecords.length})</TabsTrigger>
-            <TabsTrigger value="income">수입 ({incomeRecords.length})</TabsTrigger>
-          </TabsList>
+        {/* 서브 헤더 */}
+        <div className="bg-background-primary border-b">
+          {/* 첫 번째 줄: 날짜 구간 + 전체 토글 + 검색 (중앙 정렬) */}
+          <div className="flex flex-wrap items-center justify-center gap-3 px-6 pt-3 pb-2">
+            {/* 날짜 구간 */}
+            <div className="flex items-center gap-2">
+              <DatePicker
+                selected={dateRange.from}
+                onSelect={(date) => setDateRange({ ...dateRange, from: date ?? null })}
+                placeholder="시작일"
+                disabled={showAll}
+              />
+              <span className="text-minimoku-neutral-bold">—</span>
+              <DatePicker
+                selected={dateRange.to}
+                onSelect={(date) => setDateRange({ ...dateRange, to: date ?? null })}
+                placeholder="종료일"
+                disabled={showAll}
+              />
+            </div>
 
-          {/* 날짜 구간 */}
-          <div className="flex items-center gap-2">
-            <DatePicker
-              selected={dateRange.from}
-              onSelect={(date) => setDateRange({ ...dateRange, from: date ?? null })}
-              placeholder="시작일"
-              disabled={showAll}
-            />
-            <span className="text-minimoku-neutral-bold">—</span>
-            <DatePicker
-              selected={dateRange.to}
-              onSelect={(date) => setDateRange({ ...dateRange, to: date ?? null })}
-              placeholder="종료일"
-              disabled={showAll}
-            />
+            {/* 전체 토글 */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-minimoku-neutral-bold">전체</span>
+              <Switch checked={showAll} onCheckedChange={setShowAll} />
+            </div>
+
+            {/* 검색 */}
+            <Button onClick={handleSearch} variant="outline" size="sm" className="cursor-pointer">
+              <Search className="mr-1 h-3.5 w-3.5" />
+              검색
+            </Button>
           </div>
 
-          {/* 전체 토글 */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-minimoku-neutral-bold">전체</span>
-            <Switch checked={showAll} onCheckedChange={setShowAll} />
-          </div>
+          {/* 두 번째 줄: 지출/수입 탭 + 저장하기 */}
+          <div className="flex items-center justify-between px-6 pb-3">
+            <TabsList>
+              <TabsTrigger value="expense">지출 ({expenseRecords.length})</TabsTrigger>
+              <TabsTrigger value="income">수입 ({incomeRecords.length})</TabsTrigger>
+            </TabsList>
 
-          {/* 검색 */}
-          <Button onClick={handleSearch} variant="outline" size="sm" className="cursor-pointer">
-            <Search className="mr-1 h-3.5 w-3.5" />
-            검색
-          </Button>
-
-          {/* 저장하기 (우측 정렬) */}
-          <div className="ml-auto">
             <Button onClick={handleSave} disabled={isSaving} className="cursor-pointer">
               {isSaving ? (
                 <Loader2 className="mr-1 h-4 w-4 animate-spin" />

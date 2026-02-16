@@ -55,6 +55,7 @@ const CashRecordInputCard = ({
         <FormInput<InlineBatchForm>
           name={`records.${index}.description`}
           placeholder="사용내역"
+          className="h-9 py-2"
         />
       </div>
 
@@ -64,6 +65,7 @@ const CashRecordInputCard = ({
           name={`records.${index}.amount`}
           placeholder="금액"
           type="number"
+          className="h-9 py-2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />
       </div>
 
@@ -72,6 +74,7 @@ const CashRecordInputCard = ({
         <FormSelect<InlineBatchForm>
           name={`records.${index}.categoryId`}
           placeholder="분류"
+          className="h-9 py-2"
         >
           {categories.map((cat) => (
             <SelectItem key={cat.id} value={String(cat.id)}>
@@ -86,6 +89,7 @@ const CashRecordInputCard = ({
         <FormInput<InlineBatchForm>
           name={`records.${index}.note`}
           placeholder="비고"
+          className="h-9 py-2"
         />
       </div>
 
