@@ -7,13 +7,15 @@ import {
 } from "@/entities/pigmoney/types";
 import useCashRecordAction from "@/features/pigmoney/model/hooks/useCashRecordAction";
 import useCashRecordFilter from "@/features/pigmoney/model/hooks/useCashRecordFilter";
-import useInlineCashRecord from "@/features/pigmoney/model/hooks/useInlineCashRecord";
-import { getCashRecords } from "@/features/pigmoney/model/services/cashRecords.service";
-import { useCashRecordStore } from "@/features/pigmoney/model/store/cashRecordStore";
+import useInlineCashRecord, {
+  InlineBatchForm,
+} from "@/features/pigmoney/model/hooks/useInlineCashRecord";
+import {getCashRecords} from "@/features/pigmoney/model/services/cashRecords.service";
+import {useCashRecordStore} from "@/features/pigmoney/model/store/cashRecordStore";
 import CashRecordInputCard from "@/features/pigmoney/ui/CashRecordInputCard";
-import { Button } from "@/shared/components/atoms/button";
-import { DatePicker } from "@/shared/components/atoms/date-picker";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/atoms/tabs";
+import {Button} from "@/shared/components/atoms/button";
+import {DatePicker} from "@/shared/components/atoms/date-picker";
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/shared/components/atoms/tabs";
 import {
   getCustomMonthRange,
   getCustomMonthRangeFor,
@@ -21,11 +23,10 @@ import {
   getPrevCustomMonthRange,
   toDateString,
 } from "@/shared/lib/utils/dateUtils";
-import { ChevronLeft, ChevronRight, Loader2, Plus, Save, Search } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FormProvider, useFormContext } from "react-hook-form";
-import { toast } from "sonner";
-import { InlineBatchForm } from "@/features/pigmoney/model/hooks/useInlineCashRecord";
+import {ChevronLeft, ChevronRight, Loader2, Plus, Save} from "lucide-react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {FormProvider, useFormContext} from "react-hook-form";
+import {toast} from "sonner";
 
 interface PigMoneyMainProps {
   initialRecords: CashRecordInterface[];
@@ -34,22 +35,11 @@ interface PigMoneyMainProps {
 }
 
 // PigMoney 메인 위젯 (서브 헤더 + 카드 리스트)
-const PigMoneyMain = ({
-  initialRecords,
-  initialCategories,
-  initialSettings,
-}: PigMoneyMainProps) => {
-  const {
-    setRecords,
-    setCategories,
-    setDateRange,
-    setSettings,
-    dateRange,
-    categories,
-    settings,
-  } = useCashRecordStore();
-  const { incomeRecords, expenseRecords, totalIncome, totalExpense } = useCashRecordFilter();
-  const { onDeleteRecord } = useCashRecordAction();
+const PigMoneyMain = ({initialRecords, initialCategories, initialSettings}: PigMoneyMainProps) => {
+  const {setRecords, setCategories, setDateRange, setSettings, dateRange, categories, settings} =
+    useCashRecordStore();
+  const {incomeRecords, expenseRecords, totalIncome, totalExpense} = useCashRecordFilter();
+  const {onDeleteRecord} = useCashRecordAction();
   const {
     expenseForm,
     incomeForm,
@@ -72,8 +62,8 @@ const PigMoneyMain = ({
     if (!isInitializedRef.current) {
       setRecords(initialRecords);
       // 설정된 월 시작일 기준으로 기본 조회 기간 세팅
-      const { from, to } = getCustomMonthRange(initialSettings.monthStartDay);
-      setDateRange({ from, to });
+      const {from, to} = getCustomMonthRange(initialSettings.monthStartDay);
+      setDateRange({from, to});
       isInitializedRef.current = true;
     }
     // 카테고리/설정은 항상 최신 서버 값으로 업데이트
@@ -97,7 +87,7 @@ const PigMoneyMain = ({
   // 현재 조회 중인 월 레이블 (예: "1월", "2월")
   const currentMonthLabel = useMemo(() => {
     if (!dateRange.from || !settings) return "";
-    const { label } = getCustomMonthRangeFor(dateRange.from, settings.monthStartDay);
+    const {label} = getCustomMonthRangeFor(dateRange.from, settings.monthStartDay);
     return label;
   }, [dateRange.from, settings]);
 
@@ -109,7 +99,7 @@ const PigMoneyMain = ({
         params.fromDate = toDateString(dateRange.from);
         params.toDate = toDateString(dateRange.to);
       }
-      const records = await getCashRecords({ params });
+      const records = await getCashRecords({params});
       setRecords(records);
     } catch {
       toast.error("조회에 실패했습니다.");
@@ -119,11 +109,11 @@ const PigMoneyMain = ({
   // 이전 달로 이동 + 자동 검색
   const handlePrevMonth = useCallback(async () => {
     if (!dateRange.from || !settings) return;
-    const { from, to } = getPrevCustomMonthRange(dateRange.from, settings.monthStartDay);
-    setDateRange({ from, to });
+    const {from, to} = getPrevCustomMonthRange(dateRange.from, settings.monthStartDay);
+    setDateRange({from, to});
     try {
       const records = await getCashRecords({
-        params: { fromDate: toDateString(from), toDate: toDateString(to) },
+        params: {fromDate: toDateString(from), toDate: toDateString(to)},
       });
       setRecords(records);
     } catch {
@@ -134,11 +124,11 @@ const PigMoneyMain = ({
   // 다음 달로 이동 + 자동 검색
   const handleNextMonth = useCallback(async () => {
     if (!dateRange.to || !settings) return;
-    const { from, to } = getNextCustomMonthRange(dateRange.to, settings.monthStartDay);
-    setDateRange({ from, to });
+    const {from, to} = getNextCustomMonthRange(dateRange.to, settings.monthStartDay);
+    setDateRange({from, to});
     try {
       const records = await getCashRecords({
-        params: { fromDate: toDateString(from), toDate: toDateString(to) },
+        params: {fromDate: toDateString(from), toDate: toDateString(to)},
       });
       setRecords(records);
     } catch {
@@ -165,10 +155,9 @@ const PigMoneyMain = ({
       <Tabs
         value={activeTab}
         onValueChange={(v) => setActiveTab(v as "expense" | "income")}
-        className="flex flex-1 flex-col overflow-hidden"
-      >
+        className="flex flex-1 flex-col overflow-hidden">
         {/* 서브 헤더 */}
-        <div className="bg-background-primary border-b">
+        <div className="bg-background-primary border-b border-border/40">
           {/* 첫 번째 줄: 화살표 네비게이션 + 날짜 구간 + 월 레이블 + 검색 */}
           <div className="flex flex-wrap items-center justify-center gap-2 px-6 pt-3 pb-2">
             {/* 이전 달 화살표 */}
@@ -176,8 +165,7 @@ const PigMoneyMain = ({
               variant="ghost"
               size="icon"
               className="h-8 w-8 cursor-pointer"
-              onClick={handlePrevMonth}
-            >
+              onClick={handlePrevMonth}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
 
@@ -185,13 +173,13 @@ const PigMoneyMain = ({
             <div className="flex items-center gap-2">
               <DatePicker
                 selected={dateRange.from}
-                onSelect={(date) => setDateRange({ ...dateRange, from: date ?? null })}
+                onSelect={(date) => setDateRange({...dateRange, from: date ?? null})}
                 placeholder="시작일"
               />
               <span className="text-minimoku-neutral-bold">—</span>
               <DatePicker
                 selected={dateRange.to}
-                onSelect={(date) => setDateRange({ ...dateRange, to: date ?? null })}
+                onSelect={(date) => setDateRange({...dateRange, to: date ?? null})}
                 placeholder="종료일"
               />
             </div>
@@ -201,22 +189,8 @@ const PigMoneyMain = ({
               variant="ghost"
               size="icon"
               className="h-8 w-8 cursor-pointer"
-              onClick={handleNextMonth}
-            >
+              onClick={handleNextMonth}>
               <ChevronRight className="h-4 w-4" />
-            </Button>
-
-            {/* 현재 월 레이블 */}
-            {currentMonthLabel && (
-              <span className="text-sm font-medium text-minimoku-neutral-bold">
-                {currentMonthLabel}
-              </span>
-            )}
-
-            {/* 검색 */}
-            <Button onClick={handleSearch} variant="outline" size="sm" className="cursor-pointer">
-              <Search className="mr-1 h-3.5 w-3.5" />
-              검색
             </Button>
           </div>
 
@@ -253,7 +227,7 @@ const PigMoneyMain = ({
                   removeRow("EXPENSE", index);
                 } else {
                   const row = expenseForm.getValues(`records.${index}`);
-                  if (row._id) onDeleteRecord({ id: row._id });
+                  if (row._id) onDeleteRecord({id: row._id});
                 }
               }}
             />
@@ -275,7 +249,7 @@ const PigMoneyMain = ({
                   removeRow("INCOME", index);
                 } else {
                   const row = incomeForm.getValues(`records.${index}`);
-                  if (row._id) onDeleteRecord({ id: row._id });
+                  if (row._id) onDeleteRecord({id: row._id});
                 }
               }}
             />
@@ -288,7 +262,7 @@ const PigMoneyMain = ({
 
 // 거래 카드 리스트 컴포넌트
 interface RecordCardListProps {
-  fields: { id: string }[];
+  fields: {id: string}[];
   total: number;
   totalLabel: string;
   type: "INCOME" | "EXPENSE";
@@ -312,7 +286,7 @@ const RecordCardList = ({
     <div className="flex flex-col gap-3 p-6">
       {/* 카드 목록 */}
       {fields.length === 0 ? (
-        <div className="py-12 text-center text-sm text-minimoku-neutral-bold">
+        <div className="text-minimoku-neutral-bold py-12 text-center text-sm">
           {isExpense ? "지출" : "수입"} 내역이 없습니다. 아래 버튼으로 추가해보세요.
         </div>
       ) : (
@@ -333,8 +307,7 @@ const RecordCardList = ({
       <button
         type="button"
         onClick={onAppendRow}
-        className="flex w-full cursor-pointer items-center justify-center gap-1 rounded-lg border border-dashed border-minimoku-neutral-bold py-3 text-sm text-minimoku-neutral-bold transition-colors hover:border-pigmoney-brand hover:bg-pigmoney-brand/5 hover:text-pigmoney-brand"
-      >
+        className="border-minimoku-neutral-bold text-minimoku-neutral-bold hover:border-pigmoney-brand hover:bg-pigmoney-brand/5 hover:text-pigmoney-brand flex w-full cursor-pointer items-center justify-center gap-1 rounded-lg border border-dashed py-3 text-sm transition-colors">
         <Plus className="h-4 w-4" />
       </button>
 
@@ -344,8 +317,7 @@ const RecordCardList = ({
         <span
           className={`text-sm font-semibold ${
             isExpense ? "text-pigmoney-expense" : "text-pigmoney-income"
-          }`}
-        >
+          }`}>
           {total.toLocaleString()} 원
         </span>
       </div>
@@ -365,7 +337,7 @@ const CashRecordInputCardWrapper = ({
   categories,
   onRemoveRow,
 }: CashRecordInputCardWrapperProps) => {
-  const { watch } = useFormContext<InlineBatchForm>();
+  const {watch} = useFormContext<InlineBatchForm>();
   const _id = watch(`records.${index}._id`);
   const isNew = !_id;
 
