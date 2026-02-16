@@ -92,6 +92,30 @@ export const getCustomMonthRangeFor = (
 };
 
 /**
+ * 현재 조회 범위의 이전 커스텀 월 범위 계산
+ */
+export const getPrevCustomMonthRange = (
+  currentFrom: Date,
+  monthStartDay: number,
+): { from: Date; to: Date; label: string } => {
+  const prevDate = new Date(currentFrom);
+  prevDate.setDate(prevDate.getDate() - 1); // 시작일 하루 전 = 이전 월에 속함
+  return getCustomMonthRangeFor(prevDate, monthStartDay);
+};
+
+/**
+ * 현재 조회 범위의 다음 커스텀 월 범위 계산
+ */
+export const getNextCustomMonthRange = (
+  currentTo: Date,
+  monthStartDay: number,
+): { from: Date; to: Date; label: string } => {
+  const nextDate = new Date(currentTo);
+  nextDate.setDate(nextDate.getDate() + 1); // 종료일 다음날 = 다음 월에 속함
+  return getCustomMonthRangeFor(nextDate, monthStartDay);
+};
+
+/**
  * 사용자 설정 기반 "이번 주" 범위 계산
  * weekStartDay=5(금) → 금~목
  */

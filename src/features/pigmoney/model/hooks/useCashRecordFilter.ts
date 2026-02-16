@@ -6,19 +6,17 @@ import { useCashRecordStore } from "@/features/pigmoney/model/store/cashRecordSt
 import { useMemo } from "react";
 
 const useCashRecordFilter = () => {
-  const { records, dateRange, showAll } = useCashRecordStore();
+  const { records, dateRange } = useCashRecordStore();
 
   // 필터 조건에 따라 거래 필터링
   const filteredRecords = useMemo(() => {
-    if (showAll) return records;
-
     if (!dateRange.from || !dateRange.to) return records;
 
     return records.filter((r) => {
       const date = new Date(r.date);
       return date >= dateRange.from! && date <= dateRange.to!;
     });
-  }, [records, dateRange, showAll]);
+  }, [records, dateRange]);
 
   // 수입/지출 분리
   const incomeRecords = useMemo(

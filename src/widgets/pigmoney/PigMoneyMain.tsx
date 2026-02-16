@@ -13,11 +13,16 @@ import { useCashRecordStore } from "@/features/pigmoney/model/store/cashRecordSt
 import CashRecordInputCard from "@/features/pigmoney/ui/CashRecordInputCard";
 import { Button } from "@/shared/components/atoms/button";
 import { DatePicker } from "@/shared/components/atoms/date-picker";
-import { Switch } from "@/shared/components/atoms/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/atoms/tabs";
-import { getCustomMonthRange, toDateString } from "@/shared/lib/utils/dateUtils";
-import { Loader2, Plus, Save, Search } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  getCustomMonthRange,
+  getCustomMonthRangeFor,
+  getNextCustomMonthRange,
+  getPrevCustomMonthRange,
+  toDateString,
+} from "@/shared/lib/utils/dateUtils";
+import { ChevronLeft, ChevronRight, Loader2, Plus, Save, Search } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FormProvider, useFormContext } from "react-hook-form";
 import { toast } from "sonner";
 import { InlineBatchForm } from "@/features/pigmoney/model/hooks/useInlineCashRecord";
@@ -40,9 +45,8 @@ const PigMoneyMain = ({
     setDateRange,
     setSettings,
     dateRange,
-    showAll,
-    setShowAll,
     categories,
+    settings,
   } = useCashRecordStore();
   const { incomeRecords, expenseRecords, totalIncome, totalExpense } = useCashRecordFilter();
   const { onDeleteRecord } = useCashRecordAction();
@@ -90,11 +94,18 @@ const PigMoneyMain = ({
     loadRecords([...expenseRecords, ...incomeRecords]);
   }, [expenseRecords, incomeRecords, loadRecords]);
 
+  // 현재 조회 중인 월 레이블 (예: "1월", "2월")
+  const currentMonthLabel = useMemo(() => {
+    if (!dateRange.from || !settings) return "";
+    const { label } = getCustomMonthRangeFor(dateRange.from, settings.monthStartDay);
+    return label;
+  }, [dateRange.from, settings]);
+
   // 검색 실행
   const handleSearch = useCallback(async () => {
     try {
       const params: Record<string, string | number | boolean> = {};
-      if (!showAll && dateRange.from && dateRange.to) {
+      if (dateRange.from && dateRange.to) {
         params.fromDate = toDateString(dateRange.from);
         params.toDate = toDateString(dateRange.to);
       }
@@ -103,7 +114,37 @@ const PigMoneyMain = ({
     } catch {
       toast.error("조회에 실패했습니다.");
     }
-  }, [showAll, dateRange, setRecords]);
+  }, [dateRange, setRecords]);
+
+  // 이전 달로 이동 + 자동 검색
+  const handlePrevMonth = useCallback(async () => {
+    if (!dateRange.from || !settings) return;
+    const { from, to } = getPrevCustomMonthRange(dateRange.from, settings.monthStartDay);
+    setDateRange({ from, to });
+    try {
+      const records = await getCashRecords({
+        params: { fromDate: toDateString(from), toDate: toDateString(to) },
+      });
+      setRecords(records);
+    } catch {
+      toast.error("조회에 실패했습니다.");
+    }
+  }, [dateRange.from, settings, setDateRange, setRecords]);
+
+  // 다음 달로 이동 + 자동 검색
+  const handleNextMonth = useCallback(async () => {
+    if (!dateRange.to || !settings) return;
+    const { from, to } = getNextCustomMonthRange(dateRange.to, settings.monthStartDay);
+    setDateRange({ from, to });
+    try {
+      const records = await getCashRecords({
+        params: { fromDate: toDateString(from), toDate: toDateString(to) },
+      });
+      setRecords(records);
+    } catch {
+      toast.error("조회에 실패했습니다.");
+    }
+  }, [dateRange.to, settings, setDateRange, setRecords]);
 
   // 저장 (신규 추가 + 기존 수정 일괄 처리)
   const handleSave = async () => {
@@ -128,30 +169,49 @@ const PigMoneyMain = ({
       >
         {/* 서브 헤더 */}
         <div className="bg-background-primary border-b">
-          {/* 첫 번째 줄: 날짜 구간 + 전체 토글 + 검색 (중앙 정렬) */}
-          <div className="flex flex-wrap items-center justify-center gap-3 px-6 pt-3 pb-2">
+          {/* 첫 번째 줄: 화살표 네비게이션 + 날짜 구간 + 월 레이블 + 검색 */}
+          <div className="flex flex-wrap items-center justify-center gap-2 px-6 pt-3 pb-2">
+            {/* 이전 달 화살표 */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 cursor-pointer"
+              onClick={handlePrevMonth}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+
             {/* 날짜 구간 */}
             <div className="flex items-center gap-2">
               <DatePicker
                 selected={dateRange.from}
                 onSelect={(date) => setDateRange({ ...dateRange, from: date ?? null })}
                 placeholder="시작일"
-                disabled={showAll}
               />
               <span className="text-minimoku-neutral-bold">—</span>
               <DatePicker
                 selected={dateRange.to}
                 onSelect={(date) => setDateRange({ ...dateRange, to: date ?? null })}
                 placeholder="종료일"
-                disabled={showAll}
               />
             </div>
 
-            {/* 전체 토글 */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs text-minimoku-neutral-bold">전체</span>
-              <Switch checked={showAll} onCheckedChange={setShowAll} />
-            </div>
+            {/* 다음 달 화살표 */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 cursor-pointer"
+              onClick={handleNextMonth}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+
+            {/* 현재 월 레이블 */}
+            {currentMonthLabel && (
+              <span className="text-sm font-medium text-minimoku-neutral-bold">
+                {currentMonthLabel}
+              </span>
+            )}
 
             {/* 검색 */}
             <Button onClick={handleSearch} variant="outline" size="sm" className="cursor-pointer">
