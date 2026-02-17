@@ -17,10 +17,10 @@ const FormButton = ({children, className, ...props}: ButtonProps) => {
       )}
       {...props}>
       {pending ? (
-        <>
+        <span className="text-foreground-reverse flex items-center gap-1">
           <Loader2 className="animate-spin" />
           Loading
-        </>
+        </span>
       ) : (
         children
       )}
