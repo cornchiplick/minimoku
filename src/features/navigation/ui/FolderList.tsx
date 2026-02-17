@@ -11,7 +11,7 @@ import {URL} from "@/shared/constants/url";
 import Typography from "@/shared/home/atomic/Typography";
 import {useBoolean} from "@/shared/hooks/useBoolean";
 import {ArrowUpDown} from "lucide-react";
-import {useRouter} from "next/navigation";
+import {usePathname, useRouter} from "next/navigation";
 import {useEffect, useState} from "react";
 
 interface FolderListProps {
@@ -20,7 +20,13 @@ interface FolderListProps {
 
 const FolderList = ({folders}: FolderListProps) => {
   const router = useRouter();
+  const pathname = usePathname();
   const {setFolderList} = useFolderStore();
+
+  // 현재 URL에서 활성 폴더 ID 추출 (/link/{folderId})
+  const activeFolderId = pathname.startsWith(`${URL.LINK}/`)
+    ? pathname.replace(`${URL.LINK}/`, "")
+    : null;
   const isShowFolderEditModal = useBoolean();
   const isShowFolderSortModal = useBoolean();
   const [selectedFolder, setSelectedFolder] = useState<FolderInterface | null>(null);
@@ -65,6 +71,7 @@ const FolderList = ({folders}: FolderListProps) => {
             <FolderItem
               key={folder.id}
               folder={folder}
+              isActive={activeFolderId === folder.id.toString()}
               onClick={() => handleFolderClick(folder.id.toString())}
               onEdit={() => handleFolderEdit(folder)}
               onDelete={() => onDeleteFolder({id: folder.id})}
