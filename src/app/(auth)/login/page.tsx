@@ -13,9 +13,9 @@ const LoginPage = () => {
       </Head>
 
       <div className="bg-background-primary flex w-full max-w-md flex-col items-center gap-8 rounded-2xl p-10 shadow-2xl">
-        <Typography.Head1 className="mb-2 tracking-tight">LinkLocker</Typography.Head1>
+        <Typography.Head1 className="mb-2 tracking-tight">MiniMoku</Typography.Head1>
         <Typography.Head3 className="mb-2 tracking-tight">
-          LinkLocker에 오신 것을 환영합니다!
+          MiniMoku에 오신 것을 환영합니다!
         </Typography.Head3>
         <div>
           <Typography.P2 className="text-center">
