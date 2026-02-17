@@ -2,6 +2,7 @@
 
 import { CashRecordInterface, CashRecordType } from "@/entities/pigmoney/types";
 import { cn } from "@/shared/lib/utils/commonUtils";
+import { ko } from "date-fns/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DayPicker } from "react-day-picker";
 
@@ -61,26 +62,22 @@ const CalendarView = ({
       onSelect={onSelectDate}
       month={month}
       onMonthChange={onMonthChange}
+      locale={ko}
+      hideNavigation
       weekStartsOn={weekStartDay as 0 | 1 | 2 | 3 | 4 | 5 | 6}
       showOutsideDays
       className="w-full"
       classNames={{
         months: "flex flex-col w-full",
         month: "w-full",
-        month_caption: "flex justify-center pt-1 relative items-center mb-4",
-        caption_label: "text-base font-semibold",
-        nav: "flex items-center",
-        button_previous:
-          "absolute left-1 h-8 w-8 bg-transparent p-0 opacity-50 hover:opacity-100 inline-flex items-center justify-center cursor-pointer",
-        button_next:
-          "absolute right-1 h-8 w-8 bg-transparent p-0 opacity-50 hover:opacity-100 inline-flex items-center justify-center cursor-pointer",
+        month_caption: "mb-4",
         month_grid: "w-full border-collapse",
         weekdays: "flex w-full",
         weekday: "text-muted-foreground flex-1 text-center font-normal text-xs py-2",
         week: "flex w-full",
         day: cn(
           "relative flex-1 p-0 text-center",
-          "border border-background-secondary",
+          "border border-border",
         ),
         day_button: cn(
           "w-full h-20 p-1 font-normal",
@@ -95,9 +92,29 @@ const CalendarView = ({
         hidden: "invisible",
       }}
       components={{
-        Chevron: ({ orientation }) => {
-          const Icon = orientation === "left" ? ChevronLeft : ChevronRight;
-          return <Icon className="h-4 w-4" />;
+        MonthCaption: ({ calendarMonth }) => {
+          const d = calendarMonth.date;
+          const label = `${d.getFullYear()}년 ${d.getMonth() + 1}월`;
+
+          return (
+            <div className="flex items-center justify-between px-1">
+              <button
+                type="button"
+                onClick={() => onMonthChange(new Date(d.getFullYear(), d.getMonth() - 1, 1))}
+                className="inline-flex h-8 w-8 cursor-pointer items-center justify-center bg-transparent p-0 opacity-50 hover:opacity-100"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <span className="text-base font-semibold">{label}</span>
+              <button
+                type="button"
+                onClick={() => onMonthChange(new Date(d.getFullYear(), d.getMonth() + 1, 1))}
+                className="inline-flex h-8 w-8 cursor-pointer items-center justify-center bg-transparent p-0 opacity-50 hover:opacity-100"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          );
         },
         DayButton: ({ day, modifiers, ...props }) => {
           const dateKey = day.date.toISOString().split("T")[0];
