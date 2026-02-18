@@ -121,12 +121,12 @@ const PigMoneySidebar = () => {
       <div className="bg-background-primary border-background-secondary flex w-80 flex-col border-r">
         {/* 로고 영역 (LinkLocker 패턴) */}
         <div className="p-4">
-          <div className="flex items-center space-x-2">
+          <Link href="/pigmoney" className="flex items-center space-x-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-pigmoney-brand">
               <PiggyBank className="h-5 w-5 text-white" />
             </div>
             <span className="text-base font-semibold">PigMoney</span>
-          </div>
+          </Link>
         </div>
 
         <Divider />

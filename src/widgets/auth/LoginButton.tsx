@@ -44,7 +44,7 @@ const BaseLoginButton = ({
         style,
         "round-3xl flex cursor-pointer items-center justify-center gap-2 rounded-4xl border-none px-6 py-3 text-lg font-bold"
       )}>
-      <Icon name={provider} bgColor="white" rx="10" />
+      <Icon name={provider} bgColor={provider !== "kakao" ? "white" : undefined} rx="10" />
       {title}
     </button>
   );

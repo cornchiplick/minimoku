@@ -16,13 +16,14 @@ import {useState} from "react";
 
 interface FolderItemProps {
   folder: FolderInterface;
+  isActive?: boolean;
   onClick?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
   onEmpty?: () => void;
 }
 
-const FolderItem = ({folder, onClick, onEdit, onDelete, onEmpty}: FolderItemProps) => {
+const FolderItem = ({folder, isActive, onClick, onEdit, onDelete, onEmpty}: FolderItemProps) => {
   const {isDarkMode} = useThemeStore();
   const [open, setOpen] = useState(false);
   const FolderIcon = folder.id === 0 ? Archive : Folder;
@@ -52,17 +53,21 @@ const FolderItem = ({folder, onClick, onEdit, onDelete, onEmpty}: FolderItemProp
     <div
       className={clsx(
         "flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left transition-colors",
-        isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+        isActive
+          ? "bg-minimoku text-white"
+          : isDarkMode
+            ? "hover:bg-gray-700"
+            : "hover:bg-gray-100"
       )}
       onClick={onClick}>
       <div className="flex items-center space-x-3">
         <FolderIcon
           className="h-4 w-4"
-          stroke={isDarkMode ? "none" : "black"}
-          fill={isDarkMode ? "white" : "none"}
+          stroke={isActive ? "none" : isDarkMode ? "none" : "black"}
+          fill={isActive ? "white" : isDarkMode ? "white" : "none"}
         />
-        <Typography.P2>{folder.name}</Typography.P2>
-        <Typography.P3>{folder.count}</Typography.P3>
+        <Typography.P2 className={clsx(isActive && "text-white")}>{folder.name}</Typography.P2>
+        <Typography.P3 className={clsx(isActive && "text-white")}>{folder.count}</Typography.P3>
       </div>
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>

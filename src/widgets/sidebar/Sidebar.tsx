@@ -6,7 +6,8 @@ import ProfileSection from "@/features/profile/ui/ProfileSection";
 import Divider from "@/shared/components/molecules/Divider";
 import Typography from "@/shared/home/atomic/Typography";
 import SearchBar from "@/widgets/sidebar/SearchBar";
-import {Link} from "lucide-react";
+import {Link as LinkIcon} from "lucide-react";
+import NextLink from "next/link";
 
 interface SidebarProps {
   initialFolders: FolderInterface[];
@@ -18,12 +19,12 @@ const Sidebar = ({initialFolders}: SidebarProps) => {
       {/* Header */}
       <div className="p-4">
         <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+          <NextLink href="/link" className="flex items-center space-x-2">
             <div className="bg-minimoku flex h-8 w-8 items-center justify-center rounded-lg">
-              <Link className="h-5 w-5 text-white" />
+              <LinkIcon className="h-5 w-5 text-white" />
             </div>
             <Typography.P1 className="font-semibold">LinkLocker</Typography.P1>
-          </div>
+          </NextLink>
         </div>
 
         <div className="flex flex-col space-y-3">

@@ -19,8 +19,6 @@ interface CashRecordStore {
   // 필터 상태
   dateRange: { from: Date | null; to: Date | null };
   setDateRange: (range: { from: Date | null; to: Date | null }) => void;
-  showAll: boolean;
-  setShowAll: (value: boolean) => void;
 
   // 사용자 설정
   settings: PigMoneySettingsInterface | null;
@@ -51,8 +49,6 @@ export const useCashRecordStore = create<CashRecordStore>((set) => ({
   // 필터 상태
   dateRange: { from: null, to: null },
   setDateRange: (range) => set({ dateRange: range }),
-  showAll: false,
-  setShowAll: (value) => set({ showAll: value }),
 
   // 사용자 설정
   settings: null,

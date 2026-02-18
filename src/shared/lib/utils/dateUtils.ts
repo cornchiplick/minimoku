@@ -92,19 +92,51 @@ export const getCustomMonthRangeFor = (
 };
 
 /**
+ * 현재 조회 범위의 이전 커스텀 월 범위 계산
+ */
+export const getPrevCustomMonthRange = (
+  currentFrom: Date,
+  monthStartDay: number,
+): { from: Date; to: Date; label: string } => {
+  const prevDate = new Date(currentFrom);
+  prevDate.setDate(prevDate.getDate() - 1); // 시작일 하루 전 = 이전 월에 속함
+  return getCustomMonthRangeFor(prevDate, monthStartDay);
+};
+
+/**
+ * 현재 조회 범위의 다음 커스텀 월 범위 계산
+ */
+export const getNextCustomMonthRange = (
+  currentTo: Date,
+  monthStartDay: number,
+): { from: Date; to: Date; label: string } => {
+  const nextDate = new Date(currentTo);
+  nextDate.setDate(nextDate.getDate() + 1); // 종료일 다음날 = 다음 월에 속함
+  return getCustomMonthRangeFor(nextDate, monthStartDay);
+};
+
+/**
  * 사용자 설정 기반 "이번 주" 범위 계산
  * weekStartDay=5(금) → 금~목
  */
-export const getCustomWeekRange = (
+export const getCustomWeekRange = (weekStartDay: number): { from: Date; to: Date } => {
+  return getCustomWeekRangeFor(new Date(), weekStartDay);
+};
+
+/**
+ * 특정 날짜가 속하는 "주" 범위 (사용자 설정 weekStartDay 반영)
+ */
+export const getCustomWeekRangeFor = (
+  date: Date,
   weekStartDay: number,
 ): { from: Date; to: Date } => {
-  const now = new Date();
-  const currentDay = now.getDay(); // 0=일, 1=월, ..., 6=토
+  const d = new Date(date);
+  const currentDay = d.getDay(); // 0=일, 1=월, ..., 6=토
 
   // 현재 요일에서 주 시작 요일까지의 차이
   const diff = (currentDay - weekStartDay + 7) % 7;
 
-  const from = new Date(now);
+  const from = new Date(d);
   from.setDate(from.getDate() - diff);
   from.setHours(0, 0, 0, 0);
 
@@ -113,4 +145,28 @@ export const getCustomWeekRange = (
   to.setHours(23, 59, 59, 999);
 
   return { from, to };
+};
+
+/**
+ * 현재 조회 범위의 이전 커스텀 주 범위 계산
+ */
+export const getPrevCustomWeekRange = (
+  currentFrom: Date,
+  weekStartDay: number,
+): { from: Date; to: Date } => {
+  const prevDate = new Date(currentFrom);
+  prevDate.setDate(prevDate.getDate() - 1); // 시작일 하루 전 = 이전 주에 속함
+  return getCustomWeekRangeFor(prevDate, weekStartDay);
+};
+
+/**
+ * 현재 조회 범위의 다음 커스텀 주 범위 계산
+ */
+export const getNextCustomWeekRange = (
+  currentTo: Date,
+  weekStartDay: number,
+): { from: Date; to: Date } => {
+  const nextDate = new Date(currentTo);
+  nextDate.setDate(nextDate.getDate() + 1); // 종료일 다음날 = 다음 주에 속함
+  return getCustomWeekRangeFor(nextDate, weekStartDay);
 };
