@@ -7,6 +7,7 @@ import { APIConstants } from "@/shared/constants/api";
 import db from "@/shared/lib/db";
 import { getSessionUser } from "@/shared/lib/utils/authUtils";
 import { getQueryString, getTags } from "@/shared/lib/utils/commonUtils";
+import { toKSTEndOfDay, toKSTStartOfDay } from "@/shared/lib/utils/dateUtils";
 import { fetchAPI } from "@/shared/utils/fetchAPI";
 import { revalidateTag } from "next/cache";
 
@@ -147,15 +148,18 @@ export async function getCashRecordSummary({
     throw new Error("로그인이 필요합니다.");
   }
 
-  // 날짜 범위의 시작과 끝을 명시적으로 설정 (로컬 시간대 기준)
+  // KST 기준 날짜 범위를 UTC Date로 변환
+  const rangeStart = toKSTStartOfDay(fromDate);
+  const rangeEnd = toKSTEndOfDay(toDate);
+
   const [incomeResult, expenseResult] = await Promise.all([
     db.cashRecord.aggregate({
       where: {
         userId: user.id,
         type: "INCOME",
         date: {
-          gte: new Date(`${fromDate}T00:00:00`),
-          lte: new Date(`${toDate}T23:59:59.999`),
+          gte: rangeStart,
+          lte: rangeEnd,
         },
       },
       _sum: { amount: true },
@@ -165,8 +169,8 @@ export async function getCashRecordSummary({
         userId: user.id,
         type: "EXPENSE",
         date: {
-          gte: new Date(`${fromDate}T00:00:00`),
-          lte: new Date(`${toDate}T23:59:59.999`),
+          gte: rangeStart,
+          lte: rangeEnd,
         },
       },
       _sum: { amount: true },

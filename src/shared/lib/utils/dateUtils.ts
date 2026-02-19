@@ -170,3 +170,19 @@ export const getNextCustomWeekRange = (
   nextDate.setDate(nextDate.getDate() + 1); // 종료일 다음날 = 다음 주에 속함
   return getCustomWeekRangeFor(nextDate, weekStartDay);
 };
+
+/**
+ * KST(UTC+9) 기준 특정 날짜의 시작 시각(00:00:00)을 UTC Date로 반환
+ * 서버(UTC 환경)에서 Prisma 쿼리의 gte 조건에 사용
+ */
+export const toKSTStartOfDay = (dateStr: string): Date => {
+  return new Date(`${dateStr}T00:00:00+09:00`);
+};
+
+/**
+ * KST(UTC+9) 기준 특정 날짜의 종료 시각(23:59:59.999)을 UTC Date로 반환
+ * 서버(UTC 환경)에서 Prisma 쿼리의 lte 조건에 사용
+ */
+export const toKSTEndOfDay = (dateStr: string): Date => {
+  return new Date(`${dateStr}T23:59:59.999+09:00`);
+};
