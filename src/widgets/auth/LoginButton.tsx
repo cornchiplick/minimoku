@@ -27,7 +27,7 @@ const loginButtonMap: Record<ProviderType, {title: string; style: string}> = {
 };
 
 /**
- * provider("github" | "naver" | "kakao") 중 하나로 로그인
+ * provider("github" | "google" | "kakao") 중 하나로 로그인
  * 로그인: 기본: 로그인 후 현재 페이지로 리다이렉트 / redirect prop 있는 경우 해당 경로로 redirect함
  */
 const BaseLoginButton = ({
