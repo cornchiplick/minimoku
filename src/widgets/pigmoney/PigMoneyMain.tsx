@@ -106,6 +106,53 @@ const PigMoneyMain = ({initialRecords, initialCategories, initialSettings}: PigM
     }
   }, [dateRange, setRecords]);
 
+  // DatePicker에서 시작일 변경 시 자동 검색 (시작일 > 종료일이면 종료일을 자동 보정)
+  const handleDateFromChange = useCallback(
+    async (date: Date | undefined) => {
+      const newFrom = date ?? null;
+      let newTo = dateRange.to;
+
+      // 시작일이 종료일보다 이후면 종료일을 시작일과 동일하게 보정
+      if (newFrom && newTo && newFrom > newTo) {
+        newTo = newFrom;
+        toast.warning("종료일이 시작일에 맞춰 변경되었습니다.");
+      }
+
+      setDateRange({from: newFrom, to: newTo});
+      if (newFrom && newTo) {
+        try {
+          const records = await getCashRecords({
+            params: {fromDate: toDateString(newFrom), toDate: toDateString(newTo)},
+          });
+          setRecords(records);
+        } catch {
+          toast.error("조회에 실패했습니다.");
+        }
+      }
+    },
+    [dateRange.to, setDateRange, setRecords],
+  );
+
+  // DatePicker에서 종료일 변경 시 자동 검색
+  const handleDateToChange = useCallback(
+    async (date: Date | undefined) => {
+      const newFrom = dateRange.from;
+      const newTo = date ?? null;
+      setDateRange({from: newFrom, to: newTo});
+      if (newFrom && newTo) {
+        try {
+          const records = await getCashRecords({
+            params: {fromDate: toDateString(newFrom), toDate: toDateString(newTo)},
+          });
+          setRecords(records);
+        } catch {
+          toast.error("조회에 실패했습니다.");
+        }
+      }
+    },
+    [dateRange.from, setDateRange, setRecords],
+  );
+
   // 이전 달로 이동 + 자동 검색
   const handlePrevMonth = useCallback(async () => {
     if (!dateRange.from || !settings) return;
@@ -173,14 +220,15 @@ const PigMoneyMain = ({initialRecords, initialCategories, initialSettings}: PigM
             <div className="flex items-center gap-2">
               <DatePicker
                 selected={dateRange.from}
-                onSelect={(date) => setDateRange({...dateRange, from: date ?? null})}
+                onSelect={handleDateFromChange}
                 placeholder="시작일"
               />
               <span className="text-minimoku-neutral-bold">—</span>
               <DatePicker
                 selected={dateRange.to}
-                onSelect={(date) => setDateRange({...dateRange, to: date ?? null})}
+                onSelect={handleDateToChange}
                 placeholder="종료일"
+                minDate={dateRange.from ?? undefined}
               />
             </div>
 
