@@ -122,3 +122,17 @@ model PigMoneySettings {
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int  @unique
 }
+
+// 텔레그램 Todo 알림
+model TelegramTodo {
+  id        Int      @id @default(autoincrement())
+  chatId    String   // 텔레그램 chat ID
+  title     String   // 할 일 제목
+  time      String   // 알림 시각 "HH:mm" (KST 기준)
+  isActive  Boolean  @default(true) // 활성/비활성 상태
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([chatId])
+  @@index([isActive, time]) // Lambda 스캔 최적화
+}
