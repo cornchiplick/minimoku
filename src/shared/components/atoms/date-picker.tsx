@@ -14,6 +14,10 @@ interface DatePickerProps {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
+  /** 이 날짜 이전은 선택 불가 */
+  minDate?: Date;
+  /** 이 날짜 이후는 선택 불가 */
+  maxDate?: Date;
 }
 
 const DatePicker = ({
@@ -22,6 +26,8 @@ const DatePicker = ({
   placeholder = "날짜 선택",
   className,
   disabled,
+  minDate,
+  maxDate,
 }: DatePickerProps) => {
   const [open, setOpen] = useState(false);
 
@@ -53,6 +59,10 @@ const DatePicker = ({
           selected={selected ?? undefined}
           onSelect={handleSelect}
           defaultMonth={selected ?? undefined}
+          disabled={[
+            ...(minDate ? [{before: minDate}] : []),
+            ...(maxDate ? [{after: maxDate}] : []),
+          ]}
         />
       </PopoverContent>
     </Popover>
