@@ -136,7 +136,7 @@ const CategoryManageModal = ({ modalState }: CategoryManageModalProps) => {
         </div>
 
         {/* 카테고리 목록 */}
-        <div className="mt-4 flex flex-col gap-2">
+        <div className="mt-4 max-h-[60vh] flex flex-col gap-2 overflow-y-auto">
           {categories.length === 0 && (
             <div className="text-minimoku-neutral-bold py-4 text-center text-sm">
               카테고리가 없습니다.
