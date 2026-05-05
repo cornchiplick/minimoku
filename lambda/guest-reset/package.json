@@ -1,0 +1,18 @@
+{
+  "name": "guest-reset",
+  "version": "1.0.0",
+  "description": "게스트 계정 데이터 일일 초기화 Lambda (EventBridge daily 04:00 KST)",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "cp ../../prisma/schema.prisma prisma/schema.prisma && npx prisma generate && tsc",
+    "package": "npm run build && cd dist && zip -r ../guest-reset.zip . ../node_modules ../prisma"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.7.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.7.0",
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  }
+}
