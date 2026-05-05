@@ -134,4 +134,10 @@ components/sample/
 # claude code
 .claude/settings.local.json
 
+# lambda 빌드 산출물 (각 lambda 디렉터리 공통)
+lambda/*/dist/
+lambda/*/*.zip
+# build 시 root prisma/schema.prisma 가 복사되어 들어가므로 추적하지 않음
+lambda/*/prisma/schema.prisma
+
 # End of https://www.toptal.com/developers/gitignore/api/react,visualstudiocode,macos,windows
