@@ -55,6 +55,14 @@ features/{feature}/
 - **Database**: PostgreSQL (Supabase) via Prisma 6
 - **Auth**: NextAuth 4 (GitHub, Google, Kakao OAuth)
 
+## 배포 / 운영 환경
+
+- **호스팅**: AWS (프로덕션 도메인 `https://www.minimoku.net`). Vercel 아님 — Vercel Cron 같은 호스팅 종속 기능은 사용 불가
+- **이미지 스토리지**: Cloudflare Images (`imagedelivery.net`)
+- **DB**: Supabase PostgreSQL
+- **백그라운드 작업 / 스케줄러**: AWS Lambda + EventBridge 패턴이 이미 도입되어 있음. 예: `lambda/telegram-notifier/`는 EventBridge로 매분 트리거되어 Prisma로 직접 DB 접근. 새로운 cron성 작업도 같은 패턴(`lambda/<job-name>/` + EventBridge rule)으로 추가하는 것이 표준
+- **Lambda 빌드 규약**: 루트 `prisma/schema.prisma`를 Lambda 디렉터리로 복사 후 `prisma generate` → `tsc` → `dist/`와 `node_modules`, `prisma`를 zip. `lambda/telegram-notifier/package.json`의 `build`/`package` 스크립트 참고
+
 ## 주요 패턴
 
 ### 서버/클라이언트 분리
@@ -80,7 +88,7 @@ features/{feature}/
 
 ### 보호된 라우트
 
-미들웨어 보호 대상: `/link/*`, `/accumulate/*`, `/quiz/*`
+미들웨어 보호 대상: `/link/*`, `/pigmoney/*`, `/accumulate/*`, `/quiz/*` (`src/middleware.ts` 기준)
 
 ## 코드 스타일
 
