@@ -4,8 +4,11 @@
   "description": "게스트 계정 데이터 일일 초기화 Lambda (EventBridge daily 04:00 KST)",
   "main": "dist/index.js",
   "scripts": {
+    "clean": "rm -rf dist guest-reset.zip",
     "build": "cp ../../prisma/schema.prisma prisma/schema.prisma && npx prisma generate && tsc",
-    "package": "npm run build && cd dist && zip -r ../guest-reset.zip . ../node_modules ../prisma"
+    "prune-engines": "find node_modules -type f \\( -name 'libquery_engine-darwin*' -o -name 'libquery_engine-windows*' -o -name 'libquery_engine-debian*' -o -name 'query-engine-darwin*' -o -name 'query-engine-windows*' \\) -delete 2>/dev/null || true",
+    "prune-cli": "rm -rf node_modules/prisma node_modules/typescript node_modules/@types node_modules/@prisma/config node_modules/@prisma/get-platform node_modules/@prisma/internals node_modules/@prisma/engines node_modules/@prisma/engines-version node_modules/@prisma/fetch-engine node_modules/@prisma/debug node_modules/@prisma/generator node_modules/@prisma/generator-helper node_modules/@prisma/schema-files-loader node_modules/c12 node_modules/chokidar node_modules/citty node_modules/confbox node_modules/consola node_modules/deepmerge-ts node_modules/defu node_modules/destr node_modules/dotenv node_modules/effect node_modules/empathic node_modules/exsolve node_modules/fast-check node_modules/giget node_modules/jiti node_modules/node-fetch-native node_modules/nypm node_modules/ohash node_modules/pathe node_modules/perfect-debounce node_modules/pkg-types node_modules/pure-rand node_modules/rc9 node_modules/readdirp node_modules/tinyexec node_modules/undici-types node_modules/@standard-schema || true",
+    "package": "npm run clean && rm -rf node_modules && npm install && npm run build && npm run prune-cli && npm run prune-engines && cp -R node_modules prisma dist/ && (cd dist && zip -r ../guest-reset.zip . -x '*.DS_Store')"
   },
   "dependencies": {
     "@prisma/client": "^6.7.0"
