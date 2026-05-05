@@ -20,8 +20,10 @@ import FormTagInput from "@/shared/components/molecules/FormTagInput";
 import Typography from "@/shared/home/atomic/Typography";
 import {useBoolean} from "@/shared/hooks/useBoolean";
 import {useUploadImage} from "@/shared/hooks/useUploadImage";
+import {isGuestProvider} from "@/shared/lib/utils/guestUtils";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Image as ImageIcon} from "lucide-react";
+import {useSession} from "next-auth/react";
 import {useEffect} from "react";
 import {FormProvider, SubmitHandler, useForm} from "react-hook-form";
 
@@ -44,6 +46,9 @@ const LinkFormModal = ({isEdit, modalState, originValue}: LinkFormModalProps) =>
   const {folderList} = useFolderStore();
   const {preview, uploadUrl, file, setPreview, setFile, onImageChange, uploadImage} =
     useUploadImage();
+  // 게스트 계정은 이미지 업로드 불가 (서버 액션에서도 차단됨)
+  const {data: session} = useSession();
+  const isGuest = isGuestProvider(session?.user?.provider);
 
   const formMethods = useForm<LinkSchemaType>({
     resolver: zodResolver(linkSchema),
@@ -72,7 +77,10 @@ const LinkFormModal = ({isEdit, modalState, originValue}: LinkFormModalProps) =>
   };
 
   const onSubmit: SubmitHandler<LinkSchemaType> = async (data) => {
-    await uploadImage({file, uploadUrl});
+    // 게스트는 업로드 단계 자체를 건너뛴다 (UI에서도 가려져 있지만 방어적으로 한 번 더 차단)
+    if (!isGuest) {
+      await uploadImage({file, uploadUrl});
+    }
 
     const formData = new FormData();
     formData.append("title", data.title);
@@ -166,39 +174,42 @@ const LinkFormModal = ({isEdit, modalState, originValue}: LinkFormModalProps) =>
             )}
             <div className="flex flex-1 flex-col gap-3">
               <div className="flex flex-1 flex-row justify-center gap-2 self-stretch">
-                <div className="flex h-full w-24 flex-shrink-0 flex-col items-center justify-center gap-2 pt-3.5">
-                  <div
-                    className="bg-minimoku-input flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-lg border-gray-600 text-xs text-gray-500"
-                    style={{
-                      backgroundImage: preview ? `url(${preview})` : undefined,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                      backgroundRepeat: "no-repeat",
-                    }}>
-                    {!preview && "미리보기"}
-                  </div>
-                  <label
-                    htmlFor="photo"
-                    className="bg-minimoku-input flex w-full cursor-pointer items-center justify-center gap-2 rounded-md px-2 py-2 text-xs transition-all duration-200">
-                    <ImageIcon className="h-4 w-4" stroke="#a0a0a0" />
-                    <Typography.P3>업로드</Typography.P3>
-                  </label>
-                  <FormInput
-                    id="photo"
-                    type="file"
-                    onChange={(e) =>
-                      onImageChange(e, (id) =>
-                        setValue(
-                          "imageUrl",
-                          `https://imagedelivery.net/iZyA_W41y4aQU_gSa-cmmA/${id}`
+                {/* 게스트 계정은 이미지 업로드 영역 자체를 숨겨 입력/제출 단계에서 혼선 방지 */}
+                {!isGuest && (
+                  <div className="flex h-full w-24 flex-shrink-0 flex-col items-center justify-center gap-2 pt-3.5">
+                    <div
+                      className="bg-minimoku-input flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-lg border-gray-600 text-xs text-gray-500"
+                      style={{
+                        backgroundImage: preview ? `url(${preview})` : undefined,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                      }}>
+                      {!preview && "미리보기"}
+                    </div>
+                    <label
+                      htmlFor="photo"
+                      className="bg-minimoku-input flex w-full cursor-pointer items-center justify-center gap-2 rounded-md px-2 py-2 text-xs transition-all duration-200">
+                      <ImageIcon className="h-4 w-4" stroke="#a0a0a0" />
+                      <Typography.P3>업로드</Typography.P3>
+                    </label>
+                    <FormInput
+                      id="photo"
+                      type="file"
+                      onChange={(e) =>
+                        onImageChange(e, (id) =>
+                          setValue(
+                            "imageUrl",
+                            `https://imagedelivery.net/iZyA_W41y4aQU_gSa-cmmA/${id}`
+                          )
                         )
-                      )
-                    }
-                    accept="image/*"
-                    className="hidden"
-                    name="imageUrl"
-                  />
-                </div>
+                      }
+                      accept="image/*"
+                      className="hidden"
+                      name="imageUrl"
+                    />
+                  </div>
+                )}
                 <div className="flex flex-1 flex-col gap-3">
                   <FormInput
                     name="title"
