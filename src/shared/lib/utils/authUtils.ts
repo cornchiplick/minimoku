@@ -1,4 +1,5 @@
 import {authOptions} from "@/shared/lib/auth";
+import {isGuestProvider} from "@/shared/lib/utils/guestUtils";
 import {getServerSession} from "next-auth";
 
 /**
@@ -19,6 +20,7 @@ export const getSessionUser = async () => {
     provider: session.user.provider,
     provider_id: session.user.id,
     avatar: session.user.image || null,
+    isGuest: isGuestProvider(session.user.provider),
   };
   return user;
 };

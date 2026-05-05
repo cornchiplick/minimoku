@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed:guest": "ts-node --compiler-options '{\"module\":\"commonjs\"}' prisma/seed-guest.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
