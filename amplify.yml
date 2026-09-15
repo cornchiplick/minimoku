@@ -1,0 +1,26 @@
+# Amplify Hosting 빌드 설정 (레포에 있으면 콘솔 저장 설정보다 우선한다)
+# 환경변수 값은 여기 적지 않는다 — Amplify 콘솔(앱 설정 › 환경 변수)에만 존재하고,
+# 빌드 컨테이너의 셸 환경변수로 주입된 것을 아래 build 단계에서 .env 로 옮긴다.
+# 주의: 명령에 "콜론+공백" 이 들어가면 YAML 이 맵으로 해석하므로 셸 명령은 따옴표로 감싼다.
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci --cache .npm --prefer-offline
+    build:
+      commands:
+        # 필요한 환경변수가 콘솔에 빠져 있으면 빌드를 즉시 실패시킨다 (빈 값으로 조용히 배포되는 사고 방지)
+        - 'for v in DATABASE_URL NEXTAUTH_URL NEXTAUTH_SECRET NEXT_PUBLIC_BASE_URL CLOUDFLARE_ACCOUNT_ID CLOUDFLARE_ACCOUNT_HASH CLOUDFLARE_API_KEY CLOUDFLARE_IMAGE_URL GITHUB_CLIENT_ID GITHUB_CLIENT_SECRET GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET KAKAO_CLIENT_ID KAKAO_CLIENT_SECRET TELEGRAM_BOT_TOKEN TELEGRAM_ALLOWED_CHAT_ID TELEGRAM_WEBHOOK_SECRET; do env | grep -q "^$v=" || { echo "[amplify.yml] missing env var $v"; exit 1; }; done'
+        # Next.js 서버 런타임(서버 액션·API route·NextAuth)이 읽을 수 있도록 허용 목록의 변수만 .env 로 기록
+        - "env | grep -E '^(DATABASE_URL|NEXTAUTH_URL|NEXTAUTH_SECRET|NEXT_PUBLIC_BASE_URL|CLOUDFLARE_ACCOUNT_ID|CLOUDFLARE_ACCOUNT_HASH|CLOUDFLARE_API_KEY|CLOUDFLARE_IMAGE_URL|GITHUB_CLIENT_ID|GITHUB_CLIENT_SECRET|GOOGLE_CLIENT_ID|GOOGLE_CLIENT_SECRET|KAKAO_CLIENT_ID|KAKAO_CLIENT_SECRET|TELEGRAM_BOT_TOKEN|TELEGRAM_ALLOWED_CHAT_ID|TELEGRAM_WEBHOOK_SECRET)=' >> .env"
+        - npx prisma generate
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - .next/cache/**/*
+      - .npm/**/*
