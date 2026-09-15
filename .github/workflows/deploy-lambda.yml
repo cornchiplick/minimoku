@@ -1,0 +1,113 @@
+# Lambda 자동 배포 — main 에 push 된 변경 중 Lambda 관련 파일이 있으면 해당 함수만 패키징·검사·업로드한다.
+# 실제 작업은 각 lambda 디렉터리의 `npm run deploy` (= package + ../deploy.sh [+ ../verify.sh]) 가 수행하므로
+# 로컬에서 손으로 배포할 때와 완전히 같은 경로를 탄다.
+name: Deploy Lambda
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "lambda/**"
+      - "prisma/schema.prisma"
+      - ".github/workflows/deploy-lambda.yml"
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "배포 대상"
+        type: choice
+        options: [both, guest-reset, telegram-notifier]
+        default: both
+
+# OIDC 로 AWS IAM 역할을 맡는다 — 레포에 AWS 액세스 키를 저장하지 않는다
+permissions:
+  id-token: write
+  contents: read
+
+# 배포가 겹치지 않게 직렬화 (뒤에 온 실행은 앞 실행이 끝날 때까지 대기)
+concurrency:
+  group: deploy-lambda
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ap-northeast-2
+
+jobs:
+  plan:
+    name: 변경 감지
+    runs-on: ubuntu-latest
+    outputs:
+      guest: ${{ steps.plan.outputs.guest }}
+      telegram: ${{ steps.plan.outputs.telegram }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: plan
+        shell: bash
+        env:
+          TARGET: ${{ inputs.target }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          guest=false; telegram=false
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            case "$TARGET" in
+              both)              guest=true; telegram=true ;;
+              guest-reset)       guest=true ;;
+              telegram-notifier) telegram=true ;;
+            esac
+          else
+            # push: 직전 커밋(before)과 비교. 비교 기준이 없으면(최초 push·강제 push) 전체 배포
+            if [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$BEFORE" 2>/dev/null; then
+              changed=$(git diff --name-only "$BEFORE" "$GITHUB_SHA")
+            else
+              changed=$(git ls-files)
+            fi
+            printf '변경 파일:\n%s\n' "$changed"
+            # 공통 파일이 바뀌면 둘 다 재배포. 특히 schema.prisma — 생성된 Prisma Client 가 zip 에 포함되므로 스키마 변경 = 재배포
+            if grep -qE '^(prisma/schema\.prisma|lambda/deploy\.sh|lambda/verify\.sh|\.github/workflows/deploy-lambda\.yml)$' <<< "$changed"; then
+              guest=true; telegram=true
+            fi
+            grep -q '^lambda/guest-reset/' <<< "$changed" && guest=true
+            grep -q '^lambda/telegram-notifier/' <<< "$changed" && telegram=true
+          fi
+          echo "guest=$guest" >> "$GITHUB_OUTPUT"
+          echo "telegram=$telegram" >> "$GITHUB_OUTPUT"
+          echo "배포 대상 → guest-reset=$guest, telegram-notifier=$telegram"
+
+  guest-reset:
+    name: minimoku-guest-reset
+    needs: plan
+    if: needs.plan.outputs.guest == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      # 패키징 → 크기·핸들러·엔진 검사 → 현재 코드 백업 → 업로드 → SHA256 대조. 하루 1회 실행이라 즉시 실행 검증은 불가 (다음날 04:00 KST 로그로 확인)
+      - name: 패키징 · 검사 · 업로드
+        working-directory: lambda/guest-reset
+        run: npm run deploy
+
+  telegram-notifier:
+    name: telegram-todo-notifier
+    needs: plan
+    if: needs.plan.outputs.telegram == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      # 업로드 뒤 verify.sh 가 다음 1분 실행의 로그를 기다려 오류 여부까지 판정한다 (upload 스크립트에 포함)
+      - name: 패키징 · 검사 · 업로드 · 실행 검증
+        working-directory: lambda/telegram-notifier
+        run: npm run deploy
