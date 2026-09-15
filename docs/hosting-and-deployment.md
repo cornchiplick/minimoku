@@ -12,7 +12,7 @@
 | 날짜 | 결정 | 이유 |
 |---|---|---|
 | 2026-09-15 | **호스팅은 AWS Amplify Hosting 현행 유지** | 부딪힌 제약은 cron 하나였고 Lambda + EventBridge 로 이미 해결. 개인 규모·저트래픽에서 비용과 수고가 모두 합리적. 서버(OS 패치·TLS·프로세스) 운영 부담을 지고 싶지 않음 |
-| 2026-09-15 | Lambda 배포 자동화는 추후 진행 (§6 A안 → B안) | 현재는 수동 zip 업로드. AWS CLI 는 준비됨 |
+| 2026-09-15 | Lambda 배포 자동화 — A안(로컬 `npm run deploy`) 완료, B안(GitHub Actions) 워크플로 작성 | 콘솔 수동 업로드 종료. B안은 IAM OIDC 역할 생성 후 활성화 (§6.2) |
 | 2026-09-15 | 과거 빌드 로그에 남은 비밀값에 대한 **로테이션 보류** | 로그 열람 가능자가 계정 접근자뿐. 재검토 조건은 §3.6 |
 | 2026-09-14 | dev/prod 가 같은 Supabase DB 를 쓰는 것은 **의도적 구성** | 무료 티어 1개, 테스트 계정과 실사용 계정이 달라 데이터가 섞이지 않는다는 판단 |
 
@@ -304,16 +304,79 @@ EC2 = AWS 가 빌려주는 리눅스 컴퓨터 한 대. "루틴 작업"보다 **
 참고: Billing 콘솔의 "IAM 사용자 및 역할의 결제 정보 액세스 활성화" 설정은 **콘솔 페이지 접근에만 적용**되고
 Cost Explorer·Budgets **API 에는 적용되지 않는다** (공식 문서 명시). CLI 조사에는 불필요.
 
-### 6.2 Lambda 배포 자동화
+### 6.2 Lambda 배포 자동화 — A안 ✅ (2026-09-15) · B안 워크플로 작성 ✅, IAM 역할 생성 대기
 
-- **A안 — 로컬 원커맨드** (6.1 완료 즉시 가능): 각 Lambda `package.json` 에
-  `"deploy": "npm run package && aws lambda update-function-code --function-name <함수명> --zip-file fileb://<zip> --profile minimoku"`
-  추가. 이후 "guest-reset 배포해" 한마디로 끝.
-- **B안 — GitHub Actions**: `main` push 중 `lambda/guest-reset/**`, `lambda/telegram-notifier/**`,
-  **`prisma/schema.prisma`** 변경 시 자동 package → `update-function-code`. `schema.prisma` 를 트리거에 넣는
-  이유: zip 에 생성된 Prisma Client 가 포함되므로 스키마 변경 시 두 Lambda 모두 재배포 필요 (수동 흐름에서
-  잊기 쉬움). 자격증명은 GitHub OIDC 로 IAM 역할 신뢰(권장, 키 저장 없음) 또는 `gh secret set` 으로 액세스 키
-  등록(간단). `lambda/*/package-lock.json` 이 gitignore 라 워크플로에선 `npm ci` 가 아닌 `npm install`.
+**A안 — 로컬 원커맨드 (완료·검증)**
+- `lambda/deploy.sh`(공용): 크기(50/250 MB)·핸들러 경로·Prisma 엔진 검사 → 현재 코드 `.previous.zip` 백업 → 업로드 →
+  `LastUpdateStatus`·SHA256 확인. `lambda/verify.sh`: 배포 이후 생성된 로그 스트림의 첫 실행에서 오류 판정.
+- 각 `package.json`: `upload` / `deploy`(package+upload) / `rollback`. telegram-notifier 의 `package` 는 배포된 zip 구조
+  (`dist/` 루트, `Handler=dist/index.handler`)에 맞게 재작성하고 guest-reset 과 같은 prune 을 적용 (35.6→34.6 MB,
+  압축 해제 113→93 MB).
+- 검증 기록: guest-reset 배포 03:11:46Z SHA256 일치. telegram-notifier 배포 03:12:29Z → 03:13:34Z 새 실행 환경
+  (INIT_START, nodejs 22) 정상 실행, 오류 없음.
+- 개발 중 잡은 버그 2건: `set -o pipefail` + `unzip | grep -q` 가 SIGPIPE 로 오판(목록을 변수로 읽어 해결),
+  `--max-items` 가 text 출력에 `NEXTTOKEN` 을 섞음(`--no-paginate --limit` 로 해결).
+
+**B안 — GitHub Actions (`.github/workflows/deploy-lambda.yml`)**
+- 트리거: `main` push 의 `lambda/**`·`prisma/schema.prisma`·워크플로 파일 변경, 또는 수동(`workflow_dispatch`, 대상 선택).
+- `plan` 잡이 `git diff before..sha` 로 바뀐 함수만 고른다. 공통 파일(schema·deploy.sh·verify.sh·워크플로) 변경 시 둘 다.
+- 각 함수 잡: Node 22 → OIDC 로 역할 `minimoku-github-lambda-deploy` 획득 → `npm run deploy` (로컬과 동일 경로).
+- 레포 변수 `AWS_DEPLOY_ROLE_ARN` = `arn:aws:iam::480415624766:role/minimoku-github-lambda-deploy` 등록 완료 (레포가 PUBLIC 이라
+  ARN 을 워크플로에 직접 적지 않음).
+- **남은 사용자 조치 (IAM, 1회)**: ① 자격 증명 공급자 `token.actions.githubusercontent.com` (대상 `sts.amazonaws.com`) 추가
+  ② 정책 `MinimokuLambdaDeploy` 생성 ③ 역할 `minimoku-github-lambda-deploy` 생성 (웹 자격 증명 → GitHub, 조직 `cornchiplick`,
+  리포 `minimoku`, 브랜치 `main`) 후 ②를 연결. 역할 이름은 변수와 정확히 일치해야 한다.
+
+역할 신뢰 정책 (콘솔 마법사가 생성하는 내용과 같아야 함):
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {"Federated": "arn:aws:iam::480415624766:oidc-provider/token.actions.githubusercontent.com"},
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {"token.actions.githubusercontent.com:aud": "sts.amazonaws.com"},
+        "StringLike": {"token.actions.githubusercontent.com:sub": "repo:cornchiplick/minimoku:ref:refs/heads/main"}
+      }
+    }
+  ]
+}
+```
+
+역할 권한 정책 `MinimokuLambdaDeploy` (두 함수의 코드 교체 + 검증용 로그 읽기만):
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "UpdateLambdaCode",
+      "Effect": "Allow",
+      "Action": ["lambda:UpdateFunctionCode", "lambda:GetFunction", "lambda:GetFunctionConfiguration"],
+      "Resource": [
+        "arn:aws:lambda:ap-northeast-2:480415624766:function:minimoku-guest-reset",
+        "arn:aws:lambda:ap-northeast-2:480415624766:function:telegram-todo-notifier"
+      ]
+    },
+    {
+      "Sid": "VerifyLogs",
+      "Effect": "Allow",
+      "Action": ["logs:DescribeLogStreams", "logs:GetLogEvents"],
+      "Resource": [
+        "arn:aws:logs:ap-northeast-2:480415624766:log-group:/aws/lambda/minimoku-guest-reset:*",
+        "arn:aws:logs:ap-northeast-2:480415624766:log-group:/aws/lambda/telegram-todo-notifier:*"
+      ]
+    }
+  ]
+}
+```
+
+**예외 상황 규칙** (정본은 CLAUDE.md "Lambda 배포 규칙"): zip 50 MB / 압축 해제 250 MB 초과 시 업로드 전 중단 →
+prune → S3 경유 → Layer → 컨테이너 순으로 대응. 핸들러 경로·리눅스 엔진 누락 시 중단. 롤백은 로컬 `npm run rollback`
+또는 `git revert` 후 push. 배포는 코드만 바꾸며 설정(메모리·타임아웃·환경변수·트리거)은 콘솔.
 
 ### 6.3 코드 정리 (CLAUDE.md "알려진 함정" 참조)
 

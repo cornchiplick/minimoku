@@ -35,11 +35,13 @@ npm run lint         # ESLint
 npm run seed:guest   # 게스트 User 1행 upsert (idempotent). 게스트 로그인이 동작하려면 1회 필요
 ```
 
-Lambda 패키징 (각 디렉터리에서):
+Lambda (각 디렉터리에서, AWS 프로필 `minimoku` 자동 사용):
 
 ```bash
-cd lambda/telegram-notifier && npm run package   # → telegram-notifier.zip
-cd lambda/guest-reset && npm run package         # → guest-reset.zip (Prisma CLI·불필요 엔진 제거해 용량 축소)
+npm run package    # zip 생성 (재설치 → prisma generate → tsc → prune → zip)
+npm run deploy     # package + 검사 + 업로드 (+ telegram-notifier 는 실행 검증까지)
+npm run upload     # 이미 만든 zip 만 검사·업로드
+npm run rollback   # 직전 배포 코드(.previous.zip)로 되돌리기
 ```
 
 ## 기술 스택
@@ -200,7 +202,7 @@ Cloudflare Images direct upload 방식.
 | 대상 | 방법 |
 |---|---|
 | Next.js 앱 | `main` 에 push/머지하면 Amplify 가 자동 빌드·배포. 별도 조작 없음 |
-| Lambda | 현재 **수동**: `npm run package` 로 zip 생성 → AWS 콘솔에서 업로드 (함수명은 위 표). CLI 로는 `aws lambda update-function-code --function-name <함수명> --zip-file fileb://<zip> --region ap-northeast-2 --profile minimoku`. **`prisma/schema.prisma` 를 바꾸면 두 Lambda 모두 재패키징·재업로드**해야 한다 (생성된 Prisma Client 가 zip 에 포함되므로) |
+| Lambda | **자동**: `main` push 중 `lambda/**`·`prisma/schema.prisma`·워크플로 파일이 바뀌면 GitHub Actions `Deploy Lambda` (`.github/workflows/deploy-lambda.yml`) 가 바뀐 함수만 `npm run deploy` 로 배포 (OIDC 역할 `minimoku-github-lambda-deploy`, 레포 변수 `AWS_DEPLOY_ROLE_ARN`). 수동 재배포는 Actions 탭 "Run workflow" 또는 로컬 `npm run deploy`. 아래 "Lambda 배포 규칙" 필독 |
 | DB 마이그레이션 | 동일 DB 구성이므로 로컬에서 `prisma migrate dev` 를 실행하는 것이 곧 프로덕션 적용. 실행 전 사용자 확인 |
 | 텔레그램 webhook | Telegram 측에 `setWebhook` 으로 **1회 등록 완료** (URL: `https://www.minimoku.net/api/telegram/webhook/<TELEGRAM_WEBHOOK_SECRET>`, 2026-09-14 `getWebhookInfo` 로 확인). Amplify 재배포와 무관하게 유지되며, 도메인이나 `TELEGRAM_WEBHOOK_SECRET` 이 바뀔 때만 재등록. 상태 확인: `curl "https://api.telegram.org/bot<TOKEN>/getWebhookInfo"` (토큰은 `.env.production`, 출력에 노출하지 말 것) |
 
@@ -212,6 +214,24 @@ Cloudflare Images direct upload 방식.
 - gitignore: `lambda/*/dist/`, `lambda/*/*.zip`, `lambda/*/package-lock.json`, `lambda/*/prisma/schema.prisma`
 - 참고: `lambda/guest-reset/package.json` 의 `package` 스크립트 (clean → 재설치 → build → prune-cli /
   prune-engines → zip). 새 Lambda 는 이 스크립트를 복제하는 것이 가장 빠르다.
+
+### Lambda 배포 규칙 (`lambda/deploy.sh` 가 강제)
+
+- 배포 = `update-function-code` 한 번. 아래 검사 중 하나라도 실패하면 **업로드 자체를 하지 않는다** (기존 코드 유지).
+  1. zip **50 MB 초과 → 중단** (API/콘솔 직접 업로드 한도). 45 MB 부터 경고. 현재 두 함수 모두 34.6 MB
+  2. 압축 해제 **250 MB 초과 → 중단** (하드 리밋). 현재 93 MB
+  3. 함수 설정의 `Handler` 에서 유도한 파일(`index.js` / `dist/index.js`)이 zip 에 없으면 중단 — **두 함수의 zip 구조가 다르다**:
+     guest-reset 은 `index.js` 가 루트, telegram-notifier 는 `dist/` 가 루트 (`Handler=dist/index.handler`). `package` 스크립트가 이 구조를 만든다
+  4. `libquery_engine-rhel-openssl-3.0.x` 엔진이 없으면 중단 (Node 22 런타임 필수). darwin/windows/1.0.x 엔진이 남아 있으면 경고(용량)
+- 업로드 전 현재 코드를 `.previous.zip` 으로 백업 → 문제 시 `npm run rollback`. 업로드 후 `LastUpdateStatus=Successful` 과 SHA256 일치를 확인
+- telegram-notifier 는 배포 후 `lambda/verify.sh` 가 다음 1분 실행의 새 로그 스트림을 기다려 오류를 판정한다. guest-reset 은 하루 1회라
+  즉시 검증 불가 → 다음날 04:00 KST 로그 확인
+- **`prisma/schema.prisma` 변경 = 두 Lambda 모두 재배포** (Prisma Client 가 zip 에 포함). CI 는 이를 자동 감지한다
+- **50 MB 를 넘게 되면** 순서대로: ① `prune-cli`/`prune-engines` 대상 추가 → ② S3 경유 업로드(`--s3-bucket`, 버킷·권한 필요, 압축 해제 250 MB 까지)
+  → ③ `node_modules` 를 Lambda Layer 로 분리 → ④ 컨테이너 이미지(10 GB). 새 의존성을 추가할 때 zip 크기를 먼저 확인할 것
+- 배포는 코드만 바꾼다. 메모리·타임아웃·환경변수·트리거는 Lambda 설정이며 별도 권한(`UpdateFunctionConfiguration`)이 필요해 콘솔에서 직접 변경
+- CI 는 `concurrency: deploy-lambda` 로 직렬화된다. 실패한 CI 는 함수에 영향 없음(업로드 전 중단이거나, 업로드 후 검증 실패 시 `.previous.zip` 은 러너에만 남으므로
+  **CI 에서의 롤백 = 코드를 `git revert` 해 push** 하거나 로컬에서 `npm run rollback`)
 
 ### 환경변수
 
