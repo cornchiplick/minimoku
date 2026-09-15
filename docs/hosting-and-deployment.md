@@ -12,7 +12,8 @@
 | 날짜 | 결정 | 이유 |
 |---|---|---|
 | 2026-09-15 | **호스팅은 AWS Amplify Hosting 현행 유지** | 부딪힌 제약은 cron 하나였고 Lambda + EventBridge 로 이미 해결. 개인 규모·저트래픽에서 비용과 수고가 모두 합리적. 서버(OS 패치·TLS·프로세스) 운영 부담을 지고 싶지 않음 |
-| 2026-09-15 | Lambda 배포 자동화는 추후 진행 (§6 A안 → B안) | 현재는 수동 zip 업로드. AWS CLI 자격증명이 먼저 필요 |
+| 2026-09-15 | Lambda 배포 자동화는 추후 진행 (§6 A안 → B안) | 현재는 수동 zip 업로드. AWS CLI 는 준비됨 |
+| 2026-09-15 | 과거 빌드 로그에 남은 비밀값에 대한 **로테이션 보류** | 로그 열람 가능자가 계정 접근자뿐. 재검토 조건은 §3.6 |
 | 2026-09-14 | dev/prod 가 같은 Supabase DB 를 쓰는 것은 **의도적 구성** | 무료 티어 1개, 테스트 계정과 실사용 계정이 달라 데이터가 섞이지 않는다는 판단 |
 
 ---
@@ -165,9 +166,13 @@ Lambda 쪽은 별개로, AWS Lambda 는 월 100만 요청·40만 GB-초까지 �
 2. ✅ 빌드 #27 SUCCEED (3분 51초). 로그에 새 spec 명령만 있고 옛 echo 명령·환경변수 값 없음. 런타임 검증:
    `/api/auth/providers` 4개 로드, `/api/categories?userId=0` → 200 (DB 연결 정상)
 3. ✅ 콘솔 buildSpec 을 `amplify.yml` 과 동일 내용으로 교체 (11:42). 콘솔 spec 에 환경변수 값 없음 확인
-4. ⬜ (선택) 과거 빌드 로그 #1~#26 에는 이전 명령(값 포함)이 남아 있으므로, 완전한 정리를 원하면 비밀값 로테이션
-   (NEXTAUTH_SECRET, Cloudflare API key, OAuth secret 3종, Telegram token/secret, DB 비밀번호). 계정 접근자가
-   본인뿐이면 실질 위험은 낮음.
+4. ⏸ **비밀값 로테이션 — 보류 (2026-09-15 결정)**. 과거 빌드 로그 #1~#26 에 이전 명령(값 포함)이 남아 있으나,
+   그 로그는 이 AWS 계정에 로그인 가능한 사람(본인 + `claude-code` IAM 사용자)만 볼 수 있고 외부 공개된 적 없음.
+   계정이 뚫린 경우엔 어차피 콘솔 환경변수로 현재 값이 보이므로 옛 로그 유무는 차이 없음.
+   **재검토 조건**: ① 로그가 외부로 나갔다고 의심될 때(스크린샷·계정 공유 등) ② AWS 계정 침해 의심 시.
+   그때 로테이션 대상: NEXTAUTH_SECRET(재로그인 유발), CLOUDFLARE_API_KEY, GitHub/Google/Kakao client secret,
+   TELEGRAM_BOT_TOKEN + TELEGRAM_WEBHOOK_SECRET(webhook 재등록 필요), DB 비밀번호(`DATABASE_URL` → Amplify 와
+   Lambda 2개 환경변수 모두 갱신).
 
 이후 규칙: 새 환경변수는 **콘솔 등록 + `amplify.yml` 허용 목록** 두 곳을 함께 갱신한다.
 
