@@ -323,7 +323,7 @@ Cost Explorer·Budgets **API 에는 적용되지 않는다** (공식 문서 명�
 - 각 함수 잡: Node 22 → OIDC 로 역할 `minimoku-github-lambda-deploy` 획득 → `npm run deploy` (로컬과 동일 경로).
 - 레포 변수 `AWS_DEPLOY_ROLE_ARN` = `arn:aws:iam::480415624766:role/minimoku-github-lambda-deploy` 등록 완료 (레포가 PUBLIC 이라
   ARN 을 워크플로에 직접 적지 않음).
-- **IAM 3단계 (공급자·정책·역할)**: 사용자가 2026-10-20 에 생성 완료했다고 보고. **단 `claude-code` 사용자에게 `iam:GetRole`·
+- **IAM 3단계 (공급자·정책·역할)**: 사용자가 2026-10-20 에 생성 완료했다고 보고. **첫 실행 결과 → 아래 "첫 실행 기록" 참고 (인증 실패, 미해결)**. **단 `claude-code` 사용자에게 `iam:GetRole`·
   `iam:ListOpenIDConnectProviders` 권한이 없어 Claude 가 설정 내용을 직접 대조할 수 없다** (둘 다 AccessDenied 확인).
   → **첫 워크플로 실행이 곧 검증**이다. 설정을 푸시 없이 미리 대조하고 싶으면 `MinimokuClaudeOps` 에 `iam:GetRole`,
   `iam:ListAttachedRolePolicies`, `iam:GetPolicy`, `iam:GetPolicyVersion`, `iam:GetOpenIDConnectProvider`,
@@ -380,11 +380,31 @@ Cost Explorer·Budgets **API 에는 적용되지 않는다** (공식 문서 명�
 
 | 증상 | 원인 |
 |---|---|
-| `No OpenIDConnect provider found` | ① 공급자 미생성 |
+| `The web identity token provided could not be validated` (= STS `InvalidIdentityToken`) | 토큰 자체가 공급자 설정과 대조되지 않음. 후보: 공급자 미생성·URL 오타 / 대상(Audience) 목록에 `sts.amazonaws.com` 없음 / 지문(Thumbprint) 불일치 / 역할 신뢰 정책의 `Federated` ARN 이 실존 공급자와 불일치. **오류 문구만으로는 구분 불가 — IAM 조회 필요** (대상 불일치는 보통 `audience` 를 명시한 별도 문구로 나온다) |
+| `No OpenIDConnect provider found` | 공급자 미생성 |
 | `Not authorized to perform sts:AssumeRoleWithWebIdentity` / 역할 없음 | ③ 역할 이름이 `AWS_DEPLOY_ROLE_ARN` 과 불일치, 또는 신뢰 정책 `sub` 가 `repo:cornchiplick/minimoku:ref:refs/heads/main` 과 불일치 |
 | deploy.sh 의 "핸들러 확인" 단계에서 중단 | ② 정책에 `lambda:GetFunctionConfiguration` 누락 |
 | deploy.sh 의 업로드 단계에서 중단 | ② `lambda:UpdateFunctionCode` 의 리소스 ARN 오기 |
 | "✔ 배포 완료" 뒤 verify.sh 실패 | ② `logs:DescribeLogStreams`/`GetLogEvents` 누락 — **함수 자체는 정상**, 로그는 수동 확인 |
+
+### 첫 실행 기록 (2026-10-20)
+
+`main` 에 6커밋 푸시(`bbb4b5b..db80c07`) → 워크플로 `Deploy Lambda` 실행 `39341355272` 자동 시작.
+
+| 결과 | 내용 |
+|---|---|
+| `plan` 잡 | ✅ 두 함수 모두 배포 대상으로 정확히 선별 (공통 파일 `deploy.sh`·`verify.sh`·워크플로 변경 감지) |
+| 두 배포 잡 | ✖ **`configure-aws-credentials` 단계에서 실패** — `Could not assume role with OIDC: The web identity token provided could not be validated` |
+| 영향 | **없음.** 패키징·업로드 단계는 아예 실행되지 않음. 두 함수 모두 2026-09-15 배포분 유지 (`LastModified` 03:11:46 / 03:12:29, 코드 크기 동일) |
+| Amplify | 빌드 #28 가 함께 트리거됨 (문서·스크립트만 변경이라 사이트 무영향, `src/` 변경 0건) |
+
+원인: **미확정.** 전체 로그 확인 결과 — 역할 ARN 과 `audience: sts.amazonaws.com` 은 정상 주입됐고, 12회 재시도 후
+실패했으므로 일시적 문제가 아니다. 오류가 `AccessDenied`(신뢰 정책 조건 불일치)가 아니라 `InvalidIdentityToken`
+계열이므로 **토큰이 공급자 설정과 대조되지 않는 쪽**인데, 문구에 `audience` 가 없어 대상 불일치로 좁힐 근거도 없다.
+후보는 위 해석표의 4가지이며 **`claude-code` 에 IAM 읽기 권한이 없어 Claude 가 구분할 수 없다.**
+
+→ 해결 경로: `MinimokuClaudeOps` 에 IAM 읽기 권한을 추가하면 `iam:GetOpenIDConnectProvider` 한 번으로 `Url`·
+`ClientIDList`·`ThumbprintList` 가, `iam:GetRole` 로 신뢰 정책이 확인돼 후보가 한 번에 판별된다.
 
 **⚠️ 의존성 버전 드리프트 (미해결)**: `lambda/*/package-lock.json` 이 gitignore 라 CI 는 매번 `npm install` 로 새로 해석한다.
 `@prisma/client: ^6.7.0` 이므로 2026-09-15 로컬 배포분(6.19.3)보다 높은 버전이 들어갈 수 있다. deploy.sh 의 구조 검사와
