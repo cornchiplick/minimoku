@@ -380,8 +380,7 @@ Cost Explorer·Budgets **API 에는 적용되지 않는다** (공식 문서 명�
 
 | 증상 | 원인 |
 |---|---|
-| `The web identity token provided could not be validated` (= STS `InvalidIdentityToken`) | 토큰 자체가 공급자 설정과 대조되지 않음. 후보: 공급자 미생성·URL 오타 / 대상(Audience) 목록에 `sts.amazonaws.com` 없음 / 지문(Thumbprint) 불일치 / 역할 신뢰 정책의 `Federated` ARN 이 실존 공급자와 불일치. **오류 문구만으로는 구분 불가 — IAM 조회 필요** (대상 불일치는 보통 `audience` 를 명시한 별도 문구로 나온다) |
-| `No OpenIDConnect provider found` | 공급자 미생성 |
+| `The web identity token provided could not be validated` (= STS `InvalidIdentityToken`) | **2026-10-20 실측: 자격 증명 공급자가 아예 없을 때 이 문구가 나온다** (`No OpenIDConnect provider found` 가 아님 — 해당 문구는 기대하지 말 것). 그 밖의 후보: 공급자 URL 오타 / 대상(Audience) 목록에 `sts.amazonaws.com` 없음 / 지문 불일치 / 역할 신뢰 정책의 `Federated` ARN 불일치. 오류 문구로는 구분 불가하므로 **IAM 조회로 판별**한다 |
 | `Not authorized to perform sts:AssumeRoleWithWebIdentity` / 역할 없음 | ③ 역할 이름이 `AWS_DEPLOY_ROLE_ARN` 과 불일치, 또는 신뢰 정책 `sub` 가 `repo:cornchiplick/minimoku:ref:refs/heads/main` 과 불일치 |
 | deploy.sh 의 "핸들러 확인" 단계에서 중단 | ② 정책에 `lambda:GetFunctionConfiguration` 누락 |
 | deploy.sh 의 업로드 단계에서 중단 | ② `lambda:UpdateFunctionCode` 의 리소스 ARN 오기 |
@@ -398,13 +397,21 @@ Cost Explorer·Budgets **API 에는 적용되지 않는다** (공식 문서 명�
 | 영향 | **없음.** 패키징·업로드 단계는 아예 실행되지 않음. 두 함수 모두 2026-09-15 배포분 유지 (`LastModified` 03:11:46 / 03:12:29, 코드 크기 동일) |
 | Amplify | 빌드 #28 가 함께 트리거됨 (문서·스크립트만 변경이라 사이트 무영향, `src/` 변경 0건) |
 
-원인: **미확정.** 전체 로그 확인 결과 — 역할 ARN 과 `audience: sts.amazonaws.com` 은 정상 주입됐고, 12회 재시도 후
-실패했으므로 일시적 문제가 아니다. 오류가 `AccessDenied`(신뢰 정책 조건 불일치)가 아니라 `InvalidIdentityToken`
-계열이므로 **토큰이 공급자 설정과 대조되지 않는 쪽**인데, 문구에 `audience` 가 없어 대상 불일치로 좁힐 근거도 없다.
-후보는 위 해석표의 4가지이며 **`claude-code` 에 IAM 읽기 권한이 없어 Claude 가 구분할 수 없다.**
+**원인 확정 (2026-10-20, IAM 읽기 권한 추가 후 조회)**: OIDC 3요소가 **계정 `480415624766` 에 하나도 존재하지 않는다.**
 
-→ 해결 경로: `MinimokuClaudeOps` 에 IAM 읽기 권한을 추가하면 `iam:GetOpenIDConnectProvider` 한 번으로 `Url`·
-`ClientIDList`·`ThumbprintList` 가, `iam:GetRole` 로 신뢰 정책이 확인돼 후보가 한 번에 판별된다.
+| 조회 | 결과 |
+|---|---|
+| `iam:ListOpenIDConnectProviders` | `{"OpenIDConnectProviderList": []}` — **공급자 0개** |
+| `iam:GetRole minimoku-github-lambda-deploy` | `NoSuchEntity` — **역할 없음** |
+| `iam:GetPolicy .../policy/MinimokuLambdaDeploy` | `NoSuchEntity` — **정책 없음** |
+| `iam:GetPolicyVersion .../MinimokuClaudeOps v3` | 정상 — 사용자 정책 수정은 같은 계정에 반영됨 (계정 혼동 아님) |
+
+즉 워크플로는 정상이었고, AWS 쪽에 맞이할 상대가 없었던 것이다. 로그의 "토큰 검증 실패"는 **공급자 부재의 증상**이었다.
+(`claude-code` 는 `iam:ListRoles`/`ListPolicies` 가 없어 전수 조회는 불가 — 다른 이름으로 만들어졌을 가능성은 배제 못 하나,
+레포 변수 `AWS_DEPLOY_ROLE_ARN` 이 위 이름을 가리키므로 이름이 다르면 어차피 실패한다.)
+
+**교훈**: IAM 콘솔 마법사는 마지막 "생성" 버튼을 눌러야 실제로 만들어진다. 검토 화면에서 멈추면 아무것도 남지 않는다
+(2026-09-15 정책 생성 때도 같은 지점에서 멈춘 적 있음). 생성 후에는 목록에서 실제 항목을 확인할 것.
 
 **⚠️ 의존성 버전 드리프트 (미해결)**: `lambda/*/package-lock.json` 이 gitignore 라 CI 는 매번 `npm install` 로 새로 해석한다.
 `@prisma/client: ^6.7.0` 이므로 2026-09-15 로컬 배포분(6.19.3)보다 높은 버전이 들어갈 수 있다. deploy.sh 의 구조 검사와
