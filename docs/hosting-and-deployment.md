@@ -137,7 +137,7 @@ Lambda 쪽은 별개로, AWS Lambda 는 월 100만 요청·40만 GB-초까지 �
 |---|---|
 | 계정 | `480415624766`, 생성 **2025-08-16** → 2025-07-15 이후 = **크레딧 모델**. `freetier get-account-plan-state` 결과: **PAID / ACTIVE / 잔여 크레딧 $0.00** (2026-09-15 확인) |
 | 크레딧 적용 | 2025-09 ~ 2026-08 매일 사용액 전액 상쇄 (13개월 누적 약 $3.5). **2026-09-01 부터 크레딧 적용 0** — 일 단위로 8/31 까지 붙다가 9/1 에 끊김. 누적 $3.5 ≪ $100 이므로 소진이 아니라 **만료** |
-| 현재 청구 | 9/1~9/14 사용 $0.20 + 세금(VAT 10%) $0.02 = **$0.22 진행 중**. 최근 12개월 월 사용액 $0.10~0.47 → 앞으로 **월 $0.3~0.5 + 세금** 수준 예상 (사용량 기준 추정) |
+| 현재 청구 | 조사 시점(9/14) $0.22 진행 중이었고, **확정 실측: 2026-09 $0.73 · 2026-10 $0.66** (각 사용액 + VAT 10%). 조사 때 추정했던 "월 $0.3~0.5" 보다 높다 — 크레딧에 가려져 있던 12개월치 월 사용액($0.10~0.47)만 보고 잡은 추정이 낮았던 것 |
 | Amplify 프리티어 | `freetier get-free-tier-usage` 에 Amplify 항목 **없음**. 즉 이 계정에서 Amplify 는 첫 달부터 종량 과금이었고 크레딧이 가려 왔던 것 |
 | Amplify 비용 구성 (13개월 누적 $3.70) | SSR compute duration **$2.79** (50,247 GB-초 ≈ 14 GB-h, 75%) · 빌드 $0.61 (60.7분, 26회) · 전송 $0.23 (1.5 GB) · 요청 $0.07 (231k 건) · 저장 $0.001 |
 | 상시 무료 항목 | Lambda 요청 19.5k/1M, Lambda 259/400k GB-초, EventBridge 19.5k/14M, CloudWatch 로그·지표 — 모두 한도의 0.2% 미만 (9/1~14 기준) |
@@ -323,9 +323,11 @@ Cost Explorer·Budgets **API 에는 적용되지 않는다** (공식 문서 명�
 - 각 함수 잡: Node 22 → OIDC 로 역할 `minimoku-github-lambda-deploy` 획득 → `npm run deploy` (로컬과 동일 경로).
 - 레포 변수 `AWS_DEPLOY_ROLE_ARN` = `arn:aws:iam::480415624766:role/minimoku-github-lambda-deploy` 등록 완료 (레포가 PUBLIC 이라
   ARN 을 워크플로에 직접 적지 않음).
-- **남은 사용자 조치 (IAM, 1회)**: ① 자격 증명 공급자 `token.actions.githubusercontent.com` (대상 `sts.amazonaws.com`) 추가
-  ② 정책 `MinimokuLambdaDeploy` 생성 ③ 역할 `minimoku-github-lambda-deploy` 생성 (웹 자격 증명 → GitHub, 조직 `cornchiplick`,
-  리포 `minimoku`, 브랜치 `main`) 후 ②를 연결. 역할 이름은 변수와 정확히 일치해야 한다.
+- **IAM 3단계 (공급자·정책·역할)**: 사용자가 2026-10-20 에 생성 완료했다고 보고. **단 `claude-code` 사용자에게 `iam:GetRole`·
+  `iam:ListOpenIDConnectProviders` 권한이 없어 Claude 가 설정 내용을 직접 대조할 수 없다** (둘 다 AccessDenied 확인).
+  → **첫 워크플로 실행이 곧 검증**이다. 설정을 푸시 없이 미리 대조하고 싶으면 `MinimokuClaudeOps` 에 `iam:GetRole`,
+  `iam:ListAttachedRolePolicies`, `iam:GetPolicy`, `iam:GetPolicyVersion`, `iam:GetOpenIDConnectProvider`,
+  `iam:ListOpenIDConnectProviders` (읽기 전용) 추가.
 
 역할 신뢰 정책 (콘솔 마법사가 생성하는 내용과 같아야 함):
 
@@ -373,6 +375,21 @@ Cost Explorer·Budgets **API 에는 적용되지 않는다** (공식 문서 명�
   ]
 }
 ```
+
+**첫 실행 시 인증 단계 오류 해석** (빨간 X 가 떠도 함수는 그대로다 — 업로드 전에 멈추므로):
+
+| 증상 | 원인 |
+|---|---|
+| `No OpenIDConnect provider found` | ① 공급자 미생성 |
+| `Not authorized to perform sts:AssumeRoleWithWebIdentity` / 역할 없음 | ③ 역할 이름이 `AWS_DEPLOY_ROLE_ARN` 과 불일치, 또는 신뢰 정책 `sub` 가 `repo:cornchiplick/minimoku:ref:refs/heads/main` 과 불일치 |
+| deploy.sh 의 "핸들러 확인" 단계에서 중단 | ② 정책에 `lambda:GetFunctionConfiguration` 누락 |
+| deploy.sh 의 업로드 단계에서 중단 | ② `lambda:UpdateFunctionCode` 의 리소스 ARN 오기 |
+| "✔ 배포 완료" 뒤 verify.sh 실패 | ② `logs:DescribeLogStreams`/`GetLogEvents` 누락 — **함수 자체는 정상**, 로그는 수동 확인 |
+
+**⚠️ 의존성 버전 드리프트 (미해결)**: `lambda/*/package-lock.json` 이 gitignore 라 CI 는 매번 `npm install` 로 새로 해석한다.
+`@prisma/client: ^6.7.0` 이므로 2026-09-15 로컬 배포분(6.19.3)보다 높은 버전이 들어갈 수 있다. deploy.sh 의 구조 검사와
+verify.sh 가 telegram-notifier 는 잡아내지만, **guest-reset 은 하루 1회 실행이라 다음날 04:00 KST 로그까지 알 수 없다.**
+→ 후속 과제: `lambda/*/package-lock.json` 을 gitignore 에서 빼고 커밋한 뒤 CI 를 `npm ci` 로 전환.
 
 **예외 상황 규칙** (정본은 CLAUDE.md "Lambda 배포 규칙"): zip 50 MB / 압축 해제 250 MB 초과 시 업로드 전 중단 →
 prune → S3 경유 → Layer → 컨테이너 순으로 대응. 핸들러 경로·리눅스 엔진 누락 시 중단. 롤백은 로컬 `npm run rollback`
