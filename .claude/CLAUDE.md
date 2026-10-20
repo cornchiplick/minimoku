@@ -31,6 +31,8 @@ npm run dev          # 개발 서버 (localhost:3000) — ⚠️ 프로덕션 DB
 npm run build        # 프로덕션 빌드
 npm run start        # 프로덕션 서버
 npm run lint         # ESLint
+npm run test:e2e     # Playwright E2E — ⚠️ 게스트 계정의 실데이터를 쓴다 (아래 "테스트")
+npm run test:e2e:ui  # Playwright UI 모드
 npm run seed:guest   # 게스트 User upsert + 체험용 샘플 데이터 재시드 (idempotent). ⚠️ 프로덕션 DB 에 반영됨
 ```
 
@@ -114,8 +116,8 @@ export async function getLinks(parameters: {params?: Record<string, ...>} = {}) 
 - **`userId` 는 `getSessionUser()` 로만 얻는다.** 클라이언트가 보낸 값으로 조회 범위를 정하지 않는다.
 - 조회 함수 첫 줄에서 세션을 확인하고 없으면 throw 한다.
 - 단건 조회도 소유권 조건을 where 에 넣는다 (`getLink` 의 `folder: {userId: user.id}`, `getFolder` 의 `userId`).
-- **변경 후 별도 캐시 무효화가 필요 없다.** 조회가 캐시를 타지 않으므로 다음 조회는 항상 최신이다.
-  클라이언트는 변경 후 같은 서버 액션을 다시 호출해 상태를 갱신한다 (`CategoryManageModal` 참고).
+- **조회는 캐시를 탄다. 변경 함수는 반드시 캐시 태그를 갱신한다.** 아래 "캐시" 절 참고.
+  빠뜨리면 새 데이터가 화면에 영영 나타나지 않는다 (실제로 링크·폴더 추가에서 한 번 났다).
 
 **왜 이 구조인가** (2026-10-20 변경, 커밋 참조)
 
@@ -124,6 +126,61 @@ export async function getLinks(parameters: {params?: Record<string, ...>} = {}) 
 한 번 더 생겨 SSR compute 시간을 먹었다 (Amplify 요금의 75%), ③ JSON 직렬화 때문에 `Date` 가 문자열로
 와서 선언된 타입(`Date`)과 런타임이 달랐다. 직접 조회로 바꾸면서 셋 다 해소됐다.
 `shared/utils/fetchAPI.ts`, `shared/constants/api.ts`, `getTags`, `getQueryString` 은 함께 제거됐다.
+
+
+## 캐시 (Cache Components)
+
+`next.config.mjs` 에 `cacheComponents: true` · `partialPrefetching: true` 가 켜져 있다. 조회는
+`"use cache"` 로 캐시하고, 변경은 태그를 갱신한다. 태그 이름은 `shared/lib/cacheTags.ts` 한곳에서 만든다.
+
+```ts
+// 조회 — 세션 확인은 캐시 밖에서. 캐시 범위 안에서는 cookies/headers 에 접근할 수 없다
+export async function getLinks(parameters = {}) {
+  const user = await getSessionUser();
+  if (!user) throw new Error("로그인이 필요합니다.");
+  return getCachedLinks(user.id!, parameters.params ?? {});
+}
+
+async function getCachedLinks(userId: number, params: Record<string, string | number | boolean>) {
+  "use cache";
+  cacheTag(cacheTags.links(userId));
+  cacheLife("hours");
+  return db.link.findMany({where: {folder: {userId}, ...}});
+}
+
+// 변경 — 서버 액션 안에서 updateTag
+updateTag(cacheTags.links(user.id!));
+```
+
+**지켜야 할 규칙**
+
+- **서버 액션에서는 `updateTag` 를 쓴다. `revalidateTag` 를 쓰지 않는다.**
+  `revalidateTag(tag, profile)` 는 지연 갱신이라 옛 값을 한 번 더 내보낸다 — 변경 직후 새로고침하면
+  이전 상태가 보인다. `updateTag` 는 즉시 만료시킨다. (Route Handler 에서는 반대로 `updateTag` 가 예외를
+  던지므로 `revalidateTag` 를 쓴다.)
+- **렌더 중에는 DB 를 바꾸지도, 캐시를 무효화하지도 않는다.** Next 가 렌더 단계의 무효화를 예외로 막는다.
+  없는 행을 조회 중에 만들어 두던 코드가 이것 때문에 터졌다 → `settings.service.ts` 의 "저장된 값이 없으면
+  기본값을 돌려주고, 행은 첫 저장 때 만든다" 방식을 참고.
+- **수명은 `cacheLife("hours")`.** `"max"` 는 재검증 주기가 30일이라, 앱을 거치지 않는 변경
+  (게스트 초기화 Lambda 가 DB 를 직접 다시 채운다)이 영영 반영되지 않는다.
+- **변경 함수를 새로 만들면 태그 갱신을 같이 넣는다.** 링크는 폴더별 개수가 바뀌므로 폴더 태그까지,
+  카테고리·설정은 집계 경계가 바뀌므로 기록 태그까지 함께 갱신한다.
+- **데이터를 읽는 async 컴포넌트는 `<Suspense>` 안에 둔다.** 세션(`cookies`)을 읽는 순간 동적이 되므로,
+  경계가 없으면 페이지 전체가 정적 셸을 잃는다. 스켈레톤은 `widgets/*/\*Skeleton.tsx`.
+
+## 테스트
+
+```bash
+npm run test:e2e        # Playwright (로컬 dev 서버를 자동으로 띄운다)
+npm run test:e2e:ui     # 디버깅용 UI 모드
+```
+
+- `e2e/` — 캐시 무효화(`cache.spec.ts`), 접근성 이름(`a11y.spec.ts`), 모바일 드로어(`mobile.spec.ts`),
+  홈 구조(`home.spec.ts`). 게스트 로그인은 `guest.setup.ts` 가 한 번만 하고 세션을 재사용한다.
+- **실데이터를 쓴다.** dev 가 프로덕션 DB 를 보므로 테스트도 그렇다. 게스트 계정만 쓰고, 만든 데이터는
+  고유 제목을 붙인 뒤 끝나면 지운다. 게스트 계정은 공유 자원이라 직렬 실행한다(`workers: 1`).
+- **프로덕션(`E2E_BASE_URL=https://www.minimoku.net`)을 대상으로 돌리지 말 것.** Supabase 무료 티어의
+  세션 모드 풀이 15개뿐이라, 로컬 dev 서버가 떠 있으면 `max clients reached` 로 실제 서비스 로그인이 막힌다.
 
 ## 인증
 
@@ -270,7 +327,7 @@ Cloudflare Images direct upload 방식.
 3. ~~**미들웨어 matcher 와 실제 경로 불일치**~~ → 해결 (2026-10-20, jpStudy 제거와 함께).
 4. ~~**feature 구조 2종 혼재**~~ → 해결 (2026-10-20, 레거시 구조였던 jpStudy feature 제거).
 5. **`shared/lib/utils/` 에 index 없음** — `@/shared/lib/utils` 로는 import 불가. 파일명까지 적을 것:
-   `.../utils/commonUtils`(cn, getTags, getQueryString), `.../utils/authUtils`(getSessionUser),
+   `.../utils/commonUtils`(cn, getPathnameArray), `.../utils/authUtils`(getSessionUser),
    `.../utils/dateUtils`, `.../utils/guestUtils`.
 6. ~~`shared/constants/url.ts` 가 낡음~~ → 해결 (2026-10-20, 실사용 3개만 남김).
 7. **Amplify 콘솔 buildSpec 에 비밀값이 하드코딩돼 있었음** — 환경변수 17개 값을 `echo "KEY=값" >> .env` 로
@@ -279,6 +336,15 @@ Cloudflare Images direct upload 방식.
    `docs/hosting-and-deployment.md` §3.6. **콘솔 buildSpec 을 출력하거나 파일로
    저장할 때는 반드시 값 마스킹 후 처리할 것.** 새 환경변수를 추가하면 콘솔 등록 + `amplify.yml` 허용 목록 두 곳 모두
    갱신해야 한다 (guard 가 누락을 잡아 빌드를 실패시킴).
+8. **Supabase 커넥션 풀이 15개뿐** — `DATABASE_URL` 이 **세션 모드 풀러(포트 5432)** 를 가리킨다. 이 모드는
+   클라이언트 하나가 연결 하나를 붙잡으므로 한도가 낮다. 프로덕션·로컬 dev 서버·`tsx` 스크립트가 **같은 풀을
+   나눠 쓴다.** 한도를 넘기면 로그인부터 막힌다
+   (`FATAL: (EMAXCONNSESSION) max clients reached in session mode`). 실제로 로컬 dev 를 띄운 채
+   프로덕션에 E2E 를 돌렸다가 재현됐다 (2026-10-20).
+   → 당장은 **로컬 작업과 프로덕션 접속을 동시에 몰지 않는 것**으로 피한다.
+   근본 해결은 **트랜잭션 모드 풀러(포트 6543)로 전환**하는 것이다
+   (`?pgbouncer=true&connection_limit=1`, 마이그레이션용 `directUrl` 별도 지정 필요).
+   Amplify 콘솔의 환경변수를 바꿔야 해서 **사용자만 할 수 있다** — 미결정.
 
 ## 디자인 토큰 (`src/app/globals.css`)
 

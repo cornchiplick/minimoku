@@ -226,6 +226,32 @@ async function getCachedLinks(userId: number, params) {
 변경 측은 `revalidateTag(\`links:${userId}\`)`. TanStack Query 를 쓰지 않는 대신 서버 캐시를 제대로
 쓴다는 선택은 면접에서 설명 가능한 근거가 된다 (공식 문서에 TanStack Query 비교 페이지가 따로 있다).
 
+### 구현하며 바뀐 것 (2026-10-20 구현 후 기록)
+
+위 초안대로 넣었다가 실제로 세 군데가 어긋났다. 기록해 둔다.
+
+1. **`revalidateTag` → `updateTag`.**
+   Next 16 의 `revalidateTag(tag, profile)` 는 **지연 갱신**이다 — 옛 값을 한 번 더 내보낸 뒤 뒤에서
+   갱신한다. 그래서 변경 직후 새로고침하면 이전 상태가 보였다. 같은 모듈에 있는 `updateTag(tag)` 가
+   즉시 만료시키는 쪽이고, 서버 액션 전용이다(Route Handler 에서 부르면 예외). 반대로 Route Handler
+   에서는 `revalidateTag` 를 써야 한다.
+   근거: `node_modules/next/dist/server/web/spec-extension/revalidate.d.ts` 의 주석과 구현.
+
+2. **렌더 중에는 무효화할 수 없다.**
+   `revalidate()` 내부에 `if (workUnitStore.phase === 'render') throw ...` 가 있다. 설정 행이 없으면
+   조회 중에 만들어 두던 코드가 이 가드에 걸려, 설정이 없는 사용자는 PigMoney 첫 방문에서 오류 화면을
+   보게 됐다. → 조회는 저장된 값이 없으면 **기본값만 돌려주고**, 행은 첫 저장 때 만든다.
+
+3. **`cacheLife("max")` 는 이 앱에 맞지 않는다.**
+   `max` 는 재검증 주기가 **30일**이다(`config-shared.js` 의 내장 프로필). 앱을 거치는 변경은
+   `updateTag` 로 즉시 반영되지만, **앱 밖에서 일어나는 변경은 태그를 갱신할 방법이 없다** — 게스트
+   초기화 Lambda 가 매일 04:00 에 DB 를 직접 다시 채운다. 수명이 30일이면 떠 있는 인스턴스가 어제
+   상태를 계속 내보낸다. → `cacheLife("hours")`(재검증 1시간)로 묶었다.
+
+또 하나, 변경 함수에 태그 갱신을 **빠뜨리기 쉽다.** 처음 적용할 때 링크 추가·수정, 폴더 추가·이름 변경
+네 곳이 빠져 있었고, 수명이 길어 새 링크가 목록에 영영 나타나지 않았다. `e2e/cache.spec.ts` 가 추가·
+즐겨찾기·수정·삭제를 한 번씩 돌며 이걸 막는다.
+
 ---
 
 ## 7-3. 실행 순서 (확정, 2026-10-20)
@@ -234,11 +260,14 @@ async function getCachedLinks(userId: number, params) {
 
 | 단계 | 내용 | 상태 |
 |---|---|---|
-| 1 | **의존성 업데이트** — Next 16, zod 4, eslint 10 + flat config, react/tailwind 마이너. prisma 는 RC 라 보류 | 🔄 |
-| 2 | **캐시 레이어** — `cacheComponents` 활성화, `use cache` + `cacheTag` 적용, 변경 측 `revalidateTag` | ⬜ |
-| 3 | **토큰 정리** — 중복 제거, `@theme inline`, `dark:` 버그 수정, 타이포·간격·radius·shadow·motion 스케일 신설 | ⬜ |
-| 4 | **반응형 + 홈 랜딩 재설계 + 모션 + 접근성** — 사이드바 드로어화, 홈을 히어로+소개 섹션+푸터 구조로 | ⬜ |
-| 5 | **Playwright + Storybook** — UI 확정 후 작성 | ⬜ |
+| 1 | **의존성 업데이트** — Next 16, zod 4, eslint 10 + flat config, react/tailwind 마이너. prisma 는 RC 라 보류 | ✅ |
+| 3 | **토큰 정리** — 중복 제거, `@theme inline`, `dark:` 버그 수정, 타이포·간격·radius·shadow·motion 스케일 신설 | ✅ |
+| 4 | **반응형 + 홈 랜딩 재설계 + 모션 + 접근성** — 사이드바 드로어화, 홈을 히어로+소개 섹션+푸터 구조로 | ✅ |
+| 2 | **캐시 레이어** — `cacheComponents` 활성화, `use cache` + `cacheTag`, 변경 측 `updateTag` | ✅ |
+| 5 | **Playwright + Storybook** — Playwright 완료, Storybook 진행 중 | 🔄 |
+
+실제 진행 순서는 2단계를 뒤로 미뤘다. 캡처할 화면이 투박한 채로 홈에 걸릴 수 없어서, 디자인(3·4)을
+먼저 끝내고 캐시를 나중에 넣었다.
 
 사용자 요구 사항 메모: 홈의 문제의식은 "openai.com 대비 **너무 텅 비어 보인다**" — 레이아웃 붕괴뿐 아니라
 **콘텐츠 밀도** 자체가 부족하다는 뜻. 4단계에서 섹션 구성을 늘리는 방향으로 반영할 것.
