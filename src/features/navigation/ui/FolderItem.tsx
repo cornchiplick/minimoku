@@ -66,10 +66,10 @@ const FolderItem = ({folder, isActive, onClick, onEdit, onDelete, onEmpty}: Fold
           stroke={isActive ? "none" : isDarkMode ? "none" : "black"}
           fill={isActive ? "white" : isDarkMode ? "white" : "none"}
         />
-        <Typography.P2 className={clsx(isActive && "text-background-primary")}>
+        <Typography.P2 className={clsx(isActive && "text-on-brand")}>
           {folder.name}
         </Typography.P2>
-        <Typography.P3 className={clsx(isActive && "text-background-primary")}>
+        <Typography.P3 className={clsx(isActive && "text-on-brand")}>
           {folder.count}
         </Typography.P3>
       </div>

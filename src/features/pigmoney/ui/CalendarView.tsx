@@ -86,7 +86,8 @@ const CalendarView = ({
           "cursor-pointer transition-colors rounded-sm"
         ),
         selected: "bg-pigmoney-brand/8",
-        outside: "opacity-35",
+        // 투명도로 흐리면 글자 대비가 2.09:1 까지 떨어진다 → 색은 아래 DayButton 에서 흐린 토큰으로 준다
+        outside: "",
         disabled: "opacity-40",
         hidden: "invisible",
       }}
@@ -100,6 +101,7 @@ const CalendarView = ({
               <button
                 type="button"
                 onClick={() => onMonthChange(new Date(d.getFullYear(), d.getMonth() - 1, 1))}
+                aria-label="이전 달"
                 className="inline-flex h-8 w-8 cursor-pointer items-center justify-center bg-transparent p-0 opacity-50 hover:opacity-100">
                 <ChevronLeft className="h-4 w-4" />
               </button>
@@ -107,6 +109,7 @@ const CalendarView = ({
               <button
                 type="button"
                 onClick={() => onMonthChange(new Date(d.getFullYear(), d.getMonth() + 1, 1))}
+                aria-label="다음 달"
                 className="inline-flex h-8 w-8 cursor-pointer items-center justify-center bg-transparent p-0 opacity-50 hover:opacity-100">
                 <ChevronRight className="h-4 w-4" />
               </button>
@@ -117,28 +120,49 @@ const CalendarView = ({
           const dateKey = dateKeyOf(day.date);
           const summary = dailySummary.get(dateKey);
 
+          const showSummary = !!summary && !modifiers.outside;
+          const expenseText =
+            showSummary && summary.expense > 0 ? `−${formatShortAmount(summary.expense)}` : "";
+          const incomeText =
+            showSummary && summary.income > 0 ? `+${formatShortAmount(summary.income)}` : "";
+
+          // 접근 가능한 이름은 화면에 보이는 글자를 그대로 품어야 한다 (WCAG 2.5.3 "이름 안의 레이블").
+          // 음성으로 조작하는 사람이 본 대로 말해서 누를 수 있어야 하기 때문이다.
+          const spoken = [
+            `${day.date.getDate()}일`,
+            modifiers.today ? "오늘" : "",
+            expenseText ? `지출 ${expenseText}` : "",
+            incomeText ? `수입 ${incomeText}` : "",
+          ]
+            .filter(Boolean)
+            .join(", ");
+
           return (
-            <button {...props}>
+            <button {...props} aria-label={spoken}>
               <span
                 className={cn(
                   "flex items-center gap-1 text-[0.8125rem] tabular-nums",
-                  modifiers.today ? "text-pigmoney-brand font-bold" : "text-foreground font-medium"
+                  modifiers.today
+                    ? "text-pigmoney-brand-strong font-bold"
+                    : modifiers.outside
+                      ? "text-minimoku-neutral-bold font-medium"
+                      : "text-foreground font-medium"
                 )}>
                 {day.date.getDate()}
                 {modifiers.today && (
                   <span className="bg-pigmoney-brand h-1 w-1 rounded-full" aria-hidden />
                 )}
               </span>
-              {summary && !modifiers.outside && (
+              {showSummary && (
                 <span className="flex w-full flex-col items-start gap-0.5">
-                  {summary.expense > 0 && (
+                  {expenseText && (
                     <span className="text-foreground truncate text-[11px] leading-tight font-semibold tabular-nums">
-                      −{formatShortAmount(summary.expense)}
+                      {expenseText}
                     </span>
                   )}
-                  {summary.income > 0 && (
+                  {incomeText && (
                     <span className="text-pigmoney-income truncate text-[11px] leading-tight font-semibold tabular-nums">
-                      +{formatShortAmount(summary.income)}
+                      {incomeText}
                     </span>
                   )}
                 </span>

@@ -74,7 +74,7 @@ const PigMoneySettings = ({initialSettings}: PigMoneySettingsProps) => {
               이달의 가계 기간을 계산할 때 사용됩니다. (예: 25일 → n월 25일 ~ (n+1)월 24일)
             </p>
             <Select value={monthStartDay} onValueChange={setMonthStartDay}>
-              <SelectTrigger className="w-40">
+              <SelectTrigger className="w-40" aria-label="월 시작일">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="max-h-60">
@@ -94,7 +94,7 @@ const PigMoneySettings = ({initialSettings}: PigMoneySettingsProps) => {
               이주의 가계 기간을 계산할 때 사용됩니다. (예: 금요일 → 금~목)
             </p>
             <Select value={weekStartDay} onValueChange={setWeekStartDay}>
-              <SelectTrigger className="w-40">
+              <SelectTrigger className="w-40" aria-label="주 시작 요일">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

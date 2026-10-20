@@ -56,7 +56,7 @@ const FilterItem = ({filter}: FilterItemProps) => {
       )}>
       <div className="flex items-center space-x-3">
         <Icon className="h-4 w-4" />
-        <Typography.P2 className={clsx(isSelectedFilter && "text-background-primary")}>
+        <Typography.P2 className={clsx(isSelectedFilter && "text-on-brand")}>
           {filter.name}
         </Typography.P2>
       </div>
