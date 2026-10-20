@@ -150,3 +150,6 @@ lambda/*/guest-showcase.json
 /playwright-report/
 /blob-report/
 /e2e/.auth/
+
+# storybook
+/storybook-static/

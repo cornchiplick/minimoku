@@ -11,6 +11,9 @@ export default [
       "lambda/**",
       "next-env.d.ts",
       "prisma/migrations/**",
+      "storybook-static/**",
+      "playwright-report/**",
+      "test-results/**",
     ],
   },
   ...coreWebVitals,
@@ -19,7 +22,10 @@ export default [
     rules: {
       // 사용하지 않는 변수·any·훅 의존성은 경고로 둔다 (빌드를 막지 않음)
       "no-unused-vars": "off",
-      "@typescript-eslint/no-unused-vars": ["warn", {argsIgnorePattern: "^_", caughtErrors: "none"}],
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {argsIgnorePattern: "^_", caughtErrors: "none"},
+      ],
       "@typescript-eslint/no-explicit-any": "warn",
       "react-hooks/exhaustive-deps": "warn",
     },
