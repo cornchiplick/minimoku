@@ -1,7 +1,7 @@
 "use server";
 
 import {cacheTags} from "@/shared/lib/cacheTags";
-import {cacheLife, cacheTag, revalidateTag} from "next/cache";
+import {cacheLife, cacheTag, updateTag} from "next/cache";
 import {z} from "zod";
 import {categorySchema} from "@/features/pigmoney/model/schema/categorySchema";
 import {DEFAULT_CATEGORIES} from "@/shared/constants/pigmoney";
@@ -51,7 +51,9 @@ export async function seedDefaultCategories() {
       })),
     });
 
-    // seed 직후 getCategories 로 다시 조회하므로 별도 갱신 처리가 필요 없다
+    // 이 함수는 렌더 중에 불리므로 캐시를 무효화할 수 없다(렌더 중 무효화는 예외가 난다).
+    // 대신 호출 직후 같은 요청에서 getCategories 가 조회한다. 카테고리가 0개인 상태는
+    // 캐시에 남지 않는다 — 비우는 경로(deleteCategory)가 이미 태그를 갱신하기 때문이다.
   } catch (error) {
     console.error("Seed Categories Error:", error);
   }
@@ -94,8 +96,8 @@ export async function postCategory(formData: FormData) {
       },
     });
 
-    revalidateTag(cacheTags.categories(user.id!), "max");
-    revalidateTag(cacheTags.cashRecords(user.id!), "max");
+    updateTag(cacheTags.categories(user.id!));
+    updateTag(cacheTags.cashRecords(user.id!));
     return {success: true};
   } catch (error) {
     console.error("Post Category Error:", error);
@@ -147,8 +149,8 @@ export async function updateCategory(formData: FormData) {
       data: {name: result.data.name},
     });
 
-    revalidateTag(cacheTags.categories(user.id!), "max");
-    revalidateTag(cacheTags.cashRecords(user.id!), "max");
+    updateTag(cacheTags.categories(user.id!));
+    updateTag(cacheTags.cashRecords(user.id!));
     return {success: true};
   } catch (error) {
     console.error("Update Category Error:", error);
@@ -186,8 +188,8 @@ export async function deleteCategory({categoryId}: {categoryId: number}) {
       where: {id: categoryId},
     });
 
-    revalidateTag(cacheTags.categories(user.id!), "max");
-    revalidateTag(cacheTags.cashRecords(user.id!), "max");
+    updateTag(cacheTags.categories(user.id!));
+    updateTag(cacheTags.cashRecords(user.id!));
     return {success: true};
   } catch (error) {
     console.error("Delete Category Error:", error);

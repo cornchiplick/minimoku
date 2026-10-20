@@ -42,7 +42,7 @@ export interface CategoryBreakdown {
 
 // PigMoney 사용자 설정
 export interface PigMoneySettingsInterface {
-  id: number;
+  // 저장된 행이 아직 없을 수 있으므로 id 는 두지 않는다 (어디서도 쓰지 않음)
   monthStartDay: number; // 1~28
   weekStartDay: number; // 0=일, 1=월, ..., 6=토
 }

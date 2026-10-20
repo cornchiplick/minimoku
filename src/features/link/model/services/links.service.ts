@@ -1,7 +1,7 @@
 "use server";
 
 import {cacheTags} from "@/shared/lib/cacheTags";
-import {cacheLife, cacheTag, revalidateTag} from "next/cache";
+import {cacheLife, cacheTag, updateTag} from "next/cache";
 import {z} from "zod";
 import {getFolder} from "@/features/folder/model/services/folders.service";
 import {linkSchema} from "@/features/link/model/schema/linkSchema";
@@ -127,6 +127,10 @@ export async function postLink(formData: FormData) {
         memo: result.data.memo || "",
       },
     });
+
+    updateTag(cacheTags.links(user.id!));
+    // 폴더의 링크 개수가 바뀐다
+    updateTag(cacheTags.folders(user.id!));
   } catch (error) {
     console.error("Database Error : ", error);
     throw error;
@@ -172,8 +176,8 @@ export async function deleteLink({linkId}: {linkId: number}) {
 
     // 캐시 무효화
 
-    revalidateTag(cacheTags.links(user.id!), "max");
-    revalidateTag(cacheTags.folders(user.id!), "max");
+    updateTag(cacheTags.links(user.id!));
+    updateTag(cacheTags.folders(user.id!));
     return {success: true};
   } catch (error) {
     console.error("Delete Link Error : ", error);
@@ -210,8 +214,8 @@ export async function favoriteLink({linkId}: {linkId: number}) {
       },
     });
 
-    revalidateTag(cacheTags.links(user.id!), "max");
-    revalidateTag(cacheTags.folders(user.id!), "max");
+    updateTag(cacheTags.links(user.id!));
+    updateTag(cacheTags.folders(user.id!));
     return {success: true};
   } catch (error) {
     console.error("Favorite Link Error : ", error);
@@ -248,8 +252,8 @@ export async function readLink({linkId}: {linkId: number}) {
       },
     });
 
-    revalidateTag(cacheTags.links(user.id!), "max");
-    revalidateTag(cacheTags.folders(user.id!), "max");
+    updateTag(cacheTags.links(user.id!));
+    updateTag(cacheTags.folders(user.id!));
     return {success: true};
   } catch (error) {
     console.error("Read Link Error : ", error);
@@ -334,6 +338,10 @@ export async function updateLink(formData: FormData) {
         memo: result.data.memo || "",
       },
     });
+
+    updateTag(cacheTags.links(user.id!));
+    // 폴더를 옮겼을 수 있으므로 폴더별 개수도 다시 센다
+    updateTag(cacheTags.folders(user.id!));
   } catch (error) {
     console.error("Update Link Error : ", error);
     return {_form: "링크 업데이트 중 오류가 발생했습니다."};

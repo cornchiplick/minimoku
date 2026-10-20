@@ -1,7 +1,7 @@
 "use server";
 
 import {cacheTags} from "@/shared/lib/cacheTags";
-import {cacheLife, cacheTag, revalidateTag} from "next/cache";
+import {cacheLife, cacheTag, updateTag} from "next/cache";
 import {z} from "zod";
 import {folderSchema} from "@/features/folder/model/schema/folderSchema";
 import db from "@/shared/lib/db";
@@ -117,6 +117,8 @@ export async function postFolder(formData: FormData) {
         sortOrder: (maxSortOrder?.sortOrder ?? -1) + 1,
       },
     });
+
+    updateTag(cacheTags.folders(user.id!));
   } catch (error) {
     console.error("Post Folder Error : ", error);
     return {error: true};
@@ -156,6 +158,8 @@ export async function updateFolder(formData: FormData) {
         id: folderId,
       },
     });
+
+    updateTag(cacheTags.folders(user.id!));
   } catch (error) {
     console.error("Update Folder Error : ", error);
     return {error: true};
@@ -183,8 +187,8 @@ export async function deleteFolder(folderId: number) {
       },
     });
 
-    revalidateTag(cacheTags.folders(user.id!), "max");
-    revalidateTag(cacheTags.links(user.id!), "max");
+    updateTag(cacheTags.folders(user.id!));
+    updateTag(cacheTags.links(user.id!));
     return {success: true};
   } catch (error) {
     console.error("Delete Folder Error : ", error);
@@ -206,8 +210,8 @@ export async function emptyFolder(folderId: number) {
       },
     });
 
-    revalidateTag(cacheTags.folders(user.id!), "max");
-    revalidateTag(cacheTags.links(user.id!), "max");
+    updateTag(cacheTags.folders(user.id!));
+    updateTag(cacheTags.links(user.id!));
     return {success: true};
   } catch (error) {
     console.error("Empty Folder Error : ", error);
@@ -241,8 +245,8 @@ export async function updateFolderOrders(folderOrders: {id: number; sortOrder: n
 
     // 캐시 무효화
 
-    revalidateTag(cacheTags.folders(user.id!), "max");
-    revalidateTag(cacheTags.links(user.id!), "max");
+    updateTag(cacheTags.folders(user.id!));
+    updateTag(cacheTags.links(user.id!));
     return {success: true};
   } catch (error) {
     console.error("Update Folder Orders Error:", error);

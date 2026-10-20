@@ -1,13 +1,13 @@
 "use server";
 
 import {PigMoneySettingsInterface} from "@/entities/pigmoney/types";
-import {cacheTags} from "@/shared/lib/cacheTags";
 import {DEFAULT_MONTH_START_DAY, DEFAULT_WEEK_START_DAY} from "@/shared/constants/pigmoney";
+import {cacheTags} from "@/shared/lib/cacheTags";
 import db from "@/shared/lib/db";
 import {getSessionUser} from "@/shared/lib/utils/authUtils";
-import {cacheLife, cacheTag, revalidateTag} from "next/cache";
+import {cacheLife, cacheTag, updateTag} from "next/cache";
 
-// 설정 조회 (없으면 기본값으로 생성 후 반환)
+// 설정 조회 (저장된 값이 없으면 기본값)
 export async function getSettings(): Promise<PigMoneySettingsInterface> {
   const user = await getSessionUser();
   if (!user) {
@@ -15,31 +15,17 @@ export async function getSettings(): Promise<PigMoneySettingsInterface> {
   }
 
   // 세션 확인은 캐시 밖에서 한다 (캐시 범위 안에서는 cookies/headers 에 접근할 수 없다)
-  const cached = await getCachedSettings(user.id!);
-  if (cached) {
-    return cached;
-  }
-
-  // 설정이 없으면 기본값으로 생성한다 (쓰기는 캐시 범위 밖에서 해야 한다)
-  const created = await db.pigMoneySettings.create({
-    data: {
-      userId: user.id!,
-      monthStartDay: DEFAULT_MONTH_START_DAY,
-      weekStartDay: DEFAULT_WEEK_START_DAY,
-    },
-  });
-
-  revalidateTag(cacheTags.settings(user.id!), "max");
-
-  return {
-    id: created.id,
-    monthStartDay: created.monthStartDay,
-    weekStartDay: created.weekStartDay,
-  };
+  return getCachedSettings(user.id!);
 }
 
-// 설정 조회 본문 — 사용자별 태그를 달아 캐시한다
-async function getCachedSettings(userId: number): Promise<PigMoneySettingsInterface | null> {
+/**
+ * 설정 조회 본문 — 사용자별 태그를 달아 캐시한다.
+ *
+ * 행이 없을 때 만들어 두지 않고 기본값을 돌려준다. 조회는 렌더 중에 일어나는데
+ * 그 안에서는 DB 를 바꿔서도, 캐시를 무효화해서도 안 되기 때문이다.
+ * 행은 첫 저장(updateSettings 의 upsert) 때 생긴다.
+ */
+async function getCachedSettings(userId: number): Promise<PigMoneySettingsInterface> {
   "use cache";
   cacheTag(cacheTags.settings(userId));
   cacheLife("max");
@@ -48,14 +34,9 @@ async function getCachedSettings(userId: number): Promise<PigMoneySettingsInterf
     where: {userId},
   });
 
-  if (!settings) {
-    return null;
-  }
-
   return {
-    id: settings.id,
-    monthStartDay: settings.monthStartDay,
-    weekStartDay: settings.weekStartDay,
+    monthStartDay: settings?.monthStartDay ?? DEFAULT_MONTH_START_DAY,
+    weekStartDay: settings?.weekStartDay ?? DEFAULT_WEEK_START_DAY,
   };
 }
 
@@ -88,9 +69,9 @@ export async function updateSettings(formData: FormData) {
       },
     });
 
-    revalidateTag(cacheTags.settings(user.id!), "max");
+    updateTag(cacheTags.settings(user.id!));
     // 월·주 경계가 바뀌므로 집계 결과도 다시 계산해야 한다
-    revalidateTag(cacheTags.cashRecords(user.id!), "max");
+    updateTag(cacheTags.cashRecords(user.id!));
 
     return {success: true};
   } catch (error) {

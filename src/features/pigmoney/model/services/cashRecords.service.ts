@@ -1,7 +1,7 @@
 "use server";
 
 import {cacheTags} from "@/shared/lib/cacheTags";
-import {cacheLife, cacheTag, revalidateTag} from "next/cache";
+import {cacheLife, cacheTag, updateTag} from "next/cache";
 import {z} from "zod";
 import {cashRecordSchema} from "@/features/pigmoney/model/schema/cashRecordSchema";
 import {cashRecordBatchSchema} from "@/features/pigmoney/model/schema/cashRecordBatchSchema";
@@ -95,7 +95,7 @@ export async function postCashRecords(formData: FormData) {
       })),
     });
 
-    revalidateTag(cacheTags.cashRecords(user.id!), "max");
+    updateTag(cacheTags.cashRecords(user.id!));
     return {success: true};
   } catch (error) {
     console.error("Post CashRecords Error:", error);
@@ -149,7 +149,7 @@ export async function updateCashRecord(formData: FormData) {
       },
     });
 
-    revalidateTag(cacheTags.cashRecords(user.id!), "max");
+    updateTag(cacheTags.cashRecords(user.id!));
     return {success: true};
   } catch (error) {
     console.error("Update CashRecord Error:", error);
@@ -226,7 +226,7 @@ export async function deleteCashRecord({recordId}: {recordId: number}) {
       where: {id: recordId},
     });
 
-    revalidateTag(cacheTags.cashRecords(user.id!), "max");
+    updateTag(cacheTags.cashRecords(user.id!));
     return {success: true};
   } catch (error) {
     console.error("Delete CashRecord Error:", error);

@@ -48,7 +48,6 @@ const PigMoneySettings = ({initialSettings}: PigMoneySettingsProps) => {
 
       // 스토어 업데이트 + 사이드바 요약 재조회
       setSettings({
-        id: initialSettings.id,
         monthStartDay: Number(monthStartDay),
         weekStartDay: Number(weekStartDay),
       });
