@@ -413,6 +413,26 @@ Cost Explorer·Budgets **API 에는 적용되지 않는다** (공식 문서 명�
 **교훈**: IAM 콘솔 마법사는 마지막 "생성" 버튼을 눌러야 실제로 만들어진다. 검토 화면에서 멈추면 아무것도 남지 않는다
 (2026-09-15 정책 생성 때도 같은 지점에서 멈춘 적 있음). 생성 후에는 목록에서 실제 항목을 확인할 것.
 
+### 두 번째 실행 기록 (2026-10-20) — 인증 통과, 스크립트 버그 2건
+
+IAM 3요소를 실제로 생성한 뒤 수동 재실행(`39349608235`). `configure-aws-credentials` **✅ 통과** — OIDC 설정 검증 완료:
+
+| 항목 | 확인된 값 |
+|---|---|
+| 공급자 | `token.actions.githubusercontent.com`, 대상 `sts.amazonaws.com`, 지문 1개 |
+| 역할 신뢰 정책 | `Federated` = 위 공급자 ARN, `aud` = `sts.amazonaws.com`, `sub` = `repo:cornchiplick/minimoku:ref:refs/heads/main` |
+| 연결 정책 | `MinimokuLambdaDeploy` |
+
+이후 `npm run deploy` 단계에서 두 함수가 각각 다른 이유로 실패 (둘 다 업로드 전이라 함수 영향 없음):
+
+1. **telegram-notifier — 실제 버그.** `cp: cannot create regular file 'prisma/schema.prisma': No such file or directory`.
+   `lambda/*/prisma/schema.prisma` 가 gitignore 라 **신규 클론에 `prisma/` 디렉터리 자체가 없다.** guest-reset 에는
+   `prisma/.gitkeep` 이 추적되고 있어 디렉터리가 남지만 telegram-notifier 에는 없었다. 로컬에서는 과거 빌드가 만들어 둔
+   디렉터리 덕분에 드러나지 않던 문제 — `git clone` 으로 재현 확인.
+   → 수정: 두 `build` 스크립트 앞에 `mkdir -p prisma` 추가 (placeholder 파일에 의존하지 않는 방식).
+2. **guest-reset — 일시적.** `npm install` 중 `ECONNRESET` (러너 네트워크).
+   → 완화: `npm install --no-audit --no-fund --fetch-retries 5 --fetch-retry-maxtimeout 60000`.
+
 **⚠️ 의존성 버전 드리프트 (미해결)**: `lambda/*/package-lock.json` 이 gitignore 라 CI 는 매번 `npm install` 로 새로 해석한다.
 `@prisma/client: ^6.7.0` 이므로 2026-09-15 로컬 배포분(6.19.3)보다 높은 버전이 들어갈 수 있다. deploy.sh 의 구조 검사와
 verify.sh 가 telegram-notifier 는 잡아내지만, **guest-reset 은 하루 1회 실행이라 다음날 04:00 KST 로그까지 알 수 없다.**
