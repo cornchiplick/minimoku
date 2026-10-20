@@ -1,5 +1,6 @@
 "use server";
 
+import {z} from "zod";
 import {getFolder} from "@/features/folder/model/services/folders.service";
 import {linkSchema} from "@/features/link/model/schema/linkSchema";
 import {FilterConstants} from "@/shared/constants/navigation";
@@ -96,7 +97,7 @@ export async function postLink(formData: FormData) {
   // schema 검증
   const result = linkSchema.safeParse(data);
   if (!result.success) {
-    return result.error.flatten();
+    return z.flattenError(result.error);
   }
 
   // 폴더가 현재 사용자 소유인지 확인 (보안)
@@ -271,7 +272,7 @@ export async function updateLink(formData: FormData) {
   // schema 검증
   const result = linkSchema.safeParse(data);
   if (!result.success) {
-    return result.error.flatten();
+    return z.flattenError(result.error);
   }
 
   // 폴더가 현재 사용자 소유인지 확인 (보안)

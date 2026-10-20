@@ -14,7 +14,7 @@ import { useBoolean } from "@/shared/hooks/useBoolean";
 import { format } from "date-fns";
 import { ChevronDown, ChevronUp, Copy, FileText, Link } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface LinkCardProps {
   data: LinkInterface;
@@ -27,6 +27,19 @@ const LinkCard = ({data, keyword}: LinkCardProps) => {
   // 낙관적 업데이트를 위한 상태
   const [isFavorite, setIsFavorite] = useState<boolean>(data.isFavorite);
   const [isRead, setIsRead] = useState<boolean>(data.isRead);
+
+  // 서버 데이터가 갱신되면 낙관적 상태를 서버 값으로 맞춘다.
+  // effect 에서 setState 하면 한 번 더 렌더링되므로, 렌더 중 조정하는 React 권장 방식을 쓴다.
+  // https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
+  const [syncedData, setSyncedData] = useState({
+    isFavorite: data.isFavorite,
+    isRead: data.isRead,
+  });
+  if (syncedData.isFavorite !== data.isFavorite || syncedData.isRead !== data.isRead) {
+    setSyncedData({isFavorite: data.isFavorite, isRead: data.isRead});
+    setIsFavorite(data.isFavorite);
+    setIsRead(data.isRead);
+  }
 
   // 메모 펼치기
   const [isExpanded, setIsExpanded] = useState(false);
@@ -59,14 +72,6 @@ const LinkCard = ({data, keyword}: LinkCardProps) => {
   const cloudflareLoader = ({src, width}: {src: string; width: number}) => {
     return `${src}/width=${width},height=${width},fit=cover`;
   };
-
-  useEffect(() => {
-    setIsFavorite(data.isFavorite);
-  }, [data.isFavorite]);
-
-  useEffect(() => {
-    setIsRead(data.isRead);
-  }, [data.isRead]);
 
   return (
     <>

@@ -1,5 +1,6 @@
 "use server";
 
+import {z} from "zod";
 import {folderSchema} from "@/features/folder/model/schema/folderSchema";
 import db from "@/shared/lib/db";
 import {getSessionUser} from "@/shared/lib/utils/authUtils";
@@ -88,7 +89,7 @@ export async function postFolder(formData: FormData) {
   // schema 검증
   const result = folderSchema.safeParse(data);
   if (!result.success) {
-    return result.error.flatten();
+    return z.flattenError(result.error);
   }
 
   try {
@@ -127,7 +128,7 @@ export async function updateFolder(formData: FormData) {
   // schema 검증
   const result = folderSchema.safeParse(data);
   if (!result.success) {
-    return result.error.flatten();
+    return z.flattenError(result.error);
   }
 
   // 폴더가 현재 사용자 소유인지 확인 (보안)

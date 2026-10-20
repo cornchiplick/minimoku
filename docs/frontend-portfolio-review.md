@@ -156,6 +156,95 @@ CSS-in-JS 레거시, class 컴포넌트)은 하나도 없다. App Router·React 
 
 ---
 
+## 7-1. 디자인 토큰 상세 감사 (2026-10-20 추가)
+
+`src/app/globals.css` 142줄 전수 확인 결과.
+
+### 군더더기
+
+1. **같은 색을 두 벌로 선언한다.** 커스텀 체계와 shadcn 표준 체계가 평행 공존하며 동일 값을 중복 정의:
+   `--color-background-primary`(#ffffff) = `--color-background`, `--color-minimoku`(#2b7fff) = `--color-primary`,
+   `--color-background-secondary`(#e5e7eb) = `--color-secondary` = `--color-muted` = `--color-accent`.
+2. **`@theme` 블록 36줄이 전부 `--color-x: var(--color-x)` 자기참조다.** 토큰 하나를 추가하려면
+   `:root` · `:root.dark` · `@theme` 세 곳을 고쳐야 한다. Tailwind 4 의 `@theme inline` 으로 제거 가능.
+3. **커스텀 브레이크포인트 4개(`mobile`/`tablet`/`laptop`/`desktop`)가 선언만 되고 사용처 0곳.**
+   코드는 전부 Tailwind 기본 `sm:/md:/lg:` 를 쓴다. `tablet` 주석이 "모바일 최소값"으로 복붙돼 있고,
+   `desktop: 1513px` 은 표준(1280/1536)과 어긋나는 근거 없는 값.
+4. `--color-background-tertiary` 가 라이트에서 primary 와 같은 #ffffff — 의미가 분화되지 않음.
+5. `--color-minimoku-neutral`(#a0a0a0)이 라이트/다크 동일 — 다크에서 대비 부족 소지.
+6. `.link-card-shadow` 가 커스텀 클래스로 하드코딩 — shadow 토큰으로 옮기면 유틸리티가 된다.
+
+### 실제 버그 — `dark:` 유틸리티가 앱 토글을 따르지 않는다
+
+- `dark:` 유틸리티를 **19곳 / 4개 파일**에서 사용 (`GuestBanner`, `FolderSortModal`, `DialogProvider`, `dropdown`).
+- 그런데 `@custom-variant dark` 설정도 `darkMode` 설정도 없다.
+- **Tailwind 4 의 `dark:` 는 기본이 `prefers-color-scheme`(OS 설정)** 인데, 앱은 `ThemeProvider` 가
+  `html`/`body` 에 `.dark` 클래스를 토글한다. 두 기준이 어긋나 있다.
+- 결과: OS 가 라이트인데 앱 토글을 다크로 두면 **그 19곳만 라이트로 남는다.**
+- 수정: `globals.css` 에 `@custom-variant dark (&:where(.dark, .dark *));` 추가.
+
+### 빠진 토큰 — "투박함"의 직접 원인
+
+| 없는 것 | 결과 |
+|---|---|
+| 타이포그래피 스케일 (size/line-height/tracking) | `text-8xl` 같은 임의 값이 박혀 위계가 무너진다 |
+| 간격(spacing) 스케일 | 섹션 간 리듬이 없어 성기게 보인다 |
+| radius 토큰 | shadcn 이 기대하는 `--radius` 가 없어 모서리가 제각각 |
+| elevation/shadow 체계 | `.link-card-shadow` 하나뿐 |
+| motion 토큰 (duration/easing) | 모션 작업의 선행 조건 |
+
+openai.com 류의 인상은 색이 아니라 **타이포 스케일 + 간격 리듬 + 모션**에서 나온다. 토큰 정리가
+홈 재설계의 선행 조건인 이유다.
+
+---
+
+## 7-2. 캐시 전략 (2026-10-20 확정)
+
+2026-10-20 보안 수정으로 기존 캐시(자체 API route + `next.tags`)가 제거됐다. 대체 방안은 **Next 16 의
+`use cache`** 로 확정한다. 공식 문서 확인 사항:
+
+- `use cache` 디렉티브와 `cacheLife`/`cacheTag` 는 **Next 16 에서 stable** (`unstable_` 접두사 제거)
+- `unstable_cache` 는 문서상 **"`use cache` 로 대체됨"**
+- `next.config.ts` 에 `cacheComponents: true` 필요
+- 캐시 범위 안에서는 `cookies()`/`headers()` 접근 불가 → 세션은 바깥에서 읽고 `userId` 를 인자로 전달
+
+```ts
+export async function getLinks(params) {
+  const user = await getSessionUser();        // 캐시 밖
+  if (!user) throw new Error("로그인이 필요합니다.");
+  return getCachedLinks(user.id, params);
+}
+
+async function getCachedLinks(userId: number, params) {
+  "use cache";
+  cacheTag(`links:${userId}`);
+  cacheLife("max");
+  return db.link.findMany({where: {folder: {userId}}});
+}
+```
+
+변경 측은 `revalidateTag(\`links:${userId}\`)`. TanStack Query 를 쓰지 않는 대신 서버 캐시를 제대로
+쓴다는 선택은 면접에서 설명 가능한 근거가 된다 (공식 문서에 TanStack Query 비교 페이지가 따로 있다).
+
+---
+
+## 7-3. 실행 순서 (확정, 2026-10-20)
+
+의존 관계상 순차 진행. 각 단계 끝에 빌드·배포로 검증한다.
+
+| 단계 | 내용 | 상태 |
+|---|---|---|
+| 1 | **의존성 업데이트** — Next 16, zod 4, eslint 10 + flat config, react/tailwind 마이너. prisma 는 RC 라 보류 | 🔄 |
+| 2 | **캐시 레이어** — `cacheComponents` 활성화, `use cache` + `cacheTag` 적용, 변경 측 `revalidateTag` | ⬜ |
+| 3 | **토큰 정리** — 중복 제거, `@theme inline`, `dark:` 버그 수정, 타이포·간격·radius·shadow·motion 스케일 신설 | ⬜ |
+| 4 | **반응형 + 홈 랜딩 재설계 + 모션 + 접근성** — 사이드바 드로어화, 홈을 히어로+소개 섹션+푸터 구조로 | ⬜ |
+| 5 | **Playwright + Storybook** — UI 확정 후 작성 | ⬜ |
+
+사용자 요구 사항 메모: 홈의 문제의식은 "openai.com 대비 **너무 텅 비어 보인다**" — 레이아웃 붕괴뿐 아니라
+**콘텐츠 밀도** 자체가 부족하다는 뜻. 4단계에서 섹션 구성을 늘리는 방향으로 반영할 것.
+
+---
+
 ## 8. 미확인 / 판단 보류
 
 - **데이터가 있는 상태의 화면은 거의 못 봤다.** 게스트 계정이 매일 초기화되어 링크 카드 그리드,

@@ -1,5 +1,6 @@
 "use server";
 
+import {z} from "zod";
 import { cashRecordSchema } from "@/features/pigmoney/model/schema/cashRecordSchema";
 import { cashRecordBatchSchema } from "@/features/pigmoney/model/schema/cashRecordBatchSchema";
 import db from "@/shared/lib/db";
@@ -66,7 +67,7 @@ export async function postCashRecords(formData: FormData) {
   // 배치 스키마 검증
   const result = cashRecordBatchSchema.safeParse({ records: parsedRecords });
   if (!result.success) {
-    return result.error.flatten();
+    return z.flattenError(result.error);
   }
 
   try {
@@ -111,7 +112,7 @@ export async function updateCashRecord(formData: FormData) {
   // 스키마 검증
   const result = cashRecordSchema.safeParse(data);
   if (!result.success) {
-    return result.error.flatten();
+    return z.flattenError(result.error);
   }
 
   try {
