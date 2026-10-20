@@ -47,8 +47,10 @@ npm run rollback   # 직전 배포 코드(.previous.zip)로 되돌리기
 
 ## 기술 스택
 
-- **Framework**: Next.js 15 (App Router), React 19, TypeScript 5
-- **Styling**: Tailwind CSS 4 + shadcn/ui (new-york) + Radix UI, `next-themes` 다크모드, `lucide-react` 아이콘
+- **Framework**: Next.js 16 (App Router, Cache Components), React 19, TypeScript 6
+- **Styling**: Tailwind CSS 4 + shadcn/ui (new-york) + Radix UI, `lucide-react` 아이콘.
+  다크모드는 **직접 만든 `widgets/theme/ThemeProvider`** 가 localStorage 값을 읽어 `.dark` 클래스를 붙인다
+  (`next-themes` 는 설치돼 있지만 주석 처리된 import 하나뿐 — 실제로는 쓰지 않는다)
 - **State**: Zustand 5
 - **Forms**: React Hook Form + Zod
 - **Database**: PostgreSQL (Supabase) via Prisma 6
@@ -67,9 +69,7 @@ src/
 │   ├── (auth)/login/           # 소셜 로그인 페이지
 │   ├── (link)/link/            # LinkLocker  (/link, /link/[id])
 │   ├── (pigmoney)/pigmoney/    # PigMoney    (/pigmoney, /calendar, /report, /settings)
-│   ├── (japanese)/japanese/    # jpStudy(비활성) (/japanese, /(menu)/accumulate, /(menu)/phrases,
-│   │                           #                 /hirakata, /quiz)
-│   └── page.tsx                # 홈: 서비스 메뉴 + 테마 토글
+│   └── page.tsx                # 홈: 히어로 · 서비스 소개 · 만든 방식 · 푸터
 ├── features/                   # 기능 단위 비즈니스 로직 (아래 "Feature 구조")
 ├── entities/                   # 도메인 타입 (filter, folder, link, pigmoney, quiz, user)
 ├── widgets/                    # 레이아웃 레벨 컴포넌트 (sidebar, pigmoney/*, guest/GuestBanner, auth/*, menu, theme)
@@ -190,8 +190,8 @@ npm run test:e2e:ui     # 디버깅용 UI 모드
 - **세션 사용자 조회: `getSessionUser()` — `shared/lib/utils/authUtils.ts`** (`@/shared/lib/auth` 아님)
   → `{id, username, provider, provider_id, avatar, isGuest}` 또는 `null`.
   서버 액션 첫 줄에서 호출해 `null` 이면 throw 하는 것이 관례.
-- 미들웨어 (`src/middleware.ts`): `/link`, `/pigmoney`, `/accumulate`, `/quiz` (하위 포함) 미인증 시 `/login`
-  으로 리다이렉트.
+- 미인증 리다이렉트 (`src/proxy.ts` — Next 16 에서 `middleware.ts` 가 이 이름으로 바뀌었다):
+  `/link`, `/pigmoney` 와 그 하위 경로를 `/login` 으로 보낸다.
 
 ## 게스트 모드 (정책 A)
 
@@ -248,9 +248,8 @@ Cloudflare Images direct upload 방식.
   - LinkLocker: `User`, `Folder`, `Link`
   - PigMoney: `Category`, `CashRecord`, `PigMoneySettings`, enum `CashRecordType`
   - 텔레그램: `TelegramTodo`
-  - jpStudy: `Phrase`
 - `binaryTargets = ["native", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x"]` — Lambda 용 리눅스 엔진 포함
-- 마이그레이션: `prisma/migrations/` (2025-05 ~ 2026-02, 5개). 스키마 변경 시 `prisma migrate dev` 로 마이그레이션
+- 마이그레이션: `prisma/migrations/` (2025-05 ~ 2026-10). 스키마 변경 시 `prisma migrate dev` 로 마이그레이션
   파일을 남길 것. **프로덕션 DB 와 동일 인스턴스이므로 실행 전 사용자 확인 필수.**
 
 ## 배포 / 운영
@@ -384,8 +383,9 @@ Cloudflare Images direct upload 방식.
 
 - Prettier (`.prettierrc`): 100자, 2칸, 쌍따옴표, trailing comma es5, **`bracketSpacing: false`**
   (`import {cn} from …`), `bracketSameLine: true`, `prettier-plugin-tailwindcss` 로 클래스 정렬
-- ESLint (`.eslintrc.json`, legacy 포맷): next/core-web-vitals + next/typescript.
-  `no-unused-vars`, `no-explicit-any`, `react-hooks/exhaustive-deps` 는 경고
+- ESLint (`eslint.config.mjs`, flat config): next/core-web-vitals + next/typescript.
+  `no-unused-vars`, `no-explicit-any`, `react-hooks/exhaustive-deps` 는 경고.
+  Next 16 에서 `next lint` 가 없어졌으므로 `eslint .` 를 직접 부른다
 - 경로 별칭: `@/*` → `./src/*`
 - 주석과 UI 텍스트는 한글로 작성. 주요 로직마다 간단한 주석을 달아 가독성 좋게
 
