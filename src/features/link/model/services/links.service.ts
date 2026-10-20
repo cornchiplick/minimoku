@@ -1,5 +1,7 @@
 "use server";
 
+import {cacheTags} from "@/shared/lib/cacheTags";
+import {cacheLife, cacheTag, revalidateTag} from "next/cache";
 import {z} from "zod";
 import {getFolder} from "@/features/folder/model/services/folders.service";
 import {linkSchema} from "@/features/link/model/schema/linkSchema";
@@ -29,6 +31,14 @@ export async function getLinks(
   if (!user) {
     throw new Error("로그인이 필요합니다.");
   }
+  // 세션 확인은 캐시 밖에서 한다 (캐시 범위 안에서는 cookies/headers 에 접근할 수 없다)
+  return getCachedLinks(user.id!, params);
+}
+
+async function getCachedLinks(userId: number, params: Record<string, string | number | boolean>) {
+  "use cache";
+  cacheTag(cacheTags.links(userId));
+  cacheLife("max");
 
   // 조회 범위는 항상 세션 사용자의 폴더로 한정한다 (userId 를 외부 입력으로 받지 않는다)
   const folderId = params.folderId !== undefined ? Number(params.folderId) : null;
@@ -53,7 +63,7 @@ export async function getLinks(
     where: {
       folder: {
         ...(folderId !== null && !Number.isNaN(folderId) && {id: folderId}),
-        userId: user.id,
+        userId,
       },
       ...(validFilterValue(filter) ?? {}),
       ...(keyword && {
@@ -68,7 +78,6 @@ export async function getLinks(
     },
   });
 }
-
 
 export async function postLink(formData: FormData) {
   const user = await getSessionUser();
@@ -118,7 +127,6 @@ export async function postLink(formData: FormData) {
         memo: result.data.memo || "",
       },
     });
-
   } catch (error) {
     console.error("Database Error : ", error);
     throw error;
@@ -164,6 +172,8 @@ export async function deleteLink({linkId}: {linkId: number}) {
 
     // 캐시 무효화
 
+    revalidateTag(cacheTags.links(user.id!), "max");
+    revalidateTag(cacheTags.folders(user.id!), "max");
     return {success: true};
   } catch (error) {
     console.error("Delete Link Error : ", error);
@@ -200,6 +210,8 @@ export async function favoriteLink({linkId}: {linkId: number}) {
       },
     });
 
+    revalidateTag(cacheTags.links(user.id!), "max");
+    revalidateTag(cacheTags.folders(user.id!), "max");
     return {success: true};
   } catch (error) {
     console.error("Favorite Link Error : ", error);
@@ -236,6 +248,8 @@ export async function readLink({linkId}: {linkId: number}) {
       },
     });
 
+    revalidateTag(cacheTags.links(user.id!), "max");
+    revalidateTag(cacheTags.folders(user.id!), "max");
     return {success: true};
   } catch (error) {
     console.error("Read Link Error : ", error);
@@ -320,7 +334,6 @@ export async function updateLink(formData: FormData) {
         memo: result.data.memo || "",
       },
     });
-
   } catch (error) {
     console.error("Update Link Error : ", error);
     return {_form: "링크 업데이트 중 오류가 발생했습니다."};

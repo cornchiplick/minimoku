@@ -1,5 +1,7 @@
 "use server";
 
+import {cacheTags} from "@/shared/lib/cacheTags";
+import {cacheLife, cacheTag, revalidateTag} from "next/cache";
 import {z} from "zod";
 import {folderSchema} from "@/features/folder/model/schema/folderSchema";
 import db from "@/shared/lib/db";
@@ -10,8 +12,16 @@ export async function getFolders() {
   if (!user) {
     throw new Error("로그인이 필요합니다.");
   }
+  // 세션 확인은 캐시 밖에서 한다 (캐시 범위 안에서는 cookies/headers 에 접근할 수 없다)
+  return getCachedFolders(user.id!);
+}
 
-  // 폴더 목록과 각 폴더의 링크 개수를 조회 (userId 는 세션에서만 가져온다)
+async function getCachedFolders(userId: number) {
+  "use cache";
+  cacheTag(cacheTags.folders(userId));
+  cacheLife("max");
+
+  // 폴더 목록과 각 폴더의 링크 개수를 조회
   const folders = await db.folder.findMany({
     select: {
       id: true,
@@ -24,7 +34,7 @@ export async function getFolders() {
       },
     },
     where: {
-      userId: user.id,
+      userId,
     },
     orderBy: {
       sortOrder: "asc",
@@ -107,7 +117,6 @@ export async function postFolder(formData: FormData) {
         sortOrder: (maxSortOrder?.sortOrder ?? -1) + 1,
       },
     });
-
   } catch (error) {
     console.error("Post Folder Error : ", error);
     return {error: true};
@@ -147,7 +156,6 @@ export async function updateFolder(formData: FormData) {
         id: folderId,
       },
     });
-
   } catch (error) {
     console.error("Update Folder Error : ", error);
     return {error: true};
@@ -175,7 +183,8 @@ export async function deleteFolder(folderId: number) {
       },
     });
 
-
+    revalidateTag(cacheTags.folders(user.id!), "max");
+    revalidateTag(cacheTags.links(user.id!), "max");
     return {success: true};
   } catch (error) {
     console.error("Delete Folder Error : ", error);
@@ -197,7 +206,8 @@ export async function emptyFolder(folderId: number) {
       },
     });
 
-
+    revalidateTag(cacheTags.folders(user.id!), "max");
+    revalidateTag(cacheTags.links(user.id!), "max");
     return {success: true};
   } catch (error) {
     console.error("Empty Folder Error : ", error);
@@ -231,6 +241,8 @@ export async function updateFolderOrders(folderOrders: {id: number; sortOrder: n
 
     // 캐시 무효화
 
+    revalidateTag(cacheTags.folders(user.id!), "max");
+    revalidateTag(cacheTags.links(user.id!), "max");
     return {success: true};
   } catch (error) {
     console.error("Update Folder Orders Error:", error);

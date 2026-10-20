@@ -1,10 +1,12 @@
 import {getFolder} from "@/features/folder/model/services/folders.service";
 import {getLinks} from "@/features/link/model/services/links.service";
 import {getSessionUser} from "@/shared/lib/utils/authUtils";
+import LinkListSkeleton from "@/widgets/link/LinkListSkeleton";
 import LinkLockerMain from "@/widgets/link/LinkLockerMain";
+import {Suspense} from "react";
 import {notFound, redirect} from "next/navigation";
 
-const LinkFolderHome = async ({params}: {params: Promise<{id: string}>}) => {
+const LinkFolderHomeContent = async ({params}: {params: Promise<{id: string}>}) => {
   const {id} = await params;
   const user = await getSessionUser();
 
@@ -26,5 +28,18 @@ const LinkFolderHome = async ({params}: {params: Promise<{id: string}>}) => {
 
   return <LinkLockerMain initialLinks={initialLinks} folderName={folder.name} />;
 };
+
+const LinkFolderHome = ({params}: {params: Promise<{id: string}>}) => (
+  <div className="bg-background-primary flex min-w-0 flex-1 flex-col">
+    <Suspense
+      fallback={
+        <div className="px-4 py-6 md:px-6">
+          <LinkListSkeleton />
+        </div>
+      }>
+      <LinkFolderHomeContent params={params} />
+    </Suspense>
+  </div>
+);
 
 export default LinkFolderHome;

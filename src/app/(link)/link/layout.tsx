@@ -1,29 +1,47 @@
 import {getFolders} from "@/features/folder/model/services/folders.service";
 import GuestBanner from "@/widgets/guest/GuestBanner";
 import MobileSidebarDrawer from "@/widgets/sidebar/MobileSidebarDrawer";
-import Sidebar from "@/widgets/sidebar/Sidebar";
 import SidebarContent from "@/widgets/sidebar/SidebarContent";
-import {unstable_noStore as noStore} from "next/cache";
+import SidebarSkeleton from "@/widgets/sidebar/SidebarSkeleton";
+import {Suspense} from "react";
 
-const LinkHomeLayout = async ({children}: {children: React.ReactNode}) => {
-  noStore();
-  const initialFolders = await getFolders();
+/**
+ * 사이드바와 드로어는 같은 폴더 목록을 쓴다.
+ * 세션을 읽는 조회이므로 Suspense 경계 안에서 수행해, 나머지 뼈대는 먼저 그려지게 한다.
+ */
+const SidebarRegions = async () => {
+  const folders = await getFolders();
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden">
-      {/* 게스트 모드 안내 배너 (게스트 로그인 시에만 노출) */}
-      <GuestBanner />
-      <div className="flex min-h-0 flex-1 overflow-hidden">
-        {/* 데스크톱: 고정 사이드바 */}
-        <Sidebar initialFolders={initialFolders} />
-        {/* 모바일: 같은 내용을 드로어로 */}
-        <MobileSidebarDrawer title="LinkLocker 메뉴">
-          <SidebarContent initialFolders={initialFolders} />
-        </MobileSidebarDrawer>
-        {children}
-      </div>
-    </div>
+    <>
+      <aside className="bg-background-primary border-border hidden w-80 shrink-0 flex-col border-r md:flex">
+        <SidebarContent initialFolders={folders} />
+      </aside>
+      <MobileSidebarDrawer title="LinkLocker 메뉴">
+        <SidebarContent initialFolders={folders} />
+      </MobileSidebarDrawer>
+    </>
   );
 };
+
+const LinkHomeLayout = ({children}: {children: React.ReactNode}) => (
+  <div className="flex h-screen flex-col overflow-hidden">
+    {/* 게스트 모드 안내 배너 (게스트 로그인 시에만 노출) */}
+    <Suspense fallback={null}>
+      <GuestBanner />
+    </Suspense>
+    <div className="flex min-h-0 flex-1 overflow-hidden">
+      <Suspense
+        fallback={
+          <aside className="bg-background-primary border-border hidden w-80 shrink-0 flex-col border-r md:flex">
+            <SidebarSkeleton />
+          </aside>
+        }>
+        <SidebarRegions />
+      </Suspense>
+      {children}
+    </div>
+  </div>
+);
 
 export default LinkHomeLayout;

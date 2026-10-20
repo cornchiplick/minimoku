@@ -1,8 +1,10 @@
 import {getLinks} from "@/features/link/model/services/links.service";
+import LinkListSkeleton from "@/widgets/link/LinkListSkeleton";
 import LinkLockerMain from "@/widgets/link/LinkLockerMain";
+import {Suspense} from "react";
 
 // searchParams 는 Next 15 부터 Promise 타입이다
-const LinkHome = async ({
+const LinkHomeContent = async ({
   searchParams,
 }: {
   searchParams: Promise<{[key: string]: string | string[] | undefined}>;
@@ -27,5 +29,22 @@ const LinkHome = async ({
 
   return <LinkLockerMain initialLinks={initialLinks} />;
 };
+
+const LinkHome = ({
+  searchParams,
+}: {
+  searchParams: Promise<{[key: string]: string | string[] | undefined}>;
+}) => (
+  <div className="bg-background-primary flex min-w-0 flex-1 flex-col">
+    <Suspense
+      fallback={
+        <div className="px-4 py-6 md:px-6">
+          <LinkListSkeleton />
+        </div>
+      }>
+      <LinkHomeContent searchParams={searchParams} />
+    </Suspense>
+  </div>
+);
 
 export default LinkHome;

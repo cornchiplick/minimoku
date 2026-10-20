@@ -1,10 +1,12 @@
 "use server";
 
+import {cacheTags} from "@/shared/lib/cacheTags";
+import {cacheLife, cacheTag, revalidateTag} from "next/cache";
 import {z} from "zod";
-import { categorySchema } from "@/features/pigmoney/model/schema/categorySchema";
-import { DEFAULT_CATEGORIES } from "@/shared/constants/pigmoney";
+import {categorySchema} from "@/features/pigmoney/model/schema/categorySchema";
+import {DEFAULT_CATEGORIES} from "@/shared/constants/pigmoney";
 import db from "@/shared/lib/db";
-import { getSessionUser } from "@/shared/lib/utils/authUtils";
+import {getSessionUser} from "@/shared/lib/utils/authUtils";
 
 // 카테고리 목록 조회
 export async function getCategories() {
@@ -12,11 +14,17 @@ export async function getCategories() {
   if (!user) {
     throw new Error("로그인이 필요합니다.");
   }
+  return getCachedCategories(user.id!);
+}
 
-  // userId 는 세션에서만 가져온다
+async function getCachedCategories(userId: number) {
+  "use cache";
+  cacheTag(cacheTags.categories(userId));
+  cacheLife("max");
+
   return db.category.findMany({
-    where: { userId: user.id },
-    orderBy: { name: "asc" },
+    where: {userId},
+    orderBy: {name: "asc"},
   });
 }
 
@@ -30,7 +38,7 @@ export async function seedDefaultCategories() {
   try {
     // 이미 카테고리가 있으면 스킵
     const existingCount = await db.category.count({
-      where: { userId: user.id },
+      where: {userId: user.id},
     });
 
     if (existingCount > 0) return;
@@ -56,7 +64,7 @@ export async function postCategory(formData: FormData) {
     throw new Error("로그인이 필요합니다.");
   }
 
-  const data = { name: formData.get("name") };
+  const data = {name: formData.get("name")};
 
   // 스키마 검증
   const result = categorySchema.safeParse(data);
@@ -76,7 +84,7 @@ export async function postCategory(formData: FormData) {
     });
 
     if (existing) {
-      return { _form: "이미 존재하는 카테고리입니다." };
+      return {_form: "이미 존재하는 카테고리입니다."};
     }
 
     await db.category.create({
@@ -86,10 +94,12 @@ export async function postCategory(formData: FormData) {
       },
     });
 
-    return { success: true };
+    revalidateTag(cacheTags.categories(user.id!), "max");
+    revalidateTag(cacheTags.cashRecords(user.id!), "max");
+    return {success: true};
   } catch (error) {
     console.error("Post Category Error:", error);
-    return { _form: "카테고리 추가 중 오류가 발생했습니다." };
+    return {_form: "카테고리 추가 중 오류가 발생했습니다."};
   }
 }
 
@@ -101,7 +111,7 @@ export async function updateCategory(formData: FormData) {
   }
 
   const categoryId = Number(formData.get("categoryId"));
-  const data = { name: formData.get("name") };
+  const data = {name: formData.get("name")};
 
   // 스키마 검증
   const result = categorySchema.safeParse(data);
@@ -112,11 +122,11 @@ export async function updateCategory(formData: FormData) {
   try {
     // 소유권 확인
     const existing = await db.category.findFirst({
-      where: { id: categoryId, userId: user.id },
+      where: {id: categoryId, userId: user.id},
     });
 
     if (!existing) {
-      return { _form: "존재하지 않는 카테고리이거나 권한이 없습니다." };
+      return {_form: "존재하지 않는 카테고리이거나 권한이 없습니다."};
     }
 
     // 동일한 이름 중복 확인
@@ -124,28 +134,30 @@ export async function updateCategory(formData: FormData) {
       where: {
         name: result.data.name,
         userId: user.id!,
-        id: { not: categoryId },
+        id: {not: categoryId},
       },
     });
 
     if (duplicate) {
-      return { _form: "이미 존재하는 카테고리 이름입니다." };
+      return {_form: "이미 존재하는 카테고리 이름입니다."};
     }
 
     await db.category.update({
-      where: { id: categoryId },
-      data: { name: result.data.name },
+      where: {id: categoryId},
+      data: {name: result.data.name},
     });
 
-    return { success: true };
+    revalidateTag(cacheTags.categories(user.id!), "max");
+    revalidateTag(cacheTags.cashRecords(user.id!), "max");
+    return {success: true};
   } catch (error) {
     console.error("Update Category Error:", error);
-    return { _form: "카테고리 수정 중 오류가 발생했습니다." };
+    return {_form: "카테고리 수정 중 오류가 발생했습니다."};
   }
 }
 
 // 카테고리 삭제
-export async function deleteCategory({ categoryId }: { categoryId: number }) {
+export async function deleteCategory({categoryId}: {categoryId: number}) {
   const user = await getSessionUser();
   if (!user) {
     throw new Error("로그인이 필요합니다.");
@@ -154,29 +166,31 @@ export async function deleteCategory({ categoryId }: { categoryId: number }) {
   try {
     // 소유권 확인
     const existing = await db.category.findFirst({
-      where: { id: categoryId, userId: user.id },
+      where: {id: categoryId, userId: user.id},
     });
 
     if (!existing) {
-      return { error: "존재하지 않는 카테고리이거나 권한이 없습니다." };
+      return {error: "존재하지 않는 카테고리이거나 권한이 없습니다."};
     }
 
     // 연결된 거래가 있는지 확인
     const linkedCount = await db.cashRecord.count({
-      where: { categoryId },
+      where: {categoryId},
     });
 
     if (linkedCount > 0) {
-      return { error: `이 카테고리에 ${linkedCount}개의 거래가 연결되어 있어 삭제할 수 없습니다.` };
+      return {error: `이 카테고리에 ${linkedCount}개의 거래가 연결되어 있어 삭제할 수 없습니다.`};
     }
 
     await db.category.delete({
-      where: { id: categoryId },
+      where: {id: categoryId},
     });
 
-    return { success: true };
+    revalidateTag(cacheTags.categories(user.id!), "max");
+    revalidateTag(cacheTags.cashRecords(user.id!), "max");
+    return {success: true};
   } catch (error) {
     console.error("Delete Category Error:", error);
-    return { error: "카테고리 삭제 중 오류가 발생했습니다." };
+    return {error: "카테고리 삭제 중 오류가 발생했습니다."};
   }
 }
