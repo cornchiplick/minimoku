@@ -73,12 +73,13 @@ const FolderItem = ({folder, isActive, onClick, onEdit, onDelete, onEmpty}: Fold
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            className="cursor-pointer rounded-full p-1 hover:bg-background-secondary"
+            aria-label={`${folder.name} 폴더 메뉴`}
+            className="text-minimoku-neutral-bold hover:bg-background-secondary hover:text-foreground focus-visible:ring-minimoku cursor-pointer rounded-full p-1 transition-colors focus-visible:ring-2 focus-visible:outline-none"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
             }}>
-            <Icon name="more" color="#99a1af" size={16} />
+            <Icon name="more" color="currentColor" size={16} />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent

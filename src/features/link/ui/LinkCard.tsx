@@ -101,7 +101,7 @@ const LinkCard = ({data, keyword}: LinkCardProps) => {
 
           <div className="min-w-0 flex-1">
             <h3 className="flex items-start gap-1.5">
-              <ExternalLinkButton url={data.url} />
+              <ExternalLinkButton url={data.url} title={data.title} />
               <Typography.P1
                 className={cn(
                   "font-medium",

@@ -35,11 +35,14 @@ const SearchBar = () => {
     <div className="relative">
       <FormProvider {...formMethod}>
         <form onSubmit={handleSubmit(onSubmit)} className="relative">
-          <Search className="pointer-events-none absolute top-2.5 left-3 z-10 h-4 w-4 text-gray-400" />
+          <Search
+            aria-hidden
+            className="text-minimoku-neutral-bold pointer-events-none absolute top-2.5 left-3 z-10 h-4 w-4"
+          />
           <FormInput
             name="keyword"
             placeholder="검색어를 입력하세요"
-            className="bg-background-secondary text-foreground w-full rounded-lg border-0 py-2 pr-4 pl-10 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="bg-background-secondary text-foreground focus:ring-minimoku w-full rounded-lg border-0 py-2 pr-4 pl-10 focus:ring-2 focus:outline-none"
           />
         </form>
       </FormProvider>

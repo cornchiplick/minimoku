@@ -21,7 +21,12 @@ const ThemeToggleButton = () => {
   }, [value]);
 
   return (
-    <button className="rounded-lg p-2 hover:bg-accent" onClick={toggleTheme}>
+    <button
+      type="button"
+      onClick={toggleTheme}
+      aria-label={isDarkMode ? "밝은 테마로 전환" : "어두운 테마로 전환"}
+      aria-pressed={isDarkMode}
+      className="hover:bg-background-secondary focus-visible:ring-minimoku rounded-lg p-2 transition-colors focus-visible:ring-2 focus-visible:outline-none">
       <Moon
         className="h-5 w-5 text-minimoku-neutral-bold"
         fill={isDarkMode ? "currentColor" : "none"}

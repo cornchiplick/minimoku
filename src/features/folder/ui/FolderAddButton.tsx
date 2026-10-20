@@ -2,7 +2,6 @@
 
 import FolderFormModal from "@/features/folder/ui/FolderFormModal";
 import Icon from "@/shared/components/molecules/Icon";
-import Typography from "@/shared/home/atomic/Typography";
 import {useBoolean} from "@/shared/hooks/useBoolean";
 
 const FolderAddButton = () => {
@@ -13,10 +12,9 @@ const FolderAddButton = () => {
       <button
         type="button"
         onClick={isShowFolderAddModal.onTrue}
-        className="cursor-pointer rounded-full p-1 hover:bg-gray-300">
-        <Typography.P2 className="font-medium">
-          <Icon name="add" color="#99a1af" size={16} />
-        </Typography.P2>
+        aria-label="폴더 추가"
+        className="text-minimoku-neutral-bold hover:bg-background-secondary hover:text-foreground focus-visible:ring-minimoku cursor-pointer rounded-full p-1 transition-colors focus-visible:ring-2 focus-visible:outline-none">
+        <Icon name="add" color="currentColor" size={16} />
       </button>
       <FolderFormModal modalState={isShowFolderAddModal} />
     </>
