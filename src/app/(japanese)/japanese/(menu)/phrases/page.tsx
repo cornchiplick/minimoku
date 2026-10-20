@@ -26,16 +26,10 @@ const PhrasesPage = async ({searchParams}: PhrasesPageProps) => {
   const order =
     typeof resolvedSearchParams?.createdAt === "string" ? resolvedSearchParams.createdAt : "desc";
 
-  try {
-    const initialPhrases = await getPhrases({searchType, keyword, order});
+  const initialPhrases = await getPhrases({searchType, keyword, order});
 
-    const safeInitialPhrases = Array.isArray(initialPhrases) ? initialPhrases : [];
-    return <PhrasesTemplate sort={order} initialPhrases={safeInitialPhrases} />;
-  } catch (error) {
-    // Handle database errors gracefully
-    console.error("Failed to fetch phrases:", error);
-    return <PhrasesTemplate sort={order} initialPhrases={[]} />;
-  }
+  const safeInitialPhrases = Array.isArray(initialPhrases) ? initialPhrases : [];
+  return <PhrasesTemplate sort={order} initialPhrases={safeInitialPhrases} />;
 };
 
 export default PhrasesPage;

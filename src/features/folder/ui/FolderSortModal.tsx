@@ -32,7 +32,7 @@ import {
 import {CSS} from "@dnd-kit/utilities";
 import clsx from "clsx";
 import {Archive, Folder, GripVertical} from "lucide-react";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {toast} from "sonner";
 
 interface FolderSortModalProps {
@@ -104,12 +104,15 @@ const FolderSortModal = ({folders, modalState}: FolderSortModalProps) => {
     })
   );
 
-  // 모달이 열릴 때마다 원본 폴더 순서로 리셋
-  useEffect(() => {
+  // 모달이 열리는 순간에만 원본 폴더 순서로 리셋한다.
+  // effect 에서 setState 하면 모달이 한 번 깜빡이므로 렌더 중 조정 방식을 쓴다.
+  const [wasOpen, setWasOpen] = useState(modalState.value);
+  if (wasOpen !== modalState.value) {
+    setWasOpen(modalState.value);
     if (modalState.value) {
       setSortedFolders([...folders]);
     }
-  }, [modalState.value, folders]);
+  }
 
   // 드래그 종료 시 순서 변경
   const handleDragEnd = (event: DragEndEvent) => {
