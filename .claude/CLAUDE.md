@@ -301,6 +301,9 @@ Cloudflare Images direct upload 방식.
 
 ## 참고 문서
 
+- `docs/frontend-portfolio-review.md` — **프런트엔드 포트폴리오 관점 진단 (2026-10-20)**. 이 프로젝트의
+  궁극적 목적은 취업용 포트폴리오이며 지원 분야는 **프런트엔드**다. 반응형 부재·홈 화면·스택 노후도의
+  실측 근거와 권장 작업 순서가 정리돼 있다. UI·구조 관련 제안 전에 이 문서를 먼저 볼 것
 - `docs/hosting-and-deployment.md` — 호스팅 구조·요금·대안 비교·EC2 부담·운영 로드맵. **호스팅은 Amplify 현행
   유지로 결정(2026-09-15)** — 이전 제안 전에 이 문서를 먼저 볼 것
 - `docs/pigmoney/` — `README.md`(개요·URL), `data-model.md`, `features.md`(기획), `implementation.md`(구현 상세)
