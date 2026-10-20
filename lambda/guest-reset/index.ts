@@ -40,14 +40,6 @@ async function resetGuestData(guestUserId: number) {
     await tx.cashRecord.deleteMany({where: {userId: guestUserId}});
     await tx.category.deleteMany({where: {userId: guestUserId}});
     await tx.pigMoneySettings.deleteMany({where: {userId: guestUserId}});
-
-    // 다음날 진입 시 폴더가 없어 UX 가 어색해지지 않도록 기본 폴더 1개 재생성
-    await tx.folder.create({
-      data: {
-        name: "기본",
-        userId: guestUserId,
-      },
-    });
   });
 }
 
@@ -69,7 +61,16 @@ export const handler = async (): Promise<{ok: boolean; deletedFor?: number; erro
     }
 
     await resetGuestData(guest.id);
-    console.log(`[guest-reset] guest user ${guest.id} 데이터 초기화 완료`);
+
+    // 비운 뒤 체험용 샘플을 다시 심는다. 빈 화면이 아니라 실제로 쓰이는 모습을 보여주는 것이 목적이다.
+    // 시드는 쓰기가 60여 건이라 위 삭제 트랜잭션 밖에서 한다 (트랜잭션 제한 시간에 걸리지 않도록).
+    const counts = await seedGuestShowcase(prisma, guest.id);
+
+    console.log(
+      `[guest-reset] guest user ${guest.id} 초기화 완료 — ` +
+        `폴더 ${counts.folders} · 링크 ${counts.links} · ` +
+        `카테고리 ${counts.categories} · 거래 ${counts.cashRecords}`
+    );
     return {ok: true, deletedFor: guest.id};
   } catch (e) {
     console.error("[guest-reset] 초기화 실패", e);
