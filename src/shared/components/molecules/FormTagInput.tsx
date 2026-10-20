@@ -93,7 +93,7 @@ const FormTagInput = <T extends FieldValues>({
         {tags.map((tag, index) => (
           <span
             key={`${tag}-${index}`}
-            className="bg-minimoku text-foreground inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-sm">
+            className="bg-minimoku-surface text-on-brand inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-sm">
             {tag}
             <button
               type="button"

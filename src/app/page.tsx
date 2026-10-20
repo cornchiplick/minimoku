@@ -131,8 +131,8 @@ const RootHome = () => (
           <Image
             src={service.screen}
             alt={service.screenAlt}
-            width={1600}
-            height={1000}
+            width={1280}
+            height={800}
             sizes="(max-width: 768px) 100vw, 768px"
             className="border-border shadow-float rounded-card mt-8 w-full border"
           />

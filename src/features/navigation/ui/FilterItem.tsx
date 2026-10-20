@@ -46,7 +46,7 @@ const FilterItem = ({filter}: FilterItemProps) => {
       className={clsx(
         "flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left transition-colors",
         isSelectedFilter
-          ? "bg-minimoku text-background-primary"
+          ? "bg-minimoku-surface text-on-brand"
           : [
               "text-foreground",
               isDarkMode

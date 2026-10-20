@@ -22,7 +22,7 @@ const SidebarContent = ({initialFolders}: SidebarContentProps) => (
     <div className="p-4">
       <div className="mb-4 flex items-center justify-between">
         <NextLink href="/link" className="flex items-center space-x-2">
-          <div className="bg-minimoku flex h-8 w-8 items-center justify-center rounded-lg">
+          <div className="bg-minimoku-surface flex h-8 w-8 items-center justify-center rounded-lg">
             <LinkIcon className="h-5 w-5 text-white" />
           </div>
           <Typography.P1 className="font-semibold">LinkLocker</Typography.P1>

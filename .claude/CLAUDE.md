@@ -363,6 +363,15 @@ Cloudflare Images direct upload 방식.
 - 두 토큰 계열은 같은 팔레트를 가리킨다: 프로젝트 토큰(`bg-background-primary`, `text-minimoku-neutral-bold` …)과
   shadcn 표준 토큰(`bg-background`, `text-muted-foreground` …). 앱 코드는 전자, `components/atoms` 의
   shadcn 컴포넌트는 후자를 쓴다.
+- **브랜드·경고 색은 "글자"와 "면"이 다른 토큰이다.** 한 값으로 둘 다 만족시킬 수 없어서다 —
+  흰 글자를 올리려면 어두워야 하고, 어두운 배경 위 글자로 쓰려면 밝아야 한다.
+  면에는 `bg-minimoku-surface` · `bg-destructive-surface` 를 쓰고 그 위 글자는 `text-on-brand`,
+  글자·아이콘·포커스 링에는 `text-minimoku` · `ring-minimoku` 를 쓴다.
+  **면에 `text-background-primary` 를 올리지 말 것** — 다크모드에서 어두운 글자가 된다.
+- **색을 바꿀 때는 대비를 계산해 보고 넣는다 (본문 4.5:1, 아이콘·막대 3:1).**
+  2026-10-20 감사에서 브랜드 파랑·PigMoney 분홍·잔액 초록이 모두 미달이라 팔레트를 고쳤다.
+  Storybook 의 `addon-a11y` 가 스토리마다 같은 검사를 돌린다.
+- **홈에 거는 캡처(`public/screens/*.jpg`)는 팔레트가 바뀌면 다시 찍는다** — `npm run screens`.
 - **대비(contrast)**: 본문 텍스트는 WCAG AA 4.5:1 을 기준으로 한다. `--fg-3`(라이트)과 `--fg-2`(다크)는
   이 기준을 맞추려고 조정한 값이므로 임의로 밝히지 말 것.
 - 사용 가능한 스케일: `text-display`/`text-hero`/`text-title`(행간·자간 포함), `rounded-card`/`rounded-panel`,

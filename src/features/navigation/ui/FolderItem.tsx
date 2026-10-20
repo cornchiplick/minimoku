@@ -54,7 +54,7 @@ const FolderItem = ({folder, isActive, onClick, onEdit, onDelete, onEmpty}: Fold
       className={clsx(
         "flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left transition-colors",
         isActive
-          ? "bg-minimoku text-background-primary"
+          ? "bg-minimoku-surface text-on-brand"
           : isDarkMode
             ? "hover:bg-background-reverse-secondary"
             : "hover:bg-background-secondary"

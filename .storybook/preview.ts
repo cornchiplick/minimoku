@@ -29,6 +29,9 @@ const preview: Preview = {
     (Story, context) => {
       const isDark = context.globals.theme === "dark";
       document.documentElement.classList.toggle("dark", isDark);
+      // 앱의 body 와 같은 조건을 만든다 (layout.tsx 의 `text-foreground antialiased`).
+      // 글자색을 상속에 맡기는 컴포넌트(outline·ghost 버튼)가 여기서만 검게 보이는 걸 막는다
+      document.body.classList.add("text-foreground", "antialiased");
       document.body.style.background = "var(--color-background-primary)";
       return Story();
     },
