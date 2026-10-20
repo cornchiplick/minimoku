@@ -9,6 +9,9 @@ on:
     paths:
       - "lambda/**"
       - "prisma/schema.prisma"
+      # 게스트 샘플 데이터도 Lambda 번들에 포함되므로 변경 시 재배포가 필요하다
+      - "prisma/guest-showcase.json"
+      - "prisma/guest-showcase.ts"
       - ".github/workflows/deploy-lambda.yml"
   workflow_dispatch:
     inputs:
@@ -64,7 +67,7 @@ jobs:
             fi
             printf '변경 파일:\n%s\n' "$changed"
             # 공통 파일이 바뀌면 둘 다 재배포. 특히 schema.prisma — 생성된 Prisma Client 가 zip 에 포함되므로 스키마 변경 = 재배포
-            if grep -qE '^(prisma/schema\.prisma|lambda/deploy\.sh|lambda/verify\.sh|\.github/workflows/deploy-lambda\.yml)$' <<< "$changed"; then
+            if grep -qE '^(prisma/schema\.prisma|prisma/guest-showcase\.(json|ts)|lambda/deploy\.sh|lambda/verify\.sh|\.github/workflows/deploy-lambda\.yml)$' <<< "$changed"; then
               guest=true; telegram=true
             fi
             grep -q '^lambda/guest-reset/' <<< "$changed" && guest=true

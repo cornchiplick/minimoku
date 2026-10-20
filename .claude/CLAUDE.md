@@ -31,7 +31,7 @@ npm run dev          # 개발 서버 (localhost:3000) — ⚠️ 프로덕션 DB
 npm run build        # 프로덕션 빌드
 npm run start        # 프로덕션 서버
 npm run lint         # ESLint
-npm run seed:guest   # 게스트 User 1행 upsert (idempotent). 게스트 로그인이 동작하려면 1회 필요
+npm run seed:guest   # 게스트 User upsert + 체험용 샘플 데이터 재시드 (idempotent). ⚠️ 프로덕션 DB 에 반영됨
 ```
 
 Lambda (각 디렉터리에서, AWS 프로필 `minimoku` 자동 사용):
@@ -138,15 +138,16 @@ export async function getLinks(parameters: {params?: Record<string, ...>} = {}) 
 
 ## 게스트 모드 (정책 A)
 
-로그인 없이 체험 가능. **모든 게스트가 DB 의 단일 `User` 1행을 공유**하고, 매일 04:00 KST 에 종속 데이터가
-초기화된다 (User 행 자체는 보존).
+로그인 없이 체험 가능. **모든 게스트가 DB 의 단일 `User` 1행을 공유**하고, 매일 04:00 KST 에 데이터가
+**체험용 샘플 상태로 되돌아간다** (User 행 자체는 보존). 빈 화면이 아니라 실제로 쓰이는 모습을 보여주는 것이 목적.
 
 | 구성 요소 | 위치 |
 |---|---|
 | 식별 상수 `GUEST_PROVIDER = "guest"`, `isGuestProvider()` | `shared/lib/utils/guestUtils.ts` (next-auth 의존 없음 → 클라이언트에서도 import 가능) |
 | CredentialsProvider (`authorize` 가 시드된 User 를 조회, 없으면 로그인 거부) | `shared/lib/auth.ts` |
-| 시드 (upsert + 기본 폴더 생성) | `prisma/seed-guest.ts` → `npm run seed:guest` |
-| 일일 초기화 Lambda — EventBridge `cron(0 19 * * ? *)` (UTC 19:00 = KST 04:00) | `lambda/guest-reset/index.ts` |
+| 시드 (User upsert + 기존 데이터 비우고 샘플 재시드) | `prisma/seed-guest.ts` → `npm run seed:guest` (tsx 사용) |
+| **샘플 데이터 정본** | `prisma/guest-showcase.json` (데이터) + `prisma/guest-showcase.ts` (심는 로직) |
+| 일일 초기화 Lambda — EventBridge `cron(0 19 * * ? *)` (UTC 19:00 = KST 04:00) | `lambda/guest-reset/index.ts` — 비운 뒤 같은 샘플로 재시드 |
 | 진입점: 홈 메뉴 "로그인 없이 이용하기" → `signIn(GUEST_PROVIDER)` | `widgets/menu/MenuItem.tsx` |
 | 안내 배너 (link · pigmoney 레이아웃에 포함) | `widgets/guest/GuestBanner.tsx` |
 | 이미지 업로드 차단 (`user.isGuest` 면 업로드 URL 발급 거부) | `shared/services/cloudflare.service.ts` `getUploadUrl` |
@@ -154,6 +155,11 @@ export async function getLinks(parameters: {params?: Record<string, ...>} = {}) 
 **⚠️ `"guest"` 문자열은 `guestUtils.ts` · `prisma/seed-guest.ts` · `lambda/guest-reset/index.ts` 세 곳에 각각
 하드코딩돼 있다.** seed 스크립트와 Lambda 는 `@/` 별칭을 쓸 수 없어 공유가 불가능하다 — 하나를 바꾸면 셋 다
 바꿀 것.
+
+**샘플 데이터 수정 방법**: `prisma/guest-showcase.json` 만 고치면 된다. 시드 스크립트와 Lambda 가 같은 파일을
+읽는다 (Lambda 는 빌드 시 `guest-showcase.json`/`.ts` 를 디렉터리로 복사한다 — `package.json` 의 `build` 참고).
+날짜는 절대값이 아니라 `dayOffset`(오늘로부터 며칠 전)으로 적는다. 그래야 몇 달이 지나도 최근 데이터로 보인다.
+**스키마나 샘플 데이터를 바꾸면 Lambda 재배포가 필요하다** (CI 가 `prisma/**` 변경을 감지해 자동 처리).
 
 ## 이미지 업로드 (LinkLocker)
 

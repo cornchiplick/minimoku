@@ -1,6 +1,9 @@
 import {PrismaClient} from "@prisma/client";
+import {seedGuestShowcase} from "./guest-showcase";
 
 // 매일 04:00 KST 에 EventBridge 가 트리거하여 게스트 계정의 데이터를 초기화한다.
+// "비우기"가 아니라 "체험용 샘플 상태로 되돌리기"다 — 방문자가 빈 화면 대신
+// 실제로 쓰이는 모습의 화면을 보게 하기 위함.
 // 운영 정책 (정책 A): 단일 게스트 User 1행을 모든 게스트가 공유.
 // User row 자체는 보존하고, 그에 종속된 도메인 데이터만 비운다.
 //

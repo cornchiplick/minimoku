@@ -1,0 +1,185 @@
+{
+  "_comment": "게스트(체험) 계정에 심는 샘플 데이터. prisma/seed-guest.ts 와 lambda/guest-reset 이 함께 읽는다. 날짜는 절대값이 아니라 실행 시점 기준 오프셋으로 적는다 (dayOffset = 오늘로부터 며칠 전).",
+  "folders": [
+    {
+      "name": "개발 문서",
+      "sortOrder": 0,
+      "links": [
+        {
+          "title": "Next.js App Router 공식 문서",
+          "url": "https://nextjs.org/docs/app",
+          "tags": ["nextjs", "공식문서"],
+          "isFavorite": true,
+          "isRead": true,
+          "dayOffset": 26,
+          "memo": "서버 액션과 캐싱 파트는 버전마다 바뀌니 작업 전에 다시 확인할 것"
+        },
+        {
+          "title": "Prisma - Relation queries",
+          "url": "https://www.prisma.io/docs/orm/prisma-client/queries/relation-queries",
+          "tags": ["prisma", "orm"],
+          "isRead": true,
+          "dayOffset": 24
+        },
+        {
+          "title": "React 공식 문서 - You Might Not Need an Effect",
+          "url": "https://react.dev/learn/you-might-not-need-an-effect",
+          "tags": ["react", "hooks"],
+          "isFavorite": true,
+          "dayOffset": 19,
+          "memo": "prop 을 state 로 복사하는 패턴 정리에 참고"
+        },
+        {
+          "title": "TypeScript Handbook - Utility Types",
+          "url": "https://www.typescriptlang.org/docs/handbook/utility-types.html",
+          "tags": ["typescript"],
+          "isRead": true,
+          "dayOffset": 17
+        },
+        {
+          "title": "MDN - CSS Container Queries",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries",
+          "tags": ["css", "mdn"],
+          "dayOffset": 9
+        }
+      ]
+    },
+    {
+      "name": "디자인 참고",
+      "sortOrder": 1,
+      "links": [
+        {
+          "title": "Tailwind CSS - Theme variables",
+          "url": "https://tailwindcss.com/docs/theme",
+          "tags": ["tailwind", "디자인토큰"],
+          "isFavorite": true,
+          "isRead": true,
+          "dayOffset": 21,
+          "memo": "@theme inline 으로 다크모드 토큰 매핑하는 방식"
+        },
+        {
+          "title": "shadcn/ui 컴포넌트",
+          "url": "https://ui.shadcn.com/docs/components",
+          "tags": ["shadcn", "컴포넌트"],
+          "isRead": true,
+          "dayOffset": 15
+        },
+        {
+          "title": "Pretendard - 한글 웹폰트",
+          "url": "https://github.com/orioncactus/pretendard",
+          "tags": ["폰트", "한글"],
+          "isFavorite": true,
+          "dayOffset": 6
+        },
+        {
+          "title": "Refactoring UI 요약",
+          "url": "https://www.refactoringui.com",
+          "tags": ["UI", "읽을거리"],
+          "dayOffset": 4,
+          "isAlarm": true
+        }
+      ]
+    },
+    {
+      "name": "읽을거리",
+      "sortOrder": 2,
+      "links": [
+        {
+          "title": "웹 접근성 - WCAG 명도 대비 기준",
+          "url": "https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html",
+          "tags": ["접근성", "a11y"],
+          "dayOffset": 12,
+          "memo": "본문 4.5:1, 큰 텍스트 3:1"
+        },
+        {
+          "title": "Core Web Vitals 지표 정리",
+          "url": "https://web.dev/articles/vitals",
+          "tags": ["성능", "측정"],
+          "isRead": true,
+          "dayOffset": 8
+        },
+        {
+          "title": "GitHub Actions OIDC 로 AWS 인증하기",
+          "url": "https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services",
+          "tags": ["ci", "aws"],
+          "isFavorite": true,
+          "dayOffset": 2,
+          "memo": "레포에 액세스 키를 두지 않고 역할을 빌리는 방식"
+        }
+      ]
+    },
+    {
+      "name": "도구",
+      "sortOrder": 3,
+      "links": [
+        {
+          "title": "Excalidraw - 손그림 다이어그램",
+          "url": "https://excalidraw.com",
+          "tags": ["도구", "다이어그램"],
+          "isRead": true,
+          "dayOffset": 23
+        },
+        {
+          "title": "Supabase 대시보드",
+          "url": "https://supabase.com/dashboard",
+          "tags": ["db", "도구"],
+          "isFavorite": true,
+          "isRead": true,
+          "dayOffset": 13
+        },
+        {
+          "title": "Squoosh - 이미지 압축",
+          "url": "https://squoosh.app",
+          "tags": ["이미지", "최적화"],
+          "dayOffset": 5
+        },
+        {
+          "title": "Can I use - 브라우저 지원 확인",
+          "url": "https://caniuse.com",
+          "tags": ["호환성"],
+          "dayOffset": 1,
+          "isAlarm": true
+        }
+      ]
+    }
+  ],
+  "categories": ["식비", "카페", "교통", "생활용품", "문화생활", "쇼핑", "급여", "용돈"],
+  "settings": {
+    "monthStartDay": 1,
+    "weekStartDay": 0
+  },
+  "cashRecords": [
+    {"dayOffset": 0, "type": "EXPENSE", "category": "카페", "description": "아메리카노", "amount": 4500},
+    {"dayOffset": 0, "type": "EXPENSE", "category": "식비", "description": "점심 - 김치찌개", "amount": 11000},
+    {"dayOffset": 1, "type": "EXPENSE", "category": "교통", "description": "지하철 충전", "amount": 30000},
+    {"dayOffset": 1, "type": "EXPENSE", "category": "식비", "description": "저녁 - 분식", "amount": 9500},
+    {"dayOffset": 2, "type": "EXPENSE", "category": "생활용품", "description": "세제·휴지", "amount": 23400, "note": "대용량으로 구매"},
+    {"dayOffset": 2, "type": "EXPENSE", "category": "카페", "description": "라떼 2잔", "amount": 10400},
+    {"dayOffset": 3, "type": "EXPENSE", "category": "식비", "description": "장보기", "amount": 52300},
+    {"dayOffset": 4, "type": "EXPENSE", "category": "문화생활", "description": "영화 예매", "amount": 15000},
+    {"dayOffset": 4, "type": "EXPENSE", "category": "식비", "description": "점심 - 돈까스", "amount": 12000},
+    {"dayOffset": 5, "type": "INCOME", "category": "용돈", "description": "중고거래 정산", "amount": 45000},
+    {"dayOffset": 6, "type": "EXPENSE", "category": "카페", "description": "카페 작업", "amount": 6800},
+    {"dayOffset": 6, "type": "EXPENSE", "category": "교통", "description": "택시", "amount": 13200},
+    {"dayOffset": 7, "type": "EXPENSE", "category": "쇼핑", "description": "운동화", "amount": 89000, "note": "할인 적용"},
+    {"dayOffset": 8, "type": "EXPENSE", "category": "식비", "description": "저녁 약속", "amount": 34000},
+    {"dayOffset": 9, "type": "EXPENSE", "category": "식비", "description": "점심 - 국밥", "amount": 10000},
+    {"dayOffset": 9, "type": "EXPENSE", "category": "카페", "description": "아이스티", "amount": 4000},
+    {"dayOffset": 10, "type": "EXPENSE", "category": "생활용품", "description": "주방 세제", "amount": 7900},
+    {"dayOffset": 11, "type": "EXPENSE", "category": "문화생활", "description": "전시 관람", "amount": 18000},
+    {"dayOffset": 12, "type": "EXPENSE", "category": "식비", "description": "장보기", "amount": 41700},
+    {"dayOffset": 13, "type": "EXPENSE", "category": "교통", "description": "버스 충전", "amount": 20000},
+    {"dayOffset": 14, "type": "EXPENSE", "category": "카페", "description": "커피 원두", "amount": 22000},
+    {"dayOffset": 15, "type": "INCOME", "category": "급여", "description": "월급", "amount": 3200000, "note": "세후"},
+    {"dayOffset": 15, "type": "EXPENSE", "category": "식비", "description": "점심 - 파스타", "amount": 14500},
+    {"dayOffset": 16, "type": "EXPENSE", "category": "쇼핑", "description": "티셔츠 2장", "amount": 38000},
+    {"dayOffset": 17, "type": "EXPENSE", "category": "식비", "description": "저녁 - 치킨", "amount": 23000},
+    {"dayOffset": 18, "type": "EXPENSE", "category": "교통", "description": "KTX 왕복", "amount": 59600, "note": "본가"},
+    {"dayOffset": 19, "type": "EXPENSE", "category": "카페", "description": "디저트 세트", "amount": 12800},
+    {"dayOffset": 20, "type": "EXPENSE", "category": "식비", "description": "장보기", "amount": 36200},
+    {"dayOffset": 21, "type": "EXPENSE", "category": "문화생활", "description": "도서 2권", "amount": 31500},
+    {"dayOffset": 22, "type": "EXPENSE", "category": "생활용품", "description": "건전지·전구", "amount": 9400},
+    {"dayOffset": 24, "type": "EXPENSE", "category": "식비", "description": "점심 - 비빔밥", "amount": 10500},
+    {"dayOffset": 26, "type": "EXPENSE", "category": "쇼핑", "description": "노트북 거치대", "amount": 42000}
+  ]
+}

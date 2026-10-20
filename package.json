@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "seed:guest": "ts-node --compiler-options '{\"module\":\"commonjs\"}' prisma/seed-guest.ts",
+    "seed:guest": "tsx prisma/seed-guest.ts",
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
@@ -58,6 +58,7 @@
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
     "typescript": "^6.0.3"
   }
 }
