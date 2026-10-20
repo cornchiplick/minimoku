@@ -60,7 +60,7 @@ const FolderList = ({folders}: FolderListProps) => {
               type="button"
               onClick={isShowFolderSortModal.onTrue}
               className="cursor-pointer rounded-full p-1 hover:bg-gray-300"
-              title="폴더 순서 정렬">
+              aria-label="폴더 순서 정렬">
               <ArrowUpDown className="h-4 w-4 text-gray-500" />
             </button>
             <FolderAddButton />

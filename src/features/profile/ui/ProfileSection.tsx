@@ -51,7 +51,8 @@ const ProfileSection = () => {
           <div className="text-minimoku-neutral-bold text-sm">계정관리</div>
         </div>
         <button
-          title="Logout"
+          type="button"
+          aria-label="로그아웃"
           className="text-minimoku-neutral-bold hover:bg-accent cursor-pointer rounded p-1"
           onClick={onLogout}>
           <Icon name="logout" color="currentColor" size={20} />

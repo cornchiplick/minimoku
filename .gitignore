@@ -145,3 +145,8 @@ lambda/*/guest-showcase.ts
 lambda/*/guest-showcase.json
 
 # End of https://www.toptal.com/developers/gitignore/api/react,visualstudiocode,macos,windows
+# playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/e2e/.auth/
