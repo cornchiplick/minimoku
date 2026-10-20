@@ -1,4 +1,4 @@
-import { Skeleton } from "@/shared/components/atoms/skeleton";
+import {Skeleton} from "@/shared/components/atoms/skeleton";
 
 // 쓰기 탭 스켈레톤 (PigMoneyMain 레이아웃 모방)
 const PigMoneyLoading = () => {
@@ -29,7 +29,7 @@ const PigMoneyLoading = () => {
 
       {/* 카드 리스트 */}
       <div className="flex flex-col gap-3 p-6">
-        {Array.from({ length: 4 }).map((_, i) => (
+        {Array.from({length: 4}).map((_, i) => (
           <Skeleton key={i} className="h-[72px] w-full rounded-lg" />
         ))}
 

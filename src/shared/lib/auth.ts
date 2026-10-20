@@ -51,7 +51,9 @@ export const authOptions: AuthOptions = {
         if (!guest) {
           // 시드되지 않은 환경에서는 게스트 로그인을 거부한다.
           // npm run seed:guest 를 먼저 실행해야 한다.
-          console.error("[auth] 게스트 User 가 시드되지 않았습니다. seed-guest.ts 를 먼저 실행하세요.");
+          console.error(
+            "[auth] 게스트 User 가 시드되지 않았습니다. seed-guest.ts 를 먼저 실행하세요."
+          );
           return null;
         }
         return {

@@ -1,9 +1,9 @@
 "use client";
 
-import { PigMoneySettingsInterface } from "@/entities/pigmoney/types";
-import { updateSettings } from "@/features/pigmoney/model/services/settings.service";
-import { useCashRecordStore } from "@/features/pigmoney/model/store/cashRecordStore";
-import { Button } from "@/shared/components/atoms/button";
+import {PigMoneySettingsInterface} from "@/entities/pigmoney/types";
+import {updateSettings} from "@/features/pigmoney/model/services/settings.service";
+import {useCashRecordStore} from "@/features/pigmoney/model/store/cashRecordStore";
+import {Button} from "@/shared/components/atoms/button";
 import {
   Select,
   SelectContent,
@@ -11,16 +11,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/atoms/select";
-import { WEEK_DAY_LABELS } from "@/shared/constants/pigmoney";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import {WEEK_DAY_LABELS} from "@/shared/constants/pigmoney";
+import {useEffect, useState} from "react";
+import {toast} from "sonner";
 
 interface PigMoneySettingsProps {
   initialSettings: PigMoneySettingsInterface;
 }
 
-const PigMoneySettings = ({ initialSettings }: PigMoneySettingsProps) => {
-  const { setSettings, invalidateSummary } = useCashRecordStore();
+const PigMoneySettings = ({initialSettings}: PigMoneySettingsProps) => {
+  const {setSettings, invalidateSummary} = useCashRecordStore();
 
   const [monthStartDay, setMonthStartDay] = useState(String(initialSettings.monthStartDay));
   const [weekStartDay, setWeekStartDay] = useState(String(initialSettings.weekStartDay));
@@ -71,7 +71,7 @@ const PigMoneySettings = ({ initialSettings }: PigMoneySettingsProps) => {
           {/* 월 시작일 */}
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium">월 시작일</label>
-            <p className="text-xs text-minimoku-neutral-bold">
+            <p className="text-minimoku-neutral-bold text-xs">
               이달의 가계 기간을 계산할 때 사용됩니다. (예: 25일 → n월 25일 ~ (n+1)월 24일)
             </p>
             <Select value={monthStartDay} onValueChange={setMonthStartDay}>
@@ -79,7 +79,7 @@ const PigMoneySettings = ({ initialSettings }: PigMoneySettingsProps) => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="max-h-60">
-                {Array.from({ length: 28 }, (_, i) => i + 1).map((day) => (
+                {Array.from({length: 28}, (_, i) => i + 1).map((day) => (
                   <SelectItem key={day} value={String(day)}>
                     {day}일
                   </SelectItem>
@@ -91,7 +91,7 @@ const PigMoneySettings = ({ initialSettings }: PigMoneySettingsProps) => {
           {/* 주 시작 요일 */}
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium">주 시작 요일</label>
-            <p className="text-xs text-minimoku-neutral-bold">
+            <p className="text-minimoku-neutral-bold text-xs">
               이주의 가계 기간을 계산할 때 사용됩니다. (예: 금요일 → 금~목)
             </p>
             <Select value={weekStartDay} onValueChange={setWeekStartDay}>

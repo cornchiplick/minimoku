@@ -1,33 +1,28 @@
 "use client";
 
-import { CategoryInterface } from "@/entities/pigmoney/types";
+import {CategoryInterface} from "@/entities/pigmoney/types";
 import {
   postCategory,
   updateCategory,
   deleteCategory,
 } from "@/features/pigmoney/model/services/categories.service";
-import { useCashRecordStore } from "@/features/pigmoney/model/store/cashRecordStore";
-import { Button } from "@/shared/components/atoms/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/shared/components/atoms/dialog";
-import { Input } from "@/shared/components/atoms/input";
+import {useCashRecordStore} from "@/features/pigmoney/model/store/cashRecordStore";
+import {Button} from "@/shared/components/atoms/button";
+import {Dialog, DialogContent, DialogHeader, DialogTitle} from "@/shared/components/atoms/dialog";
+import {Input} from "@/shared/components/atoms/input";
 import Typography from "@/shared/home/atomic/Typography";
-import { useBoolean } from "@/shared/hooks/useBoolean";
-import { Edit, Plus, Trash2, Check, X } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
+import {useBoolean} from "@/shared/hooks/useBoolean";
+import {Edit, Plus, Trash2, Check, X} from "lucide-react";
+import {useState} from "react";
+import {toast} from "sonner";
 
 interface CategoryManageModalProps {
   modalState: ReturnType<typeof useBoolean>;
 }
 
 // 카테고리 관리 모달
-const CategoryManageModal = ({ modalState }: CategoryManageModalProps) => {
-  const { categories, setCategories } = useCashRecordStore();
+const CategoryManageModal = ({modalState}: CategoryManageModalProps) => {
+  const {categories, setCategories} = useCashRecordStore();
   const [newName, setNewName] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingName, setEditingName] = useState("");
@@ -86,7 +81,7 @@ const CategoryManageModal = ({ modalState }: CategoryManageModalProps) => {
 
   // 카테고리 삭제
   const handleDelete = async (categoryId: number) => {
-    const result = await deleteCategory({ categoryId });
+    const result = await deleteCategory({categoryId});
 
     if (result.error) {
       toast.error(result.error);
@@ -102,9 +97,7 @@ const CategoryManageModal = ({ modalState }: CategoryManageModalProps) => {
     // 서버 액션이 DB 를 직접 조회하므로 재호출하면 항상 최신 값이 온다.
     // 로컬 상태를 즉시 갱신하기 위해 여기서 다시 조회한다.
     try {
-      const { getCategories } = await import(
-        "@/features/pigmoney/model/services/categories.service"
-      );
+      const {getCategories} = await import("@/features/pigmoney/model/services/categories.service");
       const updated = await getCategories();
       setCategories(updated);
     } catch {
@@ -127,7 +120,7 @@ const CategoryManageModal = ({ modalState }: CategoryManageModalProps) => {
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             placeholder="새 카테고리명"
-            className="flex-1 bg-minimoku-input"
+            className="bg-minimoku-input flex-1"
             onKeyDown={(e) => e.key === "Enter" && handleAdd()}
           />
           <Button onClick={handleAdd} size="icon" className="cursor-pointer">
@@ -136,24 +129,21 @@ const CategoryManageModal = ({ modalState }: CategoryManageModalProps) => {
         </div>
 
         {/* 카테고리 목록 */}
-        <div className="mt-4 max-h-[60vh] flex flex-col gap-2 overflow-y-auto">
+        <div className="mt-4 flex max-h-[60vh] flex-col gap-2 overflow-y-auto">
           {categories.length === 0 && (
             <div className="text-minimoku-neutral-bold py-4 text-center text-sm">
               카테고리가 없습니다.
             </div>
           )}
           {categories.map((category) => (
-            <div
-              key={category.id}
-              className="flex items-center gap-2 rounded-md border px-3 py-2"
-            >
+            <div key={category.id} className="flex items-center gap-2 rounded-md border px-3 py-2">
               {editingId === category.id ? (
                 <>
                   {/* 수정 모드 */}
                   <Input
                     value={editingName}
                     onChange={(e) => setEditingName(e.target.value)}
-                    className="flex-1 bg-minimoku-input"
+                    className="bg-minimoku-input flex-1"
                     autoFocus
                     onKeyDown={(e) => e.key === "Enter" && handleEditSave()}
                   />
@@ -161,16 +151,14 @@ const CategoryManageModal = ({ modalState }: CategoryManageModalProps) => {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 cursor-pointer"
-                    onClick={handleEditSave}
-                  >
+                    onClick={handleEditSave}>
                     <Check className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 cursor-pointer"
-                    onClick={handleEditCancel}
-                  >
+                    onClick={handleEditCancel}>
                     <X className="h-4 w-4" />
                   </Button>
                 </>
@@ -182,16 +170,14 @@ const CategoryManageModal = ({ modalState }: CategoryManageModalProps) => {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 cursor-pointer"
-                    onClick={() => handleEditStart(category)}
-                  >
+                    onClick={() => handleEditStart(category)}>
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 cursor-pointer"
-                    onClick={() => handleDelete(category.id)}
-                  >
+                    onClick={() => handleDelete(category.id)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </>

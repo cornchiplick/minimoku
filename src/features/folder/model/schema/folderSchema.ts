@@ -1,10 +1,7 @@
 import {z} from "zod";
 
 export const folderSchema = z.object({
-  name: z
-    .string({error: "폴더 제목을 입력해주세요."})
-    .trim()
-    .min(1, "폴더 제목을 입력해주세요."),
+  name: z.string({error: "폴더 제목을 입력해주세요."}).trim().min(1, "폴더 제목을 입력해주세요."),
 });
 
 export type FolderSchemaType = z.infer<typeof folderSchema>;

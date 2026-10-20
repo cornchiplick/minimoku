@@ -1,12 +1,9 @@
-import {
-  CashRecordType,
-  CategoryBreakdown,
-} from "@/entities/pigmoney/types";
-import { useCashRecordStore } from "@/features/pigmoney/model/store/cashRecordStore";
-import { useMemo } from "react";
+import {CashRecordType, CategoryBreakdown} from "@/entities/pigmoney/types";
+import {useCashRecordStore} from "@/features/pigmoney/model/store/cashRecordStore";
+import {useMemo} from "react";
 
 const useCashRecordFilter = () => {
-  const { records, dateRange } = useCashRecordStore();
+  const {records, dateRange} = useCashRecordStore();
 
   // 필터 조건에 따라 거래 필터링
   const filteredRecords = useMemo(() => {
@@ -21,23 +18,23 @@ const useCashRecordFilter = () => {
   // 수입/지출 분리
   const incomeRecords = useMemo(
     () => filteredRecords.filter((r) => r.type === CashRecordType.INCOME),
-    [filteredRecords],
+    [filteredRecords]
   );
 
   const expenseRecords = useMemo(
     () => filteredRecords.filter((r) => r.type === CashRecordType.EXPENSE),
-    [filteredRecords],
+    [filteredRecords]
   );
 
   // 합계 계산
   const totalIncome = useMemo(
     () => incomeRecords.reduce((sum, r) => sum + r.amount, 0),
-    [incomeRecords],
+    [incomeRecords]
   );
 
   const totalExpense = useMemo(
     () => expenseRecords.reduce((sum, r) => sum + r.amount, 0),
-    [expenseRecords],
+    [expenseRecords]
   );
 
   const balance = totalIncome - totalExpense;

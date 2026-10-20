@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import {Metadata} from "next";
 
 export const metadata: Metadata = {
   title: "MiniMoku",
@@ -10,7 +10,5 @@ export default function LinkRootHomeLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-      <main>{children}</main>
-  );
+  return <main>{children}</main>;
 }

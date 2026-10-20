@@ -24,7 +24,7 @@ const ProfileSection = () => {
   if (status === "loading" || session == null) {
     // TODO skeleton loader
     return (
-      <div className="rounded-lg border border-border bg-background-secondary p-4">
+      <div className="border-border bg-background-secondary rounded-lg border p-4">
         <p>Loading...</p>
       </div>
     );
@@ -33,7 +33,7 @@ const ProfileSection = () => {
   return (
     <div className="p-4">
       <div className="flex items-center space-x-3">
-        <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-muted">
+        <div className="bg-muted flex h-10 w-10 items-center justify-center overflow-hidden rounded-full">
           {session.user?.image ? (
             <Image
               src={session.user.image}
@@ -43,16 +43,16 @@ const ProfileSection = () => {
               className="rounded-full"
             />
           ) : (
-            <User className="h-6 w-6 text-minimoku-neutral-bold" />
+            <User className="text-minimoku-neutral-bold h-6 w-6" />
           )}
         </div>
         <div className="flex-1 cursor-pointer">
           <Typography.P1 className="font-medium">{session.user.name}</Typography.P1>
-          <div className="text-sm text-minimoku-neutral-bold">계정관리</div>
+          <div className="text-minimoku-neutral-bold text-sm">계정관리</div>
         </div>
         <button
           title="Logout"
-          className="cursor-pointer rounded p-1 text-minimoku-neutral-bold hover:bg-accent"
+          className="text-minimoku-neutral-bold hover:bg-accent cursor-pointer rounded p-1"
           onClick={onLogout}>
           <Icon name="logout" color="currentColor" size={20} />
         </button>

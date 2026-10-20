@@ -1,10 +1,10 @@
 "use client";
 
-import { CashRecordInterface, CashRecordType } from "@/entities/pigmoney/types";
-import { cn } from "@/shared/lib/utils/commonUtils";
-import { ko } from "date-fns/locale";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { DayPicker } from "react-day-picker";
+import {CashRecordInterface, CashRecordType} from "@/entities/pigmoney/types";
+import {cn} from "@/shared/lib/utils/commonUtils";
+import {ko} from "date-fns/locale";
+import {ChevronLeft, ChevronRight} from "lucide-react";
+import {DayPicker} from "react-day-picker";
 
 interface CalendarViewProps {
   records: CashRecordInterface[];
@@ -16,18 +16,17 @@ interface CalendarViewProps {
 }
 
 /** 로컬 기준 날짜 키 (toISOString 은 UTC 라 자정 근처에서 하루가 밀린다) */
-const dateKeyOf = (date: Date) =>
-  `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+const dateKeyOf = (date: Date) => `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
 
 // 일별 수입/지출 합산 맵 생성
 const buildDailySummary = (
-  records: CashRecordInterface[],
-): Map<string, { income: number; expense: number }> => {
-  const map = new Map<string, { income: number; expense: number }>();
+  records: CashRecordInterface[]
+): Map<string, {income: number; expense: number}> => {
+  const map = new Map<string, {income: number; expense: number}>();
 
   records.forEach((r) => {
     const key = dateKeyOf(new Date(r.date));
-    const existing = map.get(key) ?? { income: 0, expense: 0 };
+    const existing = map.get(key) ?? {income: 0, expense: 0};
 
     if (r.type === CashRecordType.INCOME) {
       existing.income += r.amount;
@@ -84,7 +83,7 @@ const CalendarView = ({
           "w-full h-20 px-1.5 pt-1.5 font-normal",
           "flex flex-col items-start gap-1",
           "hover:bg-background-secondary/60 focus-visible:ring-pigmoney-brand focus-visible:ring-2 focus-visible:outline-none",
-          "cursor-pointer transition-colors rounded-sm",
+          "cursor-pointer transition-colors rounded-sm"
         ),
         selected: "bg-pigmoney-brand/8",
         outside: "opacity-35",
@@ -92,7 +91,7 @@ const CalendarView = ({
         hidden: "invisible",
       }}
       components={{
-        MonthCaption: ({ calendarMonth }) => {
+        MonthCaption: ({calendarMonth}) => {
           const d = calendarMonth.date;
           const label = `${d.getFullYear()}년 ${d.getMonth() + 1}월`;
 
@@ -101,22 +100,20 @@ const CalendarView = ({
               <button
                 type="button"
                 onClick={() => onMonthChange(new Date(d.getFullYear(), d.getMonth() - 1, 1))}
-                className="inline-flex h-8 w-8 cursor-pointer items-center justify-center bg-transparent p-0 opacity-50 hover:opacity-100"
-              >
+                className="inline-flex h-8 w-8 cursor-pointer items-center justify-center bg-transparent p-0 opacity-50 hover:opacity-100">
                 <ChevronLeft className="h-4 w-4" />
               </button>
               <span className="text-base font-semibold">{label}</span>
               <button
                 type="button"
                 onClick={() => onMonthChange(new Date(d.getFullYear(), d.getMonth() + 1, 1))}
-                className="inline-flex h-8 w-8 cursor-pointer items-center justify-center bg-transparent p-0 opacity-50 hover:opacity-100"
-              >
+                className="inline-flex h-8 w-8 cursor-pointer items-center justify-center bg-transparent p-0 opacity-50 hover:opacity-100">
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
           );
         },
-        DayButton: ({ day, modifiers, ...props }) => {
+        DayButton: ({day, modifiers, ...props}) => {
           const dateKey = dateKeyOf(day.date);
           const summary = dailySummary.get(dateKey);
 
@@ -125,11 +122,8 @@ const CalendarView = ({
               <span
                 className={cn(
                   "flex items-center gap-1 text-[0.8125rem] tabular-nums",
-                  modifiers.today
-                    ? "text-pigmoney-brand font-bold"
-                    : "text-foreground font-medium",
-                )}
-              >
+                  modifiers.today ? "text-pigmoney-brand font-bold" : "text-foreground font-medium"
+                )}>
                 {day.date.getDate()}
                 {modifiers.today && (
                   <span className="bg-pigmoney-brand h-1 w-1 rounded-full" aria-hidden />

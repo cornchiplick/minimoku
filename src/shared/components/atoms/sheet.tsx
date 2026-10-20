@@ -50,7 +50,7 @@ const SheetContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "bg-background-primary border-background-secondary data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col shadow-float transition ease-out-smooth duration-300",
+        "bg-background-primary border-background-secondary data-[state=open]:animate-in data-[state=closed]:animate-out shadow-float ease-out-smooth fixed z-50 flex flex-col transition duration-300",
         sideClasses[side],
         className
       )}

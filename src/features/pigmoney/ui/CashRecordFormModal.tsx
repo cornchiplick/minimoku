@@ -81,9 +81,8 @@ const CashRecordFormModal = ({
             <button
               type="button"
               onClick={onAppendRow}
-              className="border-border text-minimoku-neutral-bold hover:border-pigmoney-brand hover:text-pigmoney-brand flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-card border border-dashed py-3 text-sm transition-colors">
-              <Plus className="h-4 w-4" />
-              행 추가
+              className="border-border text-minimoku-neutral-bold hover:border-pigmoney-brand hover:text-pigmoney-brand rounded-card flex w-full cursor-pointer items-center justify-center gap-1.5 border border-dashed py-3 text-sm transition-colors">
+              <Plus className="h-4 w-4" />행 추가
             </button>
           )}
         </div>

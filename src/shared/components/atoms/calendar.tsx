@@ -1,10 +1,10 @@
 "use client";
 
-import { cn } from "@/shared/lib/utils/commonUtils";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {cn} from "@/shared/lib/utils/commonUtils";
+import {ChevronLeft, ChevronRight} from "lucide-react";
 import * as React from "react";
-import { DayPicker } from "react-day-picker";
-import { ko } from "react-day-picker/locale";
+import {DayPicker} from "react-day-picker";
+import {ko} from "react-day-picker/locale";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
@@ -12,7 +12,7 @@ export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 const START_MONTH = new Date(2000, 0);
 const END_MONTH = new Date(new Date().getFullYear() + 1, 11);
 
-function Calendar({ className, classNames, showOutsideDays = true, ...props }: CalendarProps) {
+function Calendar({className, classNames, showOutsideDays = true, ...props}: CalendarProps) {
   return (
     <DayPicker
       locale={ko}
@@ -45,7 +45,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
         ...classNames,
       }}
       components={{
-        Chevron: ({ orientation }) => {
+        Chevron: ({orientation}) => {
           const Icon = orientation === "left" ? ChevronLeft : ChevronRight;
           return <Icon className="h-4 w-4" />;
         },
@@ -56,4 +56,4 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
 }
 Calendar.displayName = "Calendar";
 
-export { Calendar };
+export {Calendar};

@@ -1,5 +1,5 @@
-import { getCashRecordSummary } from "@/features/pigmoney/model/services/cashRecords.service";
-import { useCashRecordStore } from "@/features/pigmoney/model/store/cashRecordStore";
+import {getCashRecordSummary} from "@/features/pigmoney/model/services/cashRecords.service";
+import {useCashRecordStore} from "@/features/pigmoney/model/store/cashRecordStore";
 import {
   formatDate,
   formatDateWithDay,
@@ -7,11 +7,11 @@ import {
   getCustomWeekRange,
   toDateString,
 } from "@/shared/lib/utils/dateUtils";
-import { useCallback, useEffect } from "react";
+import {useCallback, useEffect} from "react";
 
 // 사이드바 요약 데이터 조회/갱신 훅
 const useSidebarSummary = () => {
-  const { settings, summaryVersion, setMonthSummary, setWeekSummary } = useCashRecordStore();
+  const {settings, summaryVersion, setMonthSummary, setWeekSummary} = useCashRecordStore();
 
   const fetchSummary = useCallback(async () => {
     if (!settings) return;

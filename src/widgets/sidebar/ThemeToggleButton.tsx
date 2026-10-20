@@ -28,7 +28,7 @@ const ThemeToggleButton = () => {
       aria-pressed={isDarkMode}
       className="hover:bg-background-secondary focus-visible:ring-minimoku rounded-lg p-2 transition-colors focus-visible:ring-2 focus-visible:outline-none">
       <Moon
-        className="h-5 w-5 text-minimoku-neutral-bold"
+        className="text-minimoku-neutral-bold h-5 w-5"
         fill={isDarkMode ? "currentColor" : "none"}
         stroke={isDarkMode ? "none" : "currentColor"}
       />

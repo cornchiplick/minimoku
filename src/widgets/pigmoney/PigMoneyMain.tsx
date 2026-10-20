@@ -38,14 +38,7 @@ const PigMoneyMain = ({initialRecords, initialCategories, initialSettings}: PigM
     useCashRecordStore();
   const {incomeRecords, expenseRecords, totalIncome, totalExpense} = useCashRecordFilter();
   const {onDeleteRecord} = useCashRecordAction();
-  const {
-    expenseForm,
-    incomeForm,
-    appendRow,
-    removeRow,
-    loadRecords,
-    save,
-  } = useInlineCashRecord();
+  const {expenseForm, incomeForm, appendRow, removeRow, loadRecords, save} = useInlineCashRecord();
 
   // 입력/수정 모달 상태 (목록은 읽기 전용, 쓰기는 모달에서만 일어난다)
   const [modal, setModal] = useState<{
@@ -131,7 +124,7 @@ const PigMoneyMain = ({initialRecords, initialCategories, initialSettings}: PigM
         }
       }
     },
-    [dateRange.to, setDateRange, setRecords],
+    [dateRange.to, setDateRange, setRecords]
   );
 
   // DatePicker에서 종료일 변경 시 자동 검색
@@ -151,7 +144,7 @@ const PigMoneyMain = ({initialRecords, initialCategories, initialSettings}: PigM
         }
       }
     },
-    [dateRange.from, setDateRange, setRecords],
+    [dateRange.from, setDateRange, setRecords]
   );
 
   // 이전 달로 이동 + 자동 검색

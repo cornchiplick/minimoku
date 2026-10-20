@@ -96,8 +96,8 @@ const RootHome = () => (
           개인용 웹앱
         </h1>
         <p className="text-minimoku-neutral-bold mt-6 max-w-xl text-base leading-relaxed md:text-lg">
-          필요한 기능이 생길 때마다 하나씩 만들어 붙였습니다. 지금은 링크를 모아 두는
-          LinkLocker 와 가계부 PigMoney 가 들어 있고, 매일 쓰고 있습니다.
+          필요한 기능이 생길 때마다 하나씩 만들어 붙였습니다. 지금은 링크를 모아 두는 LinkLocker 와
+          가계부 PigMoney 가 들어 있고, 매일 쓰고 있습니다.
         </p>
         <div className="mt-9 flex flex-wrap items-center gap-2.5">
           <GuestStartButton href="/link">로그인 없이 둘러보기</GuestStartButton>
@@ -134,7 +134,7 @@ const RootHome = () => (
             width={1600}
             height={1000}
             sizes="(max-width: 768px) 100vw, 768px"
-            className="border-border shadow-float mt-8 w-full rounded-card border"
+            className="border-border shadow-float rounded-card mt-8 w-full border"
           />
 
           <div className="mt-6">

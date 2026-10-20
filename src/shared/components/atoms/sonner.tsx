@@ -24,7 +24,7 @@ const Toaster = ({...props}: ToasterProps) => {
       icons={{
         success: <CheckCircle className="text-success" />, // 초록 체크
         error: <XCircle className="text-destructive" />, // 빨강 에러
-        loading: <Loader2 className="animate-spin text-minimoku-neutral-bold" />, // 회색 스피너
+        loading: <Loader2 className="text-minimoku-neutral-bold animate-spin" />, // 회색 스피너
       }}
       {...props}
     />

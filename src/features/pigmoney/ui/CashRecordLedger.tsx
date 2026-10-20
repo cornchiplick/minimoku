@@ -74,16 +74,12 @@ const CashRecordLedger = ({records, onSelect}: CashRecordLedgerProps) => {
           <header className="flex items-baseline justify-between gap-3 pt-7 pb-2">
             <h2 className="flex items-baseline gap-1.5">
               {showMonth && (
-                <span className="text-minimoku-neutral-bold text-sm">
-                  {date.getMonth() + 1}월
-                </span>
+                <span className="text-minimoku-neutral-bold text-sm">{date.getMonth() + 1}월</span>
               )}
-              <span className="text-foreground text-2xl font-bold tabular-nums tracking-tight">
+              <span className="text-foreground text-2xl font-bold tracking-tight tabular-nums">
                 {date.getDate()}
               </span>
-              <span className="text-minimoku-neutral-bold text-sm">
-                {WEEKDAYS[date.getDay()]}
-              </span>
+              <span className="text-minimoku-neutral-bold text-sm">{WEEKDAYS[date.getDay()]}</span>
             </h2>
             <span
               className={cn(

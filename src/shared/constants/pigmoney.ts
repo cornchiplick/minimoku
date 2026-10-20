@@ -13,8 +13,8 @@ export const WEEK_DAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"]
 
 // 사이드바 네비게이션 메뉴
 export const PIGMONEY_NAV_ITEMS = [
-  { label: "쓰기", href: "/pigmoney", icon: "PenLine" },
-  { label: "보고서", href: "/pigmoney/report", icon: "BarChart3" },
-  { label: "달력", href: "/pigmoney/calendar", icon: "CalendarDays" },
-  { label: "설정", href: "/pigmoney/settings", icon: "Settings" },
+  {label: "쓰기", href: "/pigmoney", icon: "PenLine"},
+  {label: "보고서", href: "/pigmoney/report", icon: "BarChart3"},
+  {label: "달력", href: "/pigmoney/calendar", icon: "CalendarDays"},
+  {label: "설정", href: "/pigmoney/settings", icon: "Settings"},
 ] as const;

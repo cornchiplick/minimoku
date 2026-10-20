@@ -1,12 +1,12 @@
 "use client";
 
-import { cn } from "@/shared/lib/utils/commonUtils";
-import { Button } from "@/shared/components/atoms/button";
-import { Calendar } from "@/shared/components/atoms/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/atoms/popover";
-import { formatDate } from "@/shared/lib/utils/dateUtils";
-import { CalendarIcon } from "lucide-react";
-import { useState } from "react";
+import {cn} from "@/shared/lib/utils/commonUtils";
+import {Button} from "@/shared/components/atoms/button";
+import {Calendar} from "@/shared/components/atoms/calendar";
+import {Popover, PopoverContent, PopoverTrigger} from "@/shared/components/atoms/popover";
+import {formatDate} from "@/shared/lib/utils/dateUtils";
+import {CalendarIcon} from "lucide-react";
+import {useState} from "react";
 
 interface DatePickerProps {
   selected?: Date | null;
@@ -46,9 +46,8 @@ const DatePicker = ({
           className={cn(
             "w-[140px] justify-start text-left font-normal",
             !selected && "text-muted-foreground",
-            className,
-          )}
-        >
+            className
+          )}>
           <CalendarIcon className="mr-2 h-4 w-4" />
           {selected ? formatDate(selected) : placeholder}
         </Button>
@@ -69,4 +68,4 @@ const DatePicker = ({
   );
 };
 
-export { DatePicker };
+export {DatePicker};

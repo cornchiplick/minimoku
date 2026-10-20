@@ -1,4 +1,4 @@
-import { Skeleton } from "@/shared/components/atoms/skeleton";
+import {Skeleton} from "@/shared/components/atoms/skeleton";
 
 // 설정 탭 스켈레톤 (PigMoneySettings 레이아웃 모방)
 const SettingsLoading = () => {

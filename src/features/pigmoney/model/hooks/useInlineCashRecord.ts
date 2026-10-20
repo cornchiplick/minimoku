@@ -1,12 +1,12 @@
-import { CashRecordInterface, CashRecordType } from "@/entities/pigmoney/types";
+import {CashRecordInterface, CashRecordType} from "@/entities/pigmoney/types";
 import {
   postCashRecords,
   updateCashRecord,
 } from "@/features/pigmoney/model/services/cashRecords.service";
-import { useCashRecordStore } from "@/features/pigmoney/model/store/cashRecordStore";
-import { useCallback, useRef } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
-import { toast } from "sonner";
+import {useCashRecordStore} from "@/features/pigmoney/model/store/cashRecordStore";
+import {useCallback, useRef} from "react";
+import {useFieldArray, useForm} from "react-hook-form";
+import {toast} from "sonner";
 
 // 인라인 편집용 행 타입
 export interface InlineRowValues {
@@ -67,11 +67,11 @@ const isRowComplete = (row: InlineRowValues): boolean => {
 
 // 인라인 거래 편집 훅
 const useInlineCashRecord = () => {
-  const { invalidateSummary } = useCashRecordStore();
+  const {invalidateSummary} = useCashRecordStore();
 
   // 지출 탭 폼
   const expenseForm = useForm<InlineBatchForm>({
-    defaultValues: { records: [] },
+    defaultValues: {records: []},
   });
   const expenseFieldArray = useFieldArray({
     control: expenseForm.control,
@@ -80,7 +80,7 @@ const useInlineCashRecord = () => {
 
   // 수입 탭 폼
   const incomeForm = useForm<InlineBatchForm>({
-    defaultValues: { records: [] },
+    defaultValues: {records: []},
   });
   const incomeFieldArray = useFieldArray({
     control: incomeForm.control,
@@ -94,31 +94,27 @@ const useInlineCashRecord = () => {
   // 기존 records를 폼에 로드
   const loadRecords = useCallback(
     (records: CashRecordInterface[]) => {
-      const expenseRows = records
-        .filter((r) => r.type === CashRecordType.EXPENSE)
-        .map(recordToRow);
-      const incomeRows = records
-        .filter((r) => r.type === CashRecordType.INCOME)
-        .map(recordToRow);
+      const expenseRows = records.filter((r) => r.type === CashRecordType.EXPENSE).map(recordToRow);
+      const incomeRows = records.filter((r) => r.type === CashRecordType.INCOME).map(recordToRow);
 
       // 기존 입력 중인 새 행(미저장)을 보존
       const currentExpense = expenseForm.getValues("records");
       const newExpenseRows = currentExpense.filter((r) => !r._id);
-      expenseForm.reset({ records: [...expenseRows, ...newExpenseRows] });
+      expenseForm.reset({records: [...expenseRows, ...newExpenseRows]});
 
       const currentIncome = incomeForm.getValues("records");
       const newIncomeRows = currentIncome.filter((r) => !r._id);
-      incomeForm.reset({ records: [...incomeRows, ...newIncomeRows] });
+      incomeForm.reset({records: [...incomeRows, ...newIncomeRows]});
 
       // 원본 스냅샷 저장
       expenseOriginalRef.current = new Map(
-        expenseRows.filter((r) => r._id).map((r) => [r._id!, { ...r }]),
+        expenseRows.filter((r) => r._id).map((r) => [r._id!, {...r}])
       );
       incomeOriginalRef.current = new Map(
-        incomeRows.filter((r) => r._id).map((r) => [r._id!, { ...r }]),
+        incomeRows.filter((r) => r._id).map((r) => [r._id!, {...r}])
       );
     },
-    [expenseForm, incomeForm],
+    [expenseForm, incomeForm]
   );
 
   // 행 추가
@@ -127,7 +123,7 @@ const useInlineCashRecord = () => {
       const fieldArray = type === "EXPENSE" ? expenseFieldArray : incomeFieldArray;
       fieldArray.append(getDefaultRow(type));
     },
-    [expenseFieldArray, incomeFieldArray],
+    [expenseFieldArray, incomeFieldArray]
   );
 
   // 행 제거 (새 행만)
@@ -136,7 +132,7 @@ const useInlineCashRecord = () => {
       const fieldArray = type === "EXPENSE" ? expenseFieldArray : incomeFieldArray;
       fieldArray.remove(index);
     },
-    [expenseFieldArray, incomeFieldArray],
+    [expenseFieldArray, incomeFieldArray]
   );
 
   // 저장 (신규 + 수정 일괄 처리)
@@ -207,12 +203,12 @@ const useInlineCashRecord = () => {
         // 저장 완료된 새 행을 폼에서 제거 (중복 저장 방지)
         // handleSearch → setRecords → loadRecords 시 서버에서 _id가 있는 행으로 다시 로드됨
         const existingRows = form.getValues("records").filter((r) => !!r._id);
-        form.reset({ records: existingRows });
+        form.reset({records: existingRows});
       }
 
-      return { success: true };
+      return {success: true};
     },
-    [expenseForm, incomeForm, invalidateSummary],
+    [expenseForm, incomeForm, invalidateSummary]
   );
 
   // 미저장 새 행 개수

@@ -2,8 +2,8 @@
 
 import LinkFormModal from "@/features/link/ui/LinkFormModal";
 import Typography from "@/shared/home/atomic/Typography";
-import { useBoolean } from "@/shared/hooks/useBoolean";
-import { Plus } from "lucide-react";
+import {useBoolean} from "@/shared/hooks/useBoolean";
+import {Plus} from "lucide-react";
 
 const LinkAddButton = () => {
   const isShowLinkAddModal = useBoolean();

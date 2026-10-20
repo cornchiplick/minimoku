@@ -22,7 +22,7 @@ export const formatDateWithDay = (date: Date | string): string => {
 /**
  * 현재 날짜 기준으로 N일 전부터 오늘까지의 날짜 구간 반환
  */
-export const getDateRange = (days: number): { from: Date; to: Date } => {
+export const getDateRange = (days: number): {from: Date; to: Date} => {
   const to = new Date();
   to.setHours(23, 59, 59, 999);
 
@@ -30,7 +30,7 @@ export const getDateRange = (days: number): { from: Date; to: Date } => {
   from.setDate(from.getDate() - days);
   from.setHours(0, 0, 0, 0);
 
-  return { from, to };
+  return {from, to};
 };
 
 /**
@@ -57,8 +57,8 @@ export const toDateString = (date: Date): string => {
  * monthStartDay=25 → 1/25~2/24, 2/25~3/24 ...
  */
 export const getCustomMonthRange = (
-  monthStartDay: number,
-): { from: Date; to: Date; label: string } => {
+  monthStartDay: number
+): {from: Date; to: Date; label: string} => {
   return getCustomMonthRangeFor(new Date(), monthStartDay);
 };
 
@@ -67,8 +67,8 @@ export const getCustomMonthRange = (
  */
 export const getCustomMonthRangeFor = (
   date: Date,
-  monthStartDay: number,
-): { from: Date; to: Date; label: string } => {
+  monthStartDay: number
+): {from: Date; to: Date; label: string} => {
   const d = new Date(date);
   const year = d.getFullYear();
   const month = d.getMonth(); // 0-based
@@ -88,7 +88,7 @@ export const getCustomMonthRangeFor = (
 
   const label = `${from.getMonth() + 1}월`;
 
-  return { from, to, label };
+  return {from, to, label};
 };
 
 /**
@@ -96,8 +96,8 @@ export const getCustomMonthRangeFor = (
  */
 export const getPrevCustomMonthRange = (
   currentFrom: Date,
-  monthStartDay: number,
-): { from: Date; to: Date; label: string } => {
+  monthStartDay: number
+): {from: Date; to: Date; label: string} => {
   const prevDate = new Date(currentFrom);
   prevDate.setDate(prevDate.getDate() - 1); // 시작일 하루 전 = 이전 월에 속함
   return getCustomMonthRangeFor(prevDate, monthStartDay);
@@ -108,8 +108,8 @@ export const getPrevCustomMonthRange = (
  */
 export const getNextCustomMonthRange = (
   currentTo: Date,
-  monthStartDay: number,
-): { from: Date; to: Date; label: string } => {
+  monthStartDay: number
+): {from: Date; to: Date; label: string} => {
   const nextDate = new Date(currentTo);
   nextDate.setDate(nextDate.getDate() + 1); // 종료일 다음날 = 다음 월에 속함
   return getCustomMonthRangeFor(nextDate, monthStartDay);
@@ -119,17 +119,14 @@ export const getNextCustomMonthRange = (
  * 사용자 설정 기반 "이번 주" 범위 계산
  * weekStartDay=5(금) → 금~목
  */
-export const getCustomWeekRange = (weekStartDay: number): { from: Date; to: Date } => {
+export const getCustomWeekRange = (weekStartDay: number): {from: Date; to: Date} => {
   return getCustomWeekRangeFor(new Date(), weekStartDay);
 };
 
 /**
  * 특정 날짜가 속하는 "주" 범위 (사용자 설정 weekStartDay 반영)
  */
-export const getCustomWeekRangeFor = (
-  date: Date,
-  weekStartDay: number,
-): { from: Date; to: Date } => {
+export const getCustomWeekRangeFor = (date: Date, weekStartDay: number): {from: Date; to: Date} => {
   const d = new Date(date);
   const currentDay = d.getDay(); // 0=일, 1=월, ..., 6=토
 
@@ -144,7 +141,7 @@ export const getCustomWeekRangeFor = (
   to.setDate(to.getDate() + 6);
   to.setHours(23, 59, 59, 999);
 
-  return { from, to };
+  return {from, to};
 };
 
 /**
@@ -152,8 +149,8 @@ export const getCustomWeekRangeFor = (
  */
 export const getPrevCustomWeekRange = (
   currentFrom: Date,
-  weekStartDay: number,
-): { from: Date; to: Date } => {
+  weekStartDay: number
+): {from: Date; to: Date} => {
   const prevDate = new Date(currentFrom);
   prevDate.setDate(prevDate.getDate() - 1); // 시작일 하루 전 = 이전 주에 속함
   return getCustomWeekRangeFor(prevDate, weekStartDay);
@@ -164,8 +161,8 @@ export const getPrevCustomWeekRange = (
  */
 export const getNextCustomWeekRange = (
   currentTo: Date,
-  weekStartDay: number,
-): { from: Date; to: Date } => {
+  weekStartDay: number
+): {from: Date; to: Date} => {
   const nextDate = new Date(currentTo);
   nextDate.setDate(nextDate.getDate() + 1); // 종료일 다음날 = 다음 주에 속함
   return getCustomWeekRangeFor(nextDate, weekStartDay);

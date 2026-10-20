@@ -39,10 +39,7 @@ const HELP_MESSAGE = `📋 <b>Todo 봇 사용법</b>
 
 ※ 제목은 공백 없이 작성 (예: 계란_사기)`;
 
-export async function POST(
-  request: Request,
-  {params}: {params: Promise<{token: string}>}
-) {
+export async function POST(request: Request, {params}: {params: Promise<{token: string}>}) {
   const {token} = await params;
 
   // 1차 보안: URL 토큰 검증
@@ -100,10 +97,7 @@ async function handleTodoCommand(chatId: string, text: string) {
   }
 
   const todo = await createTelegramTodo(chatId, parsed.title, parsed.time);
-  await sendTelegramMessage(
-    chatId,
-    `✅ 등록 완료\n📌 ${todo.title}\n⏰ 매일 ${todo.time}`
-  );
+  await sendTelegramMessage(chatId, `✅ 등록 완료\n📌 ${todo.title}\n⏰ 매일 ${todo.time}`);
 }
 
 // /list 명령 처리
@@ -116,7 +110,10 @@ async function handleListCommand(chatId: string) {
   }
 
   const list = todos
-    .map((todo: {title: string; time: string}, i: number) => `${i + 1}. ${todo.title} (⏰ ${todo.time})`)
+    .map(
+      (todo: {title: string; time: string}, i: number) =>
+        `${i + 1}. ${todo.title} (⏰ ${todo.time})`
+    )
     .join("\n");
 
   await sendTelegramMessage(chatId, `📋 <b>활성 Todo 목록</b>\n\n${list}`);

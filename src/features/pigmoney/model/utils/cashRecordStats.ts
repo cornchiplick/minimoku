@@ -1,8 +1,4 @@
-import {
-  CashRecordInterface,
-  CashRecordType,
-  CategoryBreakdown,
-} from "@/entities/pigmoney/types";
+import {CashRecordInterface, CashRecordType, CategoryBreakdown} from "@/entities/pigmoney/types";
 
 export interface CashRecordStats {
   incomeRecords: CashRecordInterface[];

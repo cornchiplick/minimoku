@@ -87,16 +87,14 @@ const ReportDailyTrend = ({records, from, to}: ReportDailyTrendProps) => {
               }}
               labelStyle={{color: "var(--fg-2)"}}
               labelFormatter={(label) => `${label}일`}
-              formatter={(value) => [`${Number(value).toLocaleString("ko-KR")}원`, "지출"] as [string, string]}
+              formatter={(value) =>
+                [`${Number(value).toLocaleString("ko-KR")}원`, "지출"] as [string, string]
+              }
             />
             <Bar dataKey="expense" radius={[2, 2, 0, 0]} isAnimationActive={false}>
               {days.map((d) => (
                 /* 같은 강조색을 쓰되 오늘만 불투명하게 — 색을 늘리지 않고 하루를 짚는다 */
-                <Cell
-                  key={d.day}
-                  fill="var(--pig-brand)"
-                  fillOpacity={d.isToday ? 1 : 0.28}
-                />
+                <Cell key={d.day} fill="var(--pig-brand)" fillOpacity={d.isToday ? 1 : 0.28} />
               ))}
             </Bar>
           </BarChart>

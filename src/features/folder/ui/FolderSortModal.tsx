@@ -61,9 +61,7 @@ function SortableFolderItem({folder}: {folder: FolderInterface}) {
       style={style}
       className={clsx(
         "flex items-center gap-3 rounded-lg border p-3",
-        isDarkMode
-          ? "border-border bg-background-primary"
-          : "border-border bg-background-primary"
+        isDarkMode ? "border-border bg-background-primary" : "border-border bg-background-primary"
       )}>
       {/* 드래그 핸들 */}
       <button
@@ -71,7 +69,7 @@ function SortableFolderItem({folder}: {folder: FolderInterface}) {
         {...listeners}
         className="cursor-grab touch-none active:cursor-grabbing"
         onClick={(e) => e.stopPropagation()}>
-        <GripVertical className="h-5 w-5 text-minimoku-neutral-bold" />
+        <GripVertical className="text-minimoku-neutral-bold h-5 w-5" />
       </button>
 
       {/* 폴더 아이콘 */}
@@ -160,7 +158,7 @@ const FolderSortModal = ({folders, modalState}: FolderSortModalProps) => {
 
   return (
     <Dialog open={modalState.value} onOpenChange={modalState.onFalse}>
-      <DialogContent className="max-w-md bg-background-tertiary p-5">
+      <DialogContent className="bg-background-tertiary max-w-md p-5">
         <DialogHeader>
           <DialogTitle>
             <Typography.Head3>폴더 순서 정렬</Typography.Head3>

@@ -66,8 +66,12 @@ const FolderItem = ({folder, isActive, onClick, onEdit, onDelete, onEmpty}: Fold
           stroke={isActive ? "none" : isDarkMode ? "none" : "black"}
           fill={isActive ? "white" : isDarkMode ? "white" : "none"}
         />
-        <Typography.P2 className={clsx(isActive && "text-background-primary")}>{folder.name}</Typography.P2>
-        <Typography.P3 className={clsx(isActive && "text-background-primary")}>{folder.count}</Typography.P3>
+        <Typography.P2 className={clsx(isActive && "text-background-primary")}>
+          {folder.name}
+        </Typography.P2>
+        <Typography.P3 className={clsx(isActive && "text-background-primary")}>
+          {folder.count}
+        </Typography.P3>
       </div>
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
@@ -85,7 +89,7 @@ const FolderItem = ({folder, isActive, onClick, onEdit, onDelete, onEmpty}: Fold
         <DropdownMenuContent
           side="right"
           align="start"
-          className="bg-background-primary w-28 border border-border"
+          className="bg-background-primary border-border w-28 border"
           onClick={(e) => e.stopPropagation()}>
           <DropdownMenuItem
             onSelect={handleEdit}

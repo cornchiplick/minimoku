@@ -8,16 +8,17 @@ export const linkSchema = z.object({
     .trim()
     .min(1, "링크 URL을 입력해주세요.")
     .pipe(z.url("유효한 URL을 입력해주세요.")),
-  imageUrl: z
-    .union([z.url("유효한 이미지 URL을 입력해주세요."), z.literal("")])
-    .optional(),
-  folderId: z.string({error: "폴더를 선택해주세요."}).min(1, "폴더를 선택해주세요.").refine(
-    (val) => {
-      const folderId = Number(val);
-      return !isNaN(folderId);
-    },
-    {message: "올바르지 않은 폴더입니다."}
-  ),
+  imageUrl: z.union([z.url("유효한 이미지 URL을 입력해주세요."), z.literal("")]).optional(),
+  folderId: z
+    .string({error: "폴더를 선택해주세요."})
+    .min(1, "폴더를 선택해주세요.")
+    .refine(
+      (val) => {
+        const folderId = Number(val);
+        return !isNaN(folderId);
+      },
+      {message: "올바르지 않은 폴더입니다."}
+    ),
   tags: z.array(z.string()),
   memo: z.string().optional().or(z.literal("")),
 });

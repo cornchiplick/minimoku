@@ -67,7 +67,7 @@ export function DialogProvider({children}: {children: React.ReactNode}) {
               <Typography.P2 className="text-minimoku-neutral-bold">알림</Typography.P2>
             </AlertDialogTitle>
           </AlertDialogHeader>
-          <AlertDialogDescription className="font-medium whitespace-pre-line text-foreground">
+          <AlertDialogDescription className="text-foreground font-medium whitespace-pre-line">
             {message}
           </AlertDialogDescription>
           <AlertDialogFooter>

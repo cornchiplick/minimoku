@@ -1,7 +1,7 @@
 "use client";
 
-import { LinkInterface } from "@/entities/link/types";
-import { cn } from "@/shared/lib/utils/commonUtils";
+import {LinkInterface} from "@/entities/link/types";
+import {cn} from "@/shared/lib/utils/commonUtils";
 import useLinkAction from "@/features/link/model/hooks/useLinkAction";
 import LinkFormModal from "@/features/link/ui/LinkFormModal";
 import AlarmButton from "@/shared/components/molecules/buttons/AlarmButton";
@@ -11,11 +11,11 @@ import ExternalLinkButton from "@/shared/components/molecules/buttons/ExternalLi
 import FavoriteButton from "@/shared/components/molecules/buttons/FavoriteButton";
 import TrashButton from "@/shared/components/molecules/buttons/TrashButton";
 import Typography from "@/shared/home/atomic/Typography";
-import { useBoolean } from "@/shared/hooks/useBoolean";
-import { format } from "date-fns";
-import { ChevronDown, ChevronUp, Copy, FileText, Link } from "lucide-react";
+import {useBoolean} from "@/shared/hooks/useBoolean";
+import {format} from "date-fns";
+import {ChevronDown, ChevronUp, Copy, FileText, Link} from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import {useState} from "react";
 
 interface LinkCardProps {
   data: LinkInterface;
@@ -103,10 +103,7 @@ const LinkCard = ({data, keyword}: LinkCardProps) => {
             <h3 className="flex items-start gap-1.5">
               <ExternalLinkButton url={data.url} title={data.title} />
               <Typography.P1
-                className={cn(
-                  "font-medium",
-                  isRead && "text-minimoku-neutral-bold"
-                )}
+                className={cn("font-medium", isRead && "text-minimoku-neutral-bold")}
                 keyword={keyword}>
                 {data.title}
               </Typography.P1>
@@ -165,7 +162,7 @@ const LinkCard = ({data, keyword}: LinkCardProps) => {
           </div>
         </div>
       </article>
-    <LinkFormModal isEdit modalState={isShowEditModal} originValue={data} />
+      <LinkFormModal isEdit modalState={isShowEditModal} originValue={data} />
     </>
   );
 };

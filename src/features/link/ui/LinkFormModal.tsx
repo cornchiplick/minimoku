@@ -236,7 +236,11 @@ const LinkFormModal = ({isEdit, modalState, originValue}: LinkFormModalProps) =>
                   </SelectItem>
                 ))}
               </FormSelect>
-              <FormTagInput name="tags" label="태그" placeholder="태그를 입력하고 Enter 또는 Space를 누르세요" />
+              <FormTagInput
+                name="tags"
+                label="태그"
+                placeholder="태그를 입력하고 Enter 또는 Space를 누르세요"
+              />
               <FormInput name="memo" label="메모" placeholder="링크에 대한 메모를 작성하세요..." />
             </div>
             <DialogFooter>

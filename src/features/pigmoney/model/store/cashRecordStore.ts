@@ -4,7 +4,7 @@ import {
   PigMoneySettingsInterface,
   SummaryData,
 } from "@/entities/pigmoney/types";
-import { create } from "zustand";
+import {create} from "zustand";
 
 interface CashRecordStore {
   // 거래 목록
@@ -17,8 +17,8 @@ interface CashRecordStore {
   setCategories: (categories: CategoryInterface[]) => void;
 
   // 필터 상태
-  dateRange: { from: Date | null; to: Date | null };
-  setDateRange: (range: { from: Date | null; to: Date | null }) => void;
+  dateRange: {from: Date | null; to: Date | null};
+  setDateRange: (range: {from: Date | null; to: Date | null}) => void;
 
   // 사용자 설정
   settings: PigMoneySettingsInterface | null;
@@ -36,7 +36,7 @@ interface CashRecordStore {
 export const useCashRecordStore = create<CashRecordStore>((set) => ({
   // 거래 목록
   records: [],
-  setRecords: (records) => set({ records }),
+  setRecords: (records) => set({records}),
   removeRecord: (id) =>
     set((state) => ({
       records: state.records.filter((r) => r.id !== id),
@@ -44,21 +44,21 @@ export const useCashRecordStore = create<CashRecordStore>((set) => ({
 
   // 카테고리 목록
   categories: [],
-  setCategories: (categories) => set({ categories }),
+  setCategories: (categories) => set({categories}),
 
   // 필터 상태
-  dateRange: { from: null, to: null },
-  setDateRange: (range) => set({ dateRange: range }),
+  dateRange: {from: null, to: null},
+  setDateRange: (range) => set({dateRange: range}),
 
   // 사용자 설정
   settings: null,
-  setSettings: (settings) => set({ settings }),
+  setSettings: (settings) => set({settings}),
 
   // 사이드바 요약 (CRUD 후 summaryVersion 증가 → 자동 재조회 트리거)
   monthSummary: null,
-  setMonthSummary: (summary) => set({ monthSummary: summary }),
+  setMonthSummary: (summary) => set({monthSummary: summary}),
   weekSummary: null,
-  setWeekSummary: (summary) => set({ weekSummary: summary }),
+  setWeekSummary: (summary) => set({weekSummary: summary}),
   summaryVersion: 0,
-  invalidateSummary: () => set((state) => ({ summaryVersion: state.summaryVersion + 1 })),
+  invalidateSummary: () => set((state) => ({summaryVersion: state.summaryVersion + 1})),
 }));
