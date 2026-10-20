@@ -7,15 +7,13 @@ import {
 } from "@/entities/pigmoney/types";
 import useCashRecordAction from "@/features/pigmoney/model/hooks/useCashRecordAction";
 import useCashRecordFilter from "@/features/pigmoney/model/hooks/useCashRecordFilter";
-import useInlineCashRecord, {
-  InlineBatchForm,
-} from "@/features/pigmoney/model/hooks/useInlineCashRecord";
+import useInlineCashRecord from "@/features/pigmoney/model/hooks/useInlineCashRecord";
 import {getCashRecords} from "@/features/pigmoney/model/services/cashRecords.service";
 import {useCashRecordStore} from "@/features/pigmoney/model/store/cashRecordStore";
-import CashRecordInputCard from "@/features/pigmoney/ui/CashRecordInputCard";
+import CashRecordFormModal from "@/features/pigmoney/ui/CashRecordFormModal";
+import CashRecordLedger from "@/features/pigmoney/ui/CashRecordLedger";
 import {Button} from "@/shared/components/atoms/button";
 import {DatePicker} from "@/shared/components/atoms/date-picker";
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/shared/components/atoms/tabs";
 import {
   getCustomMonthRange,
   getCustomMonthRangeFor,
@@ -23,9 +21,9 @@ import {
   getPrevCustomMonthRange,
   toDateString,
 } from "@/shared/lib/utils/dateUtils";
-import {ChevronLeft, ChevronRight, Loader2, Plus, Save} from "lucide-react";
+import {ChevronLeft, ChevronRight, Minus, Plus} from "lucide-react";
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {FormProvider, useFormContext} from "react-hook-form";
+import {FormProvider} from "react-hook-form";
 import {toast} from "sonner";
 
 interface PigMoneyMainProps {
@@ -43,16 +41,19 @@ const PigMoneyMain = ({initialRecords, initialCategories, initialSettings}: PigM
   const {
     expenseForm,
     incomeForm,
-    expenseFields,
-    incomeFields,
     appendRow,
     removeRow,
     loadRecords,
     save,
   } = useInlineCashRecord();
 
-  // 현재 선택된 탭
-  const [activeTab, setActiveTab] = useState<"expense" | "income">("expense");
+  // 입력/수정 모달 상태 (목록은 읽기 전용, 쓰기는 모달에서만 일어난다)
+  const [modal, setModal] = useState<{
+    open: boolean;
+    mode: "create" | "edit";
+    type: "INCOME" | "EXPENSE";
+    index: number | null;
+  }>({open: false, mode: "create", type: "EXPENSE", index: null});
   const [isSaving, setIsSaving] = useState(false);
   const isInitializedRef = useRef(false);
 
@@ -187,43 +188,106 @@ const PigMoneyMain = ({initialRecords, initialCategories, initialSettings}: PigM
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const type = activeTab === "expense" ? "EXPENSE" : "INCOME";
-      const result = await save(type);
+      const result = await save(modal.type);
       if (result?.success) {
         await handleSearch();
+        setModal((prev) => ({...prev, open: false}));
       }
     } finally {
       setIsSaving(false);
     }
   };
 
-  return (
-    <div className="bg-background-secondary flex flex-1 flex-col overflow-hidden">
-      <Tabs
-        value={activeTab}
-        onValueChange={(v) => setActiveTab(v as "expense" | "income")}
-        className="flex flex-1 flex-col overflow-hidden">
-        {/* 서브 헤더 */}
-        <div className="bg-background-primary border-b border-border/40">
-          {/* 첫 번째 줄: 화살표 네비게이션 + 날짜 구간 + 월 레이블 + 검색 */}
-          <div className="flex flex-wrap items-center justify-center gap-2 px-6 pt-3 pb-2">
-            {/* 이전 달 화살표 */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 cursor-pointer"
-              onClick={handlePrevMonth}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
+  // 추가: 빈 행 하나를 만들고 모달을 연다
+  const openCreate = (type: "INCOME" | "EXPENSE") => {
+    appendRow(type);
+    setModal({open: true, mode: "create", type, index: null});
+  };
 
-            {/* 날짜 구간 */}
-            <div className="flex items-center gap-2">
+  // 수정: 폼 배열에서 해당 거래의 위치를 찾아 모달을 연다
+  const openEdit = (record: CashRecordInterface) => {
+    const form = record.type === "EXPENSE" ? expenseForm : incomeForm;
+    const rows = form.getValues("records") ?? [];
+    const index = rows.findIndex((row) => row._id === record.id);
+    if (index < 0) return;
+    setModal({open: true, mode: "edit", type: record.type, index});
+  };
+
+  const handleRemoveRow = (index: number, isNew: boolean) => {
+    if (isNew) {
+      removeRow(modal.type, index);
+      return;
+    }
+    const form = modal.type === "EXPENSE" ? expenseForm : incomeForm;
+    const row = form.getValues(`records.${index}`);
+    if (row?._id) {
+      onDeleteRecord({id: row._id});
+      setModal((prev) => ({...prev, open: false}));
+    }
+  };
+
+  const activeForm = modal.type === "EXPENSE" ? expenseForm : incomeForm;
+  const balance = totalIncome - totalExpense;
+
+  return (
+    <div className="bg-background-primary flex min-h-0 flex-1 flex-col overflow-hidden">
+      <header className="border-border shrink-0 border-b">
+        <div className="mx-auto w-full max-w-3xl px-4 md:px-6">
+          {/* 월 이동 */}
+          <div className="flex items-center justify-between pt-5 pb-1">
+            <button
+              type="button"
+              onClick={handlePrevMonth}
+              aria-label="이전 달"
+              className="text-minimoku-neutral-bold hover:bg-background-secondary focus-visible:ring-pigmoney-brand rounded-md p-1.5 transition-colors focus-visible:ring-2 focus-visible:outline-none">
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <h1 className="text-foreground text-lg font-semibold tracking-tight">
+              {currentMonthLabel}
+            </h1>
+            <button
+              type="button"
+              onClick={handleNextMonth}
+              aria-label="다음 달"
+              className="text-minimoku-neutral-bold hover:bg-background-secondary focus-visible:ring-pigmoney-brand rounded-md p-1.5 transition-colors focus-visible:ring-2 focus-visible:outline-none">
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* 합계 — 이 화면에서 가장 크게 읽혀야 할 숫자 */}
+          <div className="flex items-end justify-between gap-6 pt-3 pb-5">
+            <div>
+              <p className="text-minimoku-neutral-bold text-xs">남은 돈</p>
+              <p className="text-foreground text-hero font-bold tabular-nums">
+                {balance < 0 ? "−" : ""}
+                {Math.abs(balance).toLocaleString("ko-KR")}
+              </p>
+            </div>
+            <dl className="flex shrink-0 gap-6 pb-1.5 text-right">
+              <div>
+                <dt className="text-minimoku-neutral-bold text-xs">수입</dt>
+                <dd className="text-pigmoney-income text-sm font-semibold tabular-nums">
+                  +{totalIncome.toLocaleString("ko-KR")}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-minimoku-neutral-bold text-xs">지출</dt>
+                <dd className="text-foreground text-sm font-semibold tabular-nums">
+                  −{totalExpense.toLocaleString("ko-KR")}
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          {/* 기간 직접 선택 + 추가 */}
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-4">
+            <div className="flex items-center gap-1.5">
               <DatePicker
                 selected={dateRange.from}
                 onSelect={handleDateFromChange}
                 placeholder="시작일"
               />
-              <span className="text-minimoku-neutral-bold">—</span>
+              <span className="text-minimoku-neutral-bold text-sm">—</span>
               <DatePicker
                 selected={dateRange.to}
                 onSelect={handleDateToChange}
@@ -231,171 +295,45 @@ const PigMoneyMain = ({initialRecords, initialCategories, initialSettings}: PigM
                 minDate={dateRange.from ?? undefined}
               />
             </div>
-
-            {/* 다음 달 화살표 */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 cursor-pointer"
-              onClick={handleNextMonth}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-
-          {/* 두 번째 줄: 지출/수입 탭 + 저장하기 */}
-          <div className="flex items-center justify-between px-6 pb-3">
-            <TabsList>
-              <TabsTrigger value="expense">지출 ({expenseRecords.length})</TabsTrigger>
-              <TabsTrigger value="income">수입 ({incomeRecords.length})</TabsTrigger>
-            </TabsList>
-
-            <Button onClick={handleSave} disabled={isSaving} className="cursor-pointer">
-              {isSaving ? (
-                <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-              ) : (
-                <Save className="mr-1 h-4 w-4" />
-              )}
-              저장하기
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => openCreate("INCOME")}
+                className="cursor-pointer">
+                <Plus className="mr-1 h-4 w-4" />
+                수입
+              </Button>
+              <Button size="sm" onClick={() => openCreate("EXPENSE")} className="cursor-pointer">
+                <Minus className="mr-1 h-4 w-4" />
+                지출
+              </Button>
+            </div>
           </div>
         </div>
+      </header>
 
-        {/* 지출 카드 리스트 */}
-        <TabsContent value="expense" className="mt-0 flex-1 overflow-y-auto">
-          <FormProvider {...expenseForm}>
-            <RecordCardList
-              fields={expenseFields}
-              total={totalExpense}
-              totalLabel="지출 합계"
-              type="EXPENSE"
-              categories={categories}
-              onAppendRow={() => appendRow("EXPENSE")}
-              onRemoveRow={(index, isNew) => {
-                if (isNew) {
-                  removeRow("EXPENSE", index);
-                } else {
-                  const row = expenseForm.getValues(`records.${index}`);
-                  if (row._id) onDeleteRecord({id: row._id});
-                }
-              }}
-            />
-          </FormProvider>
-        </TabsContent>
-
-        {/* 수입 카드 리스트 */}
-        <TabsContent value="income" className="mt-0 flex-1 overflow-y-auto">
-          <FormProvider {...incomeForm}>
-            <RecordCardList
-              fields={incomeFields}
-              total={totalIncome}
-              totalLabel="수입 합계"
-              type="INCOME"
-              categories={categories}
-              onAppendRow={() => appendRow("INCOME")}
-              onRemoveRow={(index, isNew) => {
-                if (isNew) {
-                  removeRow("INCOME", index);
-                } else {
-                  const row = incomeForm.getValues(`records.${index}`);
-                  if (row._id) onDeleteRecord({id: row._id});
-                }
-              }}
-            />
-          </FormProvider>
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
-};
-
-// 거래 카드 리스트 컴포넌트
-interface RecordCardListProps {
-  fields: {id: string}[];
-  total: number;
-  totalLabel: string;
-  type: "INCOME" | "EXPENSE";
-  categories: CategoryInterface[];
-  onAppendRow: () => void;
-  onRemoveRow: (index: number, isNew: boolean) => void;
-}
-
-const RecordCardList = ({
-  fields,
-  total,
-  totalLabel,
-  type,
-  categories,
-  onAppendRow,
-  onRemoveRow,
-}: RecordCardListProps) => {
-  const isExpense = type === "EXPENSE";
-
-  return (
-    <div className="flex flex-col gap-3 p-6">
-      {/* 카드 목록 */}
-      {fields.length === 0 ? (
-        <div className="text-minimoku-neutral-bold py-12 text-center text-sm">
-          {isExpense ? "지출" : "수입"} 내역이 없습니다. 아래 버튼으로 추가해보세요.
-        </div>
-      ) : (
-        fields.map((field, index) => {
-          // _id 존재 여부로 신규/기존 구분 (useFormContext 없이 접근 불가하므로 field 기반)
-          return (
-            <CashRecordInputCardWrapper
-              key={field.id}
-              index={index}
-              categories={categories}
-              onRemoveRow={onRemoveRow}
-            />
-          );
-        })
-      )}
-
-      {/* "+" 행 추가 버튼 */}
-      <button
-        type="button"
-        onClick={onAppendRow}
-        className="border-minimoku-neutral-bold text-minimoku-neutral-bold hover:border-pigmoney-brand hover:bg-pigmoney-brand/5 hover:text-pigmoney-brand flex w-full cursor-pointer items-center justify-center gap-1 rounded-lg border border-dashed py-3 text-sm transition-colors">
-        <Plus className="h-4 w-4" />
-      </button>
-
-      {/* 합계 */}
-      <div className="flex items-center justify-between border-t-2 pt-3">
-        <span className="text-sm font-medium">{totalLabel}</span>
-        <span
-          className={`text-sm font-semibold ${
-            isExpense ? "text-pigmoney-expense" : "text-pigmoney-income"
-          }`}>
-          {total.toLocaleString()} 원
-        </span>
+      {/* 장부 */}
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <CashRecordLedger records={[...expenseRecords, ...incomeRecords]} onSelect={openEdit} />
       </div>
+
+      {/* 입력/수정 모달 — 선택된 종류의 폼만 연결한다 */}
+      <FormProvider {...activeForm}>
+        <CashRecordFormModal
+          open={modal.open}
+          onOpenChange={(open) => setModal((prev) => ({...prev, open}))}
+          mode={modal.mode}
+          editIndex={modal.index}
+          type={modal.type}
+          categories={categories}
+          isSaving={isSaving}
+          onAppendRow={() => appendRow(modal.type)}
+          onRemoveRow={handleRemoveRow}
+          onSave={handleSave}
+        />
+      </FormProvider>
     </div>
-  );
-};
-
-// CashRecordInputCard를 감싸는 래퍼 (useFormContext로 _id 접근)
-interface CashRecordInputCardWrapperProps {
-  index: number;
-  categories: CategoryInterface[];
-  onRemoveRow: (index: number, isNew: boolean) => void;
-}
-
-const CashRecordInputCardWrapper = ({
-  index,
-  categories,
-  onRemoveRow,
-}: CashRecordInputCardWrapperProps) => {
-  const {watch} = useFormContext<InlineBatchForm>();
-  const _id = watch(`records.${index}._id`);
-  const isNew = !_id;
-
-  return (
-    <CashRecordInputCard
-      index={index}
-      categories={categories}
-      isNew={isNew}
-      onRemove={() => onRemoveRow(index, isNew)}
-    />
   );
 };
 
