@@ -6,7 +6,7 @@ import {getServerSession} from "next-auth";
 import {z} from "zod";
 
 const formSchema = z.object({
-  japanese: z.string({required_error: "일본어 원문을 입력해주세요."}).trim(),
+  japanese: z.string({error: "일본어 원문을 입력해주세요."}).trim(),
   romaji: z.string().trim(),
   pronunciation: z.string().trim(),
   translation: z.string().trim(),
@@ -22,7 +22,7 @@ export const addCardAction = async (formData: FormData) => {
 
   const result = await formSchema.safeParseAsync(data);
   if (!result.success) {
-    return result.error.flatten();
+    return z.flattenError(result.error);
   }
 
   // 서버에서 유저 세션정보 가져오기

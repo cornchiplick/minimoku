@@ -1,5 +1,6 @@
 "use server";
 
+import {z} from "zod";
 import { categorySchema } from "@/features/pigmoney/model/schema/categorySchema";
 import { DEFAULT_CATEGORIES } from "@/shared/constants/pigmoney";
 import db from "@/shared/lib/db";
@@ -60,7 +61,7 @@ export async function postCategory(formData: FormData) {
   // 스키마 검증
   const result = categorySchema.safeParse(data);
   if (!result.success) {
-    return result.error.flatten();
+    return z.flattenError(result.error);
   }
 
   try {
@@ -105,7 +106,7 @@ export async function updateCategory(formData: FormData) {
   // 스키마 검증
   const result = categorySchema.safeParse(data);
   if (!result.success) {
-    return result.error.flatten();
+    return z.flattenError(result.error);
   }
 
   try {
