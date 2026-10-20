@@ -17,6 +17,7 @@ import {
   PiggyBank,
   Settings,
 } from "lucide-react";
+import MobileSidebarDrawer from "@/widgets/sidebar/MobileSidebarDrawer";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -116,9 +117,9 @@ const PigMoneySidebar = () => {
     return pathname.startsWith(href);
   };
 
-  return (
-    <>
-      <div className="bg-background-primary border-background-secondary flex w-80 flex-col border-r">
+  // 데스크톱 고정 사이드바와 모바일 드로어가 같은 내용을 공유한다
+  const content = (
+    <div className="flex h-full min-h-0 flex-col overflow-y-auto">
         {/* 로고 영역 (LinkLocker 패턴) */}
         <div className="p-4">
           <Link href="/pigmoney" className="flex items-center space-x-2">
@@ -196,7 +197,18 @@ const PigMoneySidebar = () => {
 
         {/* 하단 여백 */}
         <div className="flex-1" />
-      </div>
+    </div>
+  );
+
+  return (
+    <>
+      {/* 데스크톱: 고정 사이드바 */}
+      <aside className="bg-background-primary border-background-secondary hidden w-80 shrink-0 flex-col border-r md:flex">
+        {content}
+      </aside>
+
+      {/* 모바일: 같은 내용을 드로어로 */}
+      <MobileSidebarDrawer title="PigMoney 메뉴">{content}</MobileSidebarDrawer>
 
       {/* 카테고리 관리 모달 */}
       <CategoryManageModal modalState={categoryModalState} />

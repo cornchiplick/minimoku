@@ -5,6 +5,7 @@ import LinkCard from "@/features/link/ui/LinkCard";
 import Divider from "@/shared/components/molecules/Divider";
 import Icon from "@/shared/components/molecules/Icon";
 import Typography from "@/shared/home/atomic/Typography";
+import MobileSidebarTrigger from "@/widgets/sidebar/MobileSidebarTrigger";
 import ThemeToggleButton from "@/widgets/sidebar/ThemeToggleButton";
 import {useSearchParams} from "next/navigation";
 
@@ -28,12 +29,14 @@ export default function LinkLockerMain({initialLinks, folderName}: LinkLockerMai
   const showFolderIcon = !keyword && !!folderName;
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex min-w-0 flex-1 flex-col">
       {/* Content Header */}
-      <div className="bg-background-primary flex flex-row items-center justify-between px-6 py-4">
-        <div className="flex items-center gap-2">
+      <div className="bg-background-primary flex flex-row items-center justify-between gap-2 px-4 py-3 md:px-6 md:py-4">
+        <div className="flex min-w-0 items-center gap-2">
+          {/* 모바일에서만 보이는 사이드바 열기 버튼 */}
+          <MobileSidebarTrigger />
           {showFolderIcon && <Icon name="folder" size={24} color="currentColor" />}
-          <Typography.SubTitle1 className="font-semibold" keyword={keyword}>
+          <Typography.SubTitle1 className="truncate font-semibold" keyword={keyword}>
             {getHeaderTitle()}
           </Typography.SubTitle1>
         </div>
@@ -43,8 +46,8 @@ export default function LinkLockerMain({initialLinks, folderName}: LinkLockerMai
       <Divider />
 
       {/* Content Area */}
-      <div className="bg-background-secondary flex-1 overflow-y-auto p-6">
-        <div className="w-full space-y-4">
+      <div className="bg-background-secondary min-h-0 flex-1 overflow-y-auto p-4 md:p-6">
+        <div className="mx-auto w-full max-w-5xl space-y-4">
           {!!initialLinks.length ? (
             initialLinks.map((linkData) => (
               <LinkCard key={linkData.id} data={linkData} keyword={keyword} />

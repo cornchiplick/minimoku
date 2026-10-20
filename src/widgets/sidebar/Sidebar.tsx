@@ -1,53 +1,18 @@
 import {FolderInterface} from "@/entities/folder/types";
-import LinkAddButton from "@/features/link/ui/LinkAddButton";
-import FilterList from "@/features/navigation/ui/FilterList";
-import FolderList from "@/features/navigation/ui/FolderList";
-import ProfileSection from "@/features/profile/ui/ProfileSection";
-import Divider from "@/shared/components/molecules/Divider";
-import Typography from "@/shared/home/atomic/Typography";
-import SearchBar from "@/widgets/sidebar/SearchBar";
-import {Link as LinkIcon} from "lucide-react";
-import NextLink from "next/link";
+import SidebarContent from "@/widgets/sidebar/SidebarContent";
 
 interface SidebarProps {
   initialFolders: FolderInterface[];
 }
 
-const Sidebar = ({initialFolders}: SidebarProps) => {
-  return (
-    <div className="bg-background-primary border-background-secondary flex w-80 flex-col border-r">
-      {/* Header */}
-      <div className="p-4">
-        <div className="mb-4 flex items-center justify-between">
-          <NextLink href="/link" className="flex items-center space-x-2">
-            <div className="bg-minimoku flex h-8 w-8 items-center justify-center rounded-lg">
-              <LinkIcon className="h-5 w-5 text-white" />
-            </div>
-            <Typography.P1 className="font-semibold">LinkLocker</Typography.P1>
-          </NextLink>
-        </div>
-
-        <div className="flex flex-col space-y-3">
-          <SearchBar />
-          <LinkAddButton />
-        </div>
-      </div>
-
-      <Divider />
-
-      {/* User Profile */}
-      <ProfileSection />
-
-      <Divider />
-
-      {/* Navigation */}
-      <div className="flex-1 overflow-y-auto">
-        <FilterList />
-        <Divider />
-        <FolderList folders={initialFolders} />
-      </div>
-    </div>
-  );
-};
+/**
+ * 데스크톱(md 이상)에서만 보이는 고정 사이드바.
+ * 모바일에서는 MobileSidebarDrawer 가 같은 내용을 드로어로 보여준다.
+ */
+const Sidebar = ({initialFolders}: SidebarProps) => (
+  <aside className="bg-background-primary border-background-secondary hidden w-80 shrink-0 flex-col border-r md:flex">
+    <SidebarContent initialFolders={initialFolders} />
+  </aside>
+);
 
 export default Sidebar;

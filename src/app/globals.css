@@ -4,6 +4,11 @@
    단일 가변 폰트는 2MB 라 초기 로딩에 부담이 크다. */
 @import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 
+/* 모달·드롭다운 등장/퇴장 애니메이션 유틸리티 (animate-in, fade-in-0, slide-in-from-* …).
+   Tailwind 4 에서는 tailwindcss-animate 대신 이 패키지를 쓴다.
+   이전에는 플러그인이 로드된 적이 없어 57개 클래스가 전부 동작하지 않았다. */
+@import "tw-animate-css";
+
 /* ──────────────────────────────────────────────────────────────
    다크모드 변형
 
