@@ -49,6 +49,9 @@
 
   /* 상태 */
   --danger: #dc2626;
+  --success: #16a34a;
+  --notice: #b45309; /* 안내 배너 글자 */
+  --notice-surface: #fef3c7; /* 안내 배너 배경 */
 
   /* PigMoney 전용 */
   --pig-brand: #ec4899;
@@ -80,6 +83,9 @@
   --brand-strong: #155dfc;
 
   --danger: #f87171;
+  --success: #4ade80;
+  --notice: #fcd34d;
+  --notice-surface: #44341a;
 
   --pig-brand: #f472b6;
   --pig-income: #60a5fa;
@@ -130,6 +136,9 @@
   --color-accent: var(--bg-2);
   --color-accent-foreground: var(--fg-1);
   --color-destructive: var(--danger);
+  --color-success: var(--success);
+  --color-notice: var(--notice);
+  --color-notice-surface: var(--notice-surface);
   --color-destructive-foreground: var(--fg-on-brand);
   --color-border: var(--line);
   --color-input: var(--line);

@@ -1,12 +1,15 @@
 import {Trash} from "lucide-react";
 import {ButtonHTMLAttributes} from "react";
 
-const TrashButton = ({...props}: ButtonHTMLAttributes<HTMLButtonElement>) => {
-  return (
-    <button className="cursor-pointer rounded-full transition-colors" {...props}>
-      <Trash className="h-8 w-8 rounded-full p-2 hover:bg-gray-300" stroke="#d0321e" fill="none" />
-    </button>
-  );
-};
+/** 삭제 — 평소엔 조용하고, 커서를 올렸을 때만 경고색이 된다 */
+const TrashButton = (props: ButtonHTMLAttributes<HTMLButtonElement>) => (
+  <button
+    type="button"
+    aria-label="삭제"
+    className="text-minimoku-neutral-bold hover:bg-background-secondary hover:text-destructive focus-visible:ring-destructive cursor-pointer rounded-full p-2 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+    {...props}>
+    <Trash className="h-4 w-4" />
+  </button>
+);
 
 export default TrashButton;

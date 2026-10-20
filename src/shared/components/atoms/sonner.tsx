@@ -18,13 +18,13 @@ const Toaster = ({...props}: ToasterProps) => {
       duration={1000}
       toastOptions={{
         classNames: {
-          toast: "bg-white text-black border",
+          toast: "bg-background-tertiary text-foreground border",
         },
       }}
       icons={{
-        success: <CheckCircle className="text-green-500" />, // 초록 체크
-        error: <XCircle className="text-red-500" />, // 빨강 에러
-        loading: <Loader2 className="animate-spin text-gray-400" />, // 회색 스피너
+        success: <CheckCircle className="text-success" />, // 초록 체크
+        error: <XCircle className="text-destructive" />, // 빨강 에러
+        loading: <Loader2 className="animate-spin text-minimoku-neutral-bold" />, // 회색 스피너
       }}
       {...props}
     />

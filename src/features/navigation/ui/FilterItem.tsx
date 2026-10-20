@@ -46,18 +46,18 @@ const FilterItem = ({filter}: FilterItemProps) => {
       className={clsx(
         "flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left transition-colors",
         isSelectedFilter
-          ? "bg-minimoku text-white"
-          : ["text-foreground", isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"]
+          ? "bg-minimoku text-background-primary"
+          : ["text-foreground", isDarkMode ? "hover:bg-background-reverse-secondary" : "hover:bg-background-secondary"]
       )}>
       <div className="flex items-center space-x-3">
         <Icon className="h-4 w-4" />
-        <Typography.P2 className={clsx(isSelectedFilter && "text-white")}>
+        <Typography.P2 className={clsx(isSelectedFilter && "text-background-primary")}>
           {filter.name}
         </Typography.P2>
       </div>
       {filter.count > 0 && (
         <Typography.P3
-          className={clsx("rounded-full px-2 py-1", isDarkMode ? "bg-gray-500" : "bg-gray-200")}>
+          className={clsx("rounded-full px-2 py-1", isDarkMode ? "bg-gray-500" : "bg-background-secondary")}>
           {filter.count}
         </Typography.P3>
       )}

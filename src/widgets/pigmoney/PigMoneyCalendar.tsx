@@ -62,7 +62,7 @@ const PigMoneyCalendar = ({ initialRecords, initialSettings }: PigMoneyCalendarP
     : [];
 
   return (
-    <div className="bg-background-secondary flex flex-1 flex-col overflow-y-auto">
+    <div className="bg-background-primary flex flex-1 flex-col overflow-y-auto">
       <div className="p-6">
         <h2 className="mb-4 text-lg font-semibold">달력</h2>
 

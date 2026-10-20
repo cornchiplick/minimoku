@@ -15,6 +15,10 @@ interface CalendarViewProps {
   onMonthChange: (month: Date) => void;
 }
 
+/** 로컬 기준 날짜 키 (toISOString 은 UTC 라 자정 근처에서 하루가 밀린다) */
+const dateKeyOf = (date: Date) =>
+  `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+
 // 일별 수입/지출 합산 맵 생성
 const buildDailySummary = (
   records: CashRecordInterface[],
@@ -22,7 +26,7 @@ const buildDailySummary = (
   const map = new Map<string, { income: number; expense: number }>();
 
   records.forEach((r) => {
-    const key = new Date(r.date).toISOString().split("T")[0];
+    const key = dateKeyOf(new Date(r.date));
     const existing = map.get(key) ?? { income: 0, expense: 0 };
 
     if (r.type === CashRecordType.INCOME) {
@@ -73,22 +77,18 @@ const CalendarView = ({
         month_caption: "mb-4",
         month_grid: "w-full border-collapse",
         weekdays: "flex w-full",
-        weekday: "text-muted-foreground flex-1 text-center font-normal text-xs py-2",
-        week: "flex w-full",
-        day: cn(
-          "relative flex-1 p-0 text-center",
-          "border border-border",
-        ),
+        weekday: "text-minimoku-neutral-bold flex-1 text-center font-normal text-xs pb-2",
+        week: "border-border flex w-full border-t",
+        day: "relative flex-1 p-0 text-left",
         day_button: cn(
-          "w-full h-20 p-1 font-normal",
-          "flex flex-col items-start justify-start",
-          "hover:bg-accent/50 cursor-pointer",
-          "focus:outline-none",
+          "w-full h-20 px-1.5 pt-1.5 font-normal",
+          "flex flex-col items-start gap-1",
+          "hover:bg-background-secondary/60 focus-visible:ring-pigmoney-brand focus-visible:ring-2 focus-visible:outline-none",
+          "cursor-pointer transition-colors rounded-sm",
         ),
-        selected: "bg-pigmoney-brand/10 ring-1 ring-pigmoney-brand",
-        today: "bg-accent/30",
-        outside: "text-muted-foreground opacity-40",
-        disabled: "text-muted-foreground opacity-50",
+        selected: "bg-pigmoney-brand/8",
+        outside: "opacity-35",
+        disabled: "opacity-40",
         hidden: "invisible",
       }}
       components={{
@@ -117,27 +117,37 @@ const CalendarView = ({
           );
         },
         DayButton: ({ day, modifiers, ...props }) => {
-          const dateKey = day.date.toISOString().split("T")[0];
+          const dateKey = dateKeyOf(day.date);
           const summary = dailySummary.get(dateKey);
 
           return (
             <button {...props}>
-              <span className={cn("text-xs", modifiers.today && "font-bold text-pigmoney-brand")}>
+              <span
+                className={cn(
+                  "flex items-center gap-1 text-[0.8125rem] tabular-nums",
+                  modifiers.today
+                    ? "text-pigmoney-brand font-bold"
+                    : "text-foreground font-medium",
+                )}
+              >
                 {day.date.getDate()}
+                {modifiers.today && (
+                  <span className="bg-pigmoney-brand h-1 w-1 rounded-full" aria-hidden />
+                )}
               </span>
               {summary && !modifiers.outside && (
-                <div className="mt-0.5 flex w-full flex-col gap-0.5">
+                <span className="flex w-full flex-col items-start gap-0.5">
+                  {summary.expense > 0 && (
+                    <span className="text-foreground truncate text-[11px] leading-tight font-semibold tabular-nums">
+                      −{formatShortAmount(summary.expense)}
+                    </span>
+                  )}
                   {summary.income > 0 && (
-                    <span className="truncate text-[10px] leading-tight text-pigmoney-income">
+                    <span className="text-pigmoney-income truncate text-[11px] leading-tight font-semibold tabular-nums">
                       +{formatShortAmount(summary.income)}
                     </span>
                   )}
-                  {summary.expense > 0 && (
-                    <span className="truncate text-[10px] leading-tight text-pigmoney-expense">
-                      -{formatShortAmount(summary.expense)}
-                    </span>
-                  )}
-                </div>
+                </span>
               )}
             </button>
           );

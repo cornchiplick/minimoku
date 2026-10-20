@@ -62,8 +62,8 @@ function SortableFolderItem({folder}: {folder: FolderInterface}) {
       className={clsx(
         "flex items-center gap-3 rounded-lg border p-3",
         isDarkMode
-          ? "border-gray-700 bg-background-primary"
-          : "border-gray-200 bg-background-primary"
+          ? "border-border bg-background-primary"
+          : "border-border bg-background-primary"
       )}>
       {/* 드래그 핸들 */}
       <button
@@ -71,7 +71,7 @@ function SortableFolderItem({folder}: {folder: FolderInterface}) {
         {...listeners}
         className="cursor-grab touch-none active:cursor-grabbing"
         onClick={(e) => e.stopPropagation()}>
-        <GripVertical className="h-5 w-5 text-gray-400" />
+        <GripVertical className="h-5 w-5 text-minimoku-neutral-bold" />
       </button>
 
       {/* 폴더 아이콘 */}
@@ -84,7 +84,7 @@ function SortableFolderItem({folder}: {folder: FolderInterface}) {
       {/* 폴더 정보 */}
       <div className="flex flex-1 items-center gap-2">
         <Typography.P2>{folder.name}</Typography.P2>
-        <Typography.P3 className="text-gray-500">({folder.count})</Typography.P3>
+        <Typography.P3 className="text-minimoku-neutral-bold">({folder.count})</Typography.P3>
       </div>
     </div>
   );
@@ -192,7 +192,7 @@ const FolderSortModal = ({folders, modalState}: FolderSortModalProps) => {
             variant="outline"
             onClick={handleCancel}
             disabled={isSaving}
-            className="bg-gray-800 text-white border-gray-800 hover:bg-gray-900 dark:bg-gray-200 dark:text-gray-900 dark:border-gray-200 dark:hover:bg-gray-100">
+            className="bg-background-reverse-primary text-background-primary border-border hover:bg-background-reverse-primary">
             취소
           </Button>
           <Button
@@ -200,7 +200,7 @@ const FolderSortModal = ({folders, modalState}: FolderSortModalProps) => {
             variant="outline"
             onClick={handleSave}
             disabled={isSaving}
-            className="bg-white text-gray-800 border-gray-300 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-800">
+            className="bg-background-primary text-foreground border-border hover:bg-background-primary">
             {isSaving ? "저장 중..." : "저장"}
           </Button>
         </DialogFooter>

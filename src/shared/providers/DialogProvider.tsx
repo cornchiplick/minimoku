@@ -61,27 +61,27 @@ export function DialogProvider({children}: {children: React.ReactNode}) {
     <DialogContext.Provider value={value}>
       {children}
       <AlertDialog open={isOpen}>
-        <AlertDialogContent className="bg-gray-50 text-[#637381]">
+        <AlertDialogContent className="bg-background-primary text-[#637381]">
           <AlertDialogHeader>
             <AlertDialogTitle>
-              <Typography.P2 className="text-gray-600">알림</Typography.P2>
+              <Typography.P2 className="text-minimoku-neutral-bold">알림</Typography.P2>
             </AlertDialogTitle>
           </AlertDialogHeader>
-          <AlertDialogDescription className="font-medium whitespace-pre-line text-gray-800">
+          <AlertDialogDescription className="font-medium whitespace-pre-line text-foreground">
             {message}
           </AlertDialogDescription>
           <AlertDialogFooter>
             {options.variant === "confirm" && (
               <Button
                 variant="outline"
-                className="bg-gray-800 text-white border-gray-800 hover:bg-gray-900 dark:bg-gray-200 dark:text-gray-900 dark:border-gray-200 dark:hover:bg-gray-100"
+                className="bg-background-reverse-primary text-background-primary border-border hover:bg-background-reverse-primary"
                 onClick={handleCancel}>
                 취소
               </Button>
             )}
             <Button
               variant="outline"
-              className="bg-white text-gray-800 border-gray-300 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-800"
+              className="bg-background-primary text-foreground border-border hover:bg-background-primary"
               onClick={handleConfirm}>
               확인
             </Button>

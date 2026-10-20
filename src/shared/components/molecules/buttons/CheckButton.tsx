@@ -1,20 +1,25 @@
-import {Circle, CircleCheckBig} from "lucide-react";
+import {cn} from "@/shared/lib/utils/commonUtils";
+import {Check, Circle} from "lucide-react";
 import {ButtonHTMLAttributes} from "react";
 
 interface CheckButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   isChecked: boolean;
 }
 
-const CheckButton = ({isChecked, ...props}: CheckButtonProps) => {
-  return (
-    <button className="cursor-pointer rounded-full transition-colors" {...props}>
-      {isChecked ? (
-        <CircleCheckBig className="h-8 w-8 rounded-full p-2 hover:bg-gray-300" stroke="#00a63e" />
-      ) : (
-        <Circle className="h-8 w-8 rounded-full p-2 hover:bg-gray-300" stroke="#99a1af" />
-      )}
-    </button>
-  );
-};
+/** 읽음 표시 — 모양이 상태를 말하므로 색을 더 쓰지 않는다 */
+const CheckButton = ({isChecked, ...props}: CheckButtonProps) => (
+  <button
+    type="button"
+    aria-label={isChecked ? "읽지 않음으로 표시" : "읽음으로 표시"}
+    aria-pressed={isChecked}
+    className="hover:bg-background-secondary focus-visible:ring-minimoku cursor-pointer rounded-full p-2 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+    {...props}>
+    {isChecked ? (
+      <Check className={cn("h-4 w-4", "text-foreground")} strokeWidth={2.5} />
+    ) : (
+      <Circle className="text-minimoku-neutral-bold h-4 w-4" />
+    )}
+  </button>
+);
 
 export default CheckButton;

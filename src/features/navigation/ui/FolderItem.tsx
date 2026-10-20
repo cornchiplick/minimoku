@@ -54,10 +54,10 @@ const FolderItem = ({folder, isActive, onClick, onEdit, onDelete, onEmpty}: Fold
       className={clsx(
         "flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left transition-colors",
         isActive
-          ? "bg-minimoku text-white"
+          ? "bg-minimoku text-background-primary"
           : isDarkMode
-            ? "hover:bg-gray-700"
-            : "hover:bg-gray-100"
+            ? "hover:bg-background-reverse-secondary"
+            : "hover:bg-background-secondary"
       )}
       onClick={onClick}>
       <div className="flex items-center space-x-3">
@@ -66,14 +66,14 @@ const FolderItem = ({folder, isActive, onClick, onEdit, onDelete, onEmpty}: Fold
           stroke={isActive ? "none" : isDarkMode ? "none" : "black"}
           fill={isActive ? "white" : isDarkMode ? "white" : "none"}
         />
-        <Typography.P2 className={clsx(isActive && "text-white")}>{folder.name}</Typography.P2>
-        <Typography.P3 className={clsx(isActive && "text-white")}>{folder.count}</Typography.P3>
+        <Typography.P2 className={clsx(isActive && "text-background-primary")}>{folder.name}</Typography.P2>
+        <Typography.P3 className={clsx(isActive && "text-background-primary")}>{folder.count}</Typography.P3>
       </div>
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            className="cursor-pointer rounded-full p-1 hover:bg-gray-300"
+            className="cursor-pointer rounded-full p-1 hover:bg-background-secondary"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -84,7 +84,7 @@ const FolderItem = ({folder, isActive, onClick, onEdit, onDelete, onEmpty}: Fold
         <DropdownMenuContent
           side="right"
           align="start"
-          className="bg-background-primary w-28 border border-gray-400"
+          className="bg-background-primary w-28 border border-border"
           onClick={(e) => e.stopPropagation()}>
           <DropdownMenuItem
             onSelect={handleEdit}

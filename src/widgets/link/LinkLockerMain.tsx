@@ -46,8 +46,8 @@ export default function LinkLockerMain({initialLinks, folderName}: LinkLockerMai
       <Divider />
 
       {/* Content Area */}
-      <div className="bg-background-secondary min-h-0 flex-1 overflow-y-auto p-4 md:p-6">
-        <div className="mx-auto w-full max-w-5xl space-y-4">
+      <div className="bg-background-primary min-h-0 flex-1 overflow-y-auto px-4 md:px-6">
+        <div className="mx-auto w-full max-w-3xl">
           {!!initialLinks.length ? (
             initialLinks.map((linkData) => (
               <LinkCard key={linkData.id} data={linkData} keyword={keyword} />

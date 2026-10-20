@@ -1,6 +1,7 @@
 "use client";
 
 import { LinkInterface } from "@/entities/link/types";
+import { cn } from "@/shared/lib/utils/commonUtils";
 import useLinkAction from "@/features/link/model/hooks/useLinkAction";
 import LinkFormModal from "@/features/link/ui/LinkFormModal";
 import AlarmButton from "@/shared/components/molecules/buttons/AlarmButton";
@@ -73,110 +74,97 @@ const LinkCard = ({data, keyword}: LinkCardProps) => {
     return `${src}/width=${width},height=${width},fit=cover`;
   };
 
+  // 전체 URL 대신 도메인만 보여준다 — 긴 경로는 줄만 넘치고 식별에 도움이 되지 않는다
+  const hostname = (() => {
+    try {
+      return new URL(data.url).hostname.replace(/^www\./, "");
+    } catch {
+      return data.url;
+    }
+  })();
+
   return (
     <>
-    <div className="shadow-card bg-background-primary hover:bg-background-primary flex w-full flex-col rounded-lg p-3 transition-colors">
-      <div className="flex items-start space-x-4">
-        {/* Thumbnail */}
-        <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-lg bg-gray-600">
-          {data.imageUrl ? (
+      <article className="border-border group border-b py-4 last:border-b-0">
+        <div className="flex items-start gap-3">
+          {/* 사용자가 올린 이미지가 있을 때만 보여준다. 없을 때 회색 상자를 두지 않는다 */}
+          {data.imageUrl && (
             <Image
-              alt={data.title}
+              alt=""
               src={`${data.imageUrl}`}
-              width={80}
-              height={80}
+              width={44}
+              height={44}
               loader={cloudflareLoader}
-              className="object-cover"
+              className="mt-0.5 h-11 w-11 shrink-0 rounded-md object-cover"
             />
-          ) : (
-            <Link className="h-8 w-8 text-white" />
           )}
-        </div>
 
-        {/* Content */}
-        <div className="flex-1">
-          <div className="flex items-start justify-between">
-            <div className="w-full flex-1 space-y-2">
-              <h3 className="flex items-center space-x-2">
-                <ExternalLinkButton url={data.url} />
-                <Typography.P1 className="font-medium" keyword={keyword}>
-                  {data.title}
-                </Typography.P1>
-              </h3>
-              <div className="flex flex-row items-center gap-2 pb-1">
-                <Typography.P2 className="text-minimoku-neutral-bold max-w-2xl truncate">
-                  {data.url}
-                </Typography.P2>
-                <div
-                  className="hover:bg-minimoku flex h-6 w-6 cursor-pointer items-center justify-center rounded-lg text-gray-500 duration-200 hover:text-white"
-                  onClick={() => onCopyLink({url: data.url})}>
-                  <Copy className="h-4 w-4" />
-                </div>
-              </div>
-              <div className="text-minimoku-neutral-bold flex items-center space-x-4 text-sm">
-                <span>개발자료</span>
-                <span>{format(new Date(data.createdAt), "yy.MM.dd HH:mm")}</span>
-                <div className="flex items-center space-x-2">
-                  {data.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-600">
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex min-h-fit flex-col items-center justify-between self-stretch">
-              <div className="flex h-full min-h-0 flex-1 grow items-start space-x-1">
-                {!!data.memo && (
-                  <button
-                    className="flex h-8 cursor-pointer items-center justify-center gap-1 rounded-md px-2 transition-colors hover:bg-gray-300"
-                    onClick={() => setIsExpanded((prev) => !prev)}>
-                    <FileText className="h-4 w-4" stroke="#99a1af" fill="none" />
-                    {isExpanded ? (
-                      <ChevronUp className="h-4 w-4" stroke="#99a1af" fill="none" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4" stroke="#99a1af" fill="none" />
-                    )}
-                  </button>
+          <div className="min-w-0 flex-1">
+            <h3 className="flex items-start gap-1.5">
+              <ExternalLinkButton url={data.url} />
+              <Typography.P1
+                className={cn(
+                  "font-medium",
+                  isRead && "text-minimoku-neutral-bold"
                 )}
-                <AlarmButton isAlarm={data.isAlarm} onClick={onClickAlarm} />
-                <FavoriteButton isFavorite={isFavorite} onClick={() => handleFavorite(data.id)} />
-                <CheckButton isChecked={isRead} onClick={() => handleRead(data.id)} />
-              </div>
-              <div className="mt-auto flex w-full items-center justify-end gap-1">
-                <EditButton onClick={isShowEditModal.onTrue} />
-                <TrashButton onClick={() => onDeleteLink({id: data.id})} />
-              </div>
-            </div>
-          </div>
+                keyword={keyword}>
+                {data.title}
+              </Typography.P1>
+            </h3>
 
-          {/* Expand - memo */}
-          <div
-            className={`overflow-hidden transition-all duration-300 ${
-              isExpanded ? "max-h-96 pt-2" : "max-h-0"
-            }`}>
-            <div className="border-t border-slate-600 pt-2 pr-4 pb-4">
-              <div className="mb-2 flex items-center gap-2 text-sm text-gray-500">
-                <FileText className="h-4 w-4" />
-                <Typography.SubTitle1 className="text-sm">메모</Typography.SubTitle1>
-              </div>
-
-              {!!data.memo && (
-                <div className="bg-background-secondary rounded p-3">
-                  <Typography.P2 className="break-all whitespace-pre-wrap">
-                    {data.memo}
-                  </Typography.P2>
-                </div>
+            {/* 출처와 시점 — 조용하게, 금액 자리처럼 줄을 맞춘다 */}
+            <div className="text-minimoku-neutral-bold mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.8125rem]">
+              <span className="inline-flex items-center gap-1">
+                {hostname}
+                <button
+                  type="button"
+                  aria-label="링크 주소 복사"
+                  onClick={() => onCopyLink({url: data.url})}
+                  className="hover:text-minimoku focus-visible:ring-minimoku rounded p-0.5 transition-colors focus-visible:ring-2 focus-visible:outline-none">
+                  <Copy className="h-3.5 w-3.5" />
+                </button>
+              </span>
+              <span className="tabular-nums">{format(new Date(data.createdAt), "M월 d일")}</span>
+              {data.tags.length > 0 && (
+                <span className="truncate">{data.tags.map((tag) => `#${tag}`).join(" ")}</span>
               )}
             </div>
+
+            {/* 메모 */}
+            {!!data.memo && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setIsExpanded((prev) => !prev)}
+                  aria-expanded={isExpanded}
+                  className="text-minimoku-neutral-bold hover:text-foreground focus-visible:ring-minimoku mt-2 inline-flex items-center gap-1 rounded text-xs transition-colors focus-visible:ring-2 focus-visible:outline-none">
+                  <FileText className="h-3.5 w-3.5" />
+                  메모
+                  {isExpanded ? (
+                    <ChevronUp className="h-3.5 w-3.5" />
+                  ) : (
+                    <ChevronDown className="h-3.5 w-3.5" />
+                  )}
+                </button>
+                {isExpanded && (
+                  <p className="text-foreground border-border mt-2 border-l-2 pl-3 text-[0.8125rem] whitespace-pre-wrap">
+                    {data.memo}
+                  </p>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* 동작 — 한 줄로 모으고, 켜진 상태일 때만 색을 쓴다 */}
+          <div className="flex shrink-0 items-center gap-0.5">
+            <AlarmButton isAlarm={data.isAlarm} onClick={onClickAlarm} />
+            <FavoriteButton isFavorite={isFavorite} onClick={() => handleFavorite(data.id)} />
+            <CheckButton isChecked={isRead} onClick={() => handleRead(data.id)} />
+            <EditButton onClick={isShowEditModal.onTrue} />
+            <TrashButton onClick={() => onDeleteLink({id: data.id})} />
           </div>
         </div>
-      </div>
-    </div>
+      </article>
     <LinkFormModal isEdit modalState={isShowEditModal} originValue={data} />
     </>
   );

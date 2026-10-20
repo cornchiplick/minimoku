@@ -8,7 +8,7 @@ const GuestBanner = async () => {
   if (!user?.isGuest) return null;
 
   return (
-    <div className="bg-amber-100 px-4 py-2 text-center text-xs text-amber-900 dark:bg-amber-900/30 dark:text-amber-200">
+    <div className="bg-notice-surface px-4 py-2 text-center text-xs text-notice">
       체험 모드입니다. 이 계정은 모든 방문자가 공유하므로 다른 사용자의 데이터가 함께 보일 수 있고,
       매일 새벽 4시에 모든 데이터가 초기화됩니다.
     </div>
