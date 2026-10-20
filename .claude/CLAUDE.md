@@ -203,7 +203,7 @@ Cloudflare Images direct upload 방식.
 | 대상 | 방법 |
 |---|---|
 | Next.js 앱 | `main` 에 push/머지하면 Amplify 가 자동 빌드·배포. 별도 조작 없음 |
-| Lambda | **자동**: `main` push 중 `lambda/**`·`prisma/schema.prisma`·워크플로 파일이 바뀌면 GitHub Actions `Deploy Lambda` (`.github/workflows/deploy-lambda.yml`) 가 바뀐 함수만 `npm run deploy` 로 배포 (OIDC 역할 `minimoku-github-lambda-deploy`, 레포 변수 `AWS_DEPLOY_ROLE_ARN`). 수동 재배포는 Actions 탭 "Run workflow" 또는 로컬 `npm run deploy`. 아래 "Lambda 배포 규칙" 필독 |
+| Lambda | **자동**: `main` push 중 `lambda/**`·`prisma/schema.prisma`·워크플로 파일이 바뀌면 GitHub Actions `Deploy Lambda` (`.github/workflows/deploy-lambda.yml`) 가 바뀐 함수만 `npm run deploy` 로 배포 (OIDC 역할 `minimoku-github-lambda-deploy`, 레포 변수 `AWS_DEPLOY_ROLE_ARN`). 수동 재배포는 Actions 탭 "Run workflow" 또는 로컬 `npm run deploy`. **2026-10-20 CI 전 구간 검증 완료** (run `39349846387`). 아래 "Lambda 배포 규칙" 필독 |
 | DB 마이그레이션 | 동일 DB 구성이므로 로컬에서 `prisma migrate dev` 를 실행하는 것이 곧 프로덕션 적용. 실행 전 사용자 확인 |
 | 텔레그램 webhook | Telegram 측에 `setWebhook` 으로 **1회 등록 완료** (URL: `https://www.minimoku.net/api/telegram/webhook/<TELEGRAM_WEBHOOK_SECRET>`, 2026-09-14 `getWebhookInfo` 로 확인). Amplify 재배포와 무관하게 유지되며, 도메인이나 `TELEGRAM_WEBHOOK_SECRET` 이 바뀔 때만 재등록. 상태 확인: `curl "https://api.telegram.org/bot<TOKEN>/getWebhookInfo"` (토큰은 `.env.production`, 출력에 노출하지 말 것) |
 
