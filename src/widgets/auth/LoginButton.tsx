@@ -1,51 +1,75 @@
 "use client";
 
-import Icon from "@/shared/components/molecules/Icon";
-import {URL} from "@/shared/constants/url";
 import {cn} from "@/shared/lib/utils/commonUtils";
+import {GithubMark, GoogleMark, KakaoMark} from "@/widgets/auth/ProviderMark";
 import {signIn} from "next-auth/react";
+import {useState} from "react";
 
 type ProviderType = "github" | "google" | "kakao";
 
 interface LoginButtonProps {
+  /** 로그인 후 이동할 경로 */
   redirect?: string;
 }
 
-const loginButtonMap: Record<ProviderType, {title: string; style: string}> = {
-  github: {
-    title: "GitHub 로그인",
-    style: "bg-gray-900 hover:bg-gray-900 text-white",
-  },
+/**
+ * 제공자별 공식 색. 각 서비스가 지정한 값이라 디자인 토큰으로 바꾸지 않는다.
+ * 다크모드에서는 구글·깃허브가 따로 어두운 변형을 제공하므로 그걸 쓴다.
+ */
+const PROVIDERS: Record<
+  ProviderType,
+  {label: string; mark: () => React.ReactElement; className: string}
+> = {
   google: {
-    title: "Google 로그인",
-    style: "bg-green-600 hover:bg-green-700 text-white",
+    label: "Google로 계속하기",
+    mark: GoogleMark,
+    className:
+      "border border-[#747775] bg-white text-[#1f1f1f] hover:bg-[#f2f2f2] " +
+      "dark:border-[#8e918f] dark:bg-[#131314] dark:text-[#e3e3e3] dark:hover:bg-[#1e1f20]",
+  },
+  github: {
+    label: "GitHub로 계속하기",
+    mark: GithubMark,
+    className:
+      "border border-transparent bg-[#24292f] text-white hover:bg-[#32383f] " +
+      "dark:border-[#3d444d] dark:bg-[#212830] dark:hover:bg-[#2a313c]",
   },
   kakao: {
-    title: "Kakao 로그인",
-    style: "bg-yellow-500 hover:bg-yellow-600 text-gray-900",
+    label: "카카오로 계속하기",
+    mark: KakaoMark,
+    className: "border border-transparent bg-[#fee500] text-[#191600] hover:bg-[#f0d800]",
   },
 };
 
-/**
- * provider("github" | "google" | "kakao") 중 하나로 로그인
- * 로그인: 기본: 로그인 후 현재 페이지로 리다이렉트 / redirect prop 있는 경우 해당 경로로 redirect함
- */
-const BaseLoginButton = ({
-  provider,
-  redirect = URL.LOGIN,
-}: LoginButtonProps & {provider: ProviderType}) => {
-  const style = loginButtonMap[provider].style;
-  const title = loginButtonMap[provider].title;
+const BaseLoginButton = ({provider, redirect}: LoginButtonProps & {provider: ProviderType}) => {
+  const {label, mark: Mark, className} = PROVIDERS[provider];
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleClick = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+    try {
+      await signIn(provider, redirect ? {callbackUrl: redirect} : undefined);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <button
-      onClick={() => signIn(`${provider}`, {callbackUrl: redirect})}
+      type="button"
+      onClick={handleClick}
+      disabled={isLoading}
       className={cn(
-        style,
-        "round-3xl flex cursor-pointer items-center justify-center gap-2 rounded-4xl border-none px-6 py-3 text-lg font-bold"
+        "focus-visible:ring-minimoku relative flex h-11 w-full cursor-pointer items-center",
+        "rounded-lg px-4 text-sm font-medium transition-colors",
+        "focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+        "disabled:cursor-default disabled:opacity-60",
+        className
       )}>
-      <Icon name={provider} bgColor={provider !== "kakao" ? "white" : undefined} rx="10" />
-      {title}
+      <Mark />
+      {/* 마크는 왼쪽에 고정하고 글자는 버튼 가운데에 둔다 */}
+      <span className="pointer-events-none absolute inset-x-11 text-center">{label}</span>
     </button>
   );
 };

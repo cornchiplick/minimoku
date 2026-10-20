@@ -7,6 +7,7 @@ import Icon from "@/shared/components/molecules/Icon";
 import Typography from "@/shared/home/atomic/Typography";
 import MobileSidebarTrigger from "@/widgets/sidebar/MobileSidebarTrigger";
 import ThemeToggleButton from "@/widgets/sidebar/ThemeToggleButton";
+import {Inbox} from "lucide-react";
 import {useSearchParams} from "next/navigation";
 
 interface LinkLockerMainProps {
@@ -27,6 +28,14 @@ export default function LinkLockerMain({initialLinks, folderName}: LinkLockerMai
 
   // 폴더 아이콘 표시 여부
   const showFolderIcon = !keyword && !!folderName;
+
+  // 비어 있는 이유가 검색·폴더·전체 중 무엇인지에 따라 안내를 달리한다
+  const emptyTitle = keyword
+    ? `"${keyword}" 와 맞는 링크가 없습니다`
+    : "아직 저장한 링크가 없습니다";
+  const emptyHint = keyword
+    ? "다른 낱말로 찾아보세요."
+    : "왼쪽 위 '링크 추가' 로 첫 링크를 담아 보세요.";
 
   return (
     <div className="flex min-w-0 flex-1 flex-col">
@@ -53,11 +62,11 @@ export default function LinkLockerMain({initialLinks, folderName}: LinkLockerMai
               <LinkCard key={linkData.id} data={linkData} keyword={keyword} />
             ))
           ) : (
-            <div className="flex min-h-[400px] flex-col items-center justify-center space-y-4">
-              <Icon name="box" size={120} color="white" />
-              <Typography.SubTitle1 className="opacity-50">
-                추가된 링크가 없습니다.
-              </Typography.SubTitle1>
+            // 빈 화면은 분위기가 아니라 다음 행동을 알려주는 자리다
+            <div className="flex min-h-[400px] flex-col items-center justify-center px-6 text-center">
+              <Inbox className="text-minimoku-neutral-bold h-10 w-10" aria-hidden />
+              <p className="text-foreground mt-4 text-[0.9375rem] font-medium">{emptyTitle}</p>
+              <p className="text-minimoku-neutral-bold mt-1.5 text-sm">{emptyHint}</p>
             </div>
           )}
         </div>
