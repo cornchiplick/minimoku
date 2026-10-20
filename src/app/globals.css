@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* 한글 웹폰트 Pretendard — 동적 서브셋(unicode-range)이라 필요한 글자 범위만 내려받는다.
+   단일 가변 폰트는 2MB 라 초기 로딩에 부담이 크다. */
+@import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
+
 /* ──────────────────────────────────────────────────────────────
    다크모드 변형
 
@@ -135,12 +139,10 @@
    스케일 — 모드와 무관한 고정 값
    ────────────────────────────────────────────────────────────── */
 @theme {
-  /* 글꼴
-     TODO 한글 웹폰트는 미정. 현재는 OS 기본 한글 글꼴로 렌더링된다.
-     (이전 스택에 적혀 있던 "Geist Sans" 는 어디서도 로드하지 않아 무의미했다) */
+  /* 글꼴 — Pretendard (위에서 동적 서브셋으로 로드) */
   --font-sans:
-    -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Segoe UI",
-    "Malgun Gothic", Roboto, "Helvetica Neue", Arial, sans-serif;
+    "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
   /* 큰 제목용 타이포 — 본문 크기는 Tailwind 기본 스케일을 쓴다.
