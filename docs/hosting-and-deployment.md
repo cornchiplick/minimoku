@@ -464,3 +464,42 @@ prune → S3 경유 → Layer → 컨테이너 순으로 대응. 핸들러 경�
 - 미들웨어 matcher `/accumulate`·`/quiz` → 실제 경로 `/japanese/...` 불일치 (jpStudy 비활성이라 방치 중)
 - `components.json` alias 를 실제 경로(`src/shared/components/atoms`, `shared/lib/utils/commonUtils`)에
   맞추거나, shadcn 추가 시 수동 이동을 규칙으로 유지
+
+## 도메인이 둘인 데서 온 로그인 장애 (2026-10-21)
+
+### 증상
+홈의 "로그인 없이 둘러보기" 를 눌러도 로그인 화면으로 되돌아왔다. 소셜 로그인 세 가지도 같은 조건에서
+같은 결과였다.
+
+### 원인
+`minimoku.net` 과 `www.minimoku.net` 이 둘 다 열려 있었고(한쪽으로 넘기는 설정 없음), 인증은
+`NEXTAUTH_URL` 에 적힌 www 기준으로만 동작했다. 그래서 www 없는 주소로 들어온 방문자는:
+
+1. 세션 쿠키가 `minimoku.net` 에 저장되고
+2. 로그인 응답이 `https://www.minimoku.net/link` 로 가라고 알려주고
+3. 그 주소에서는 1번 쿠키가 전달되지 않아
+4. 미인증으로 판정돼 `/login` 으로 되돌아온다
+
+재현 기록 (당시 실측):
+
+```
+POST https://minimoku.net/api/auth/callback/guest  (callbackUrl=/link)
+  → {"url":"https://www.minimoku.net/link"}
+  → 쿠키 도메인: minimoku.net
+
+GET https://www.minimoku.net/link  (위 쿠키 사용)
+  → 307 https://www.minimoku.net/login?callbackUrl=%2Flink
+GET https://www.minimoku.net/api/auth/session  (위 쿠키 사용)
+  → {}
+```
+
+### 조치
+`next.config.mjs` 의 `redirects()` 에서 host 가 `minimoku.net` 인 요청을 `https://www.minimoku.net` 로
+308 리다이렉트한다. Amplify 콘솔의 도메인 설정으로도 가능하지만, 레포 안에 두면 콘솔에 들어가지 않아도
+되고 이유가 코드에 남는다.
+
+확인: `curl -I https://minimoku.net/` → `308`, `location: https://www.minimoku.net/`.
+
+### 주의
+**이 리다이렉트를 지우면 모든 로그인이 다시 깨진다.** 도메인을 더 붙일 때도 같은 함정이 있다 —
+`NEXTAUTH_URL` 과 다른 호스트가 열려 있으면 그 호스트의 로그인은 전부 실패한다.

@@ -17,6 +17,11 @@ minimoku 는 개인용 **멀티 서비스 웹앱**이다. 하나의 Next.js 앱 
 ### ⚠️ 실서비스 운영 중 — 작업 전 반드시 숙지
 
 - 프로덕션: **https://www.minimoku.net** (AWS Amplify 호스팅)
+- **도메인이 둘이다.** `minimoku.net` 과 `www.minimoku.net` 이 모두 Amplify 에 붙어 있는데, 인증은
+  `NEXTAUTH_URL` 기준(www)으로만 동작한다. 그래서 www 없는 주소에서 로그인하면 쿠키는
+  `minimoku.net` 에 저장되고 로그인 후에는 www 로 보내져, **세션이 전달되지 않아 로그인 화면으로
+  되돌아온다** (2026-10-21 실제 발생). `next.config.mjs` 의 `redirects()` 가 www 없는 요청을 www 로
+  308 로 넘겨 막고 있다. **이 리다이렉트를 지우면 모든 로그인이 다시 깨진다.**
 - **`.env` / `.env.development` / `.env.production` 의 `DATABASE_URL` 이 셋 다 동일한 Supabase 프로덕션 DB
   를 가리킨다.** 이건 **의도적 구성**이다 (Supabase 무료 티어 1개, 테스트 계정과 실사용 계정이 달라 데이터가
   섞이지 않는다는 판단). 즉 `npm run dev` 도 실데이터를 읽고 쓴다.
