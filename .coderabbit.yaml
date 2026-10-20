@@ -1,0 +1,33 @@
+# CodeRabbit 리뷰 설정
+# 기본값(en-US / CHILL 프로파일)으로는 변경 요약만 나오고 실제 지적이 없어, 한글·적극 리뷰로 조정한다.
+language: ko-KR
+
+reviews:
+  # quiet < chill(기본) < assertive — 실제 지적을 받기 위해 assertive 로 올린다
+  profile: assertive
+
+  # 문서 전용 PR 에는 끼어들지 않게 한다
+  path_filters:
+    - "src/**"
+    - "lambda/**"
+    - "prisma/**"
+    - "!docs/**"
+    - "!**/*.md"
+
+  path_instructions:
+    - path: "src/**"
+      instructions: |
+        이 프로젝트의 규칙을 기준으로 리뷰한다.
+
+        - 데이터 조회는 서버 액션이 Prisma 로 직접 수행한다. 데이터 조회용 public API route 를
+          새로 만들면 지적할 것.
+        - userId 는 반드시 getSessionUser() 로 세션에서 얻는다. 클라이언트가 보낸 값
+          (쿼리 파라미터·폼 필드)으로 조회 범위를 정하면 보안 결함으로 지적할 것.
+        - 단건 조회도 where 절에 소유권 조건이 있어야 한다.
+        - 서버 컴포넌트에서 JSX 반환을 try/catch 로 감싸지 않는다. 에러는 error.tsx 바운더리가 받는다.
+        - 주석과 UI 문구는 한글로 작성한다.
+        - 디자인 값은 globals.css 의 토큰을 쓰고 색상 리터럴을 하드코딩하지 않는다.
+    - path: "lambda/**"
+      instructions: |
+        Lambda 는 zip 으로 배포되며 생성된 Prisma Client 가 zip 에 포함된다.
+        prisma/schema.prisma 변경 시 두 Lambda 모두 재배포가 필요하다는 점을 전제로 리뷰한다.
