@@ -20,7 +20,7 @@ export async function getCategories() {
 async function getCachedCategories(userId: number) {
   "use cache";
   cacheTag(cacheTags.categories(userId));
-  cacheLife("max");
+  cacheLife("hours");
 
   return db.category.findMany({
     where: {userId},

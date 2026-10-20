@@ -19,7 +19,7 @@ export async function getFolders() {
 async function getCachedFolders(userId: number) {
   "use cache";
   cacheTag(cacheTags.folders(userId));
-  cacheLife("max");
+  cacheLife("hours");
 
   // 폴더 목록과 각 폴더의 링크 개수를 조회
   const folders = await db.folder.findMany({

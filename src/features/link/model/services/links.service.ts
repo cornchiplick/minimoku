@@ -38,7 +38,7 @@ export async function getLinks(
 async function getCachedLinks(userId: number, params: Record<string, string | number | boolean>) {
   "use cache";
   cacheTag(cacheTags.links(userId));
-  cacheLife("max");
+  cacheLife("hours");
 
   // 조회 범위는 항상 세션 사용자의 폴더로 한정한다 (userId 를 외부 입력으로 받지 않는다)
   const folderId = params.folderId !== undefined ? Number(params.folderId) : null;

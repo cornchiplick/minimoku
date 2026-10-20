@@ -28,7 +28,7 @@ export async function getSettings(): Promise<PigMoneySettingsInterface> {
 async function getCachedSettings(userId: number): Promise<PigMoneySettingsInterface> {
   "use cache";
   cacheTag(cacheTags.settings(userId));
-  cacheLife("max");
+  cacheLife("hours");
 
   const settings = await db.pigMoneySettings.findUnique({
     where: {userId},

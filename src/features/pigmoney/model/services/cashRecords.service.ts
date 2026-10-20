@@ -30,7 +30,7 @@ async function getCachedCashRecords(
 ) {
   "use cache";
   cacheTag(cacheTags.cashRecords(userId));
-  cacheLife("max");
+  cacheLife("hours");
 
   const type = typeof params.type === "string" ? params.type : null;
   const fromDate = typeof params.fromDate === "string" ? params.fromDate : null;
