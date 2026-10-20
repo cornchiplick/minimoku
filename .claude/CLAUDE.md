@@ -13,7 +13,6 @@ minimoku 는 개인용 **멀티 서비스 웹앱**이다. 하나의 Next.js 앱 
 | **LinkLocker** | `/link` | 운영 중 | 브라우저 북마크 대체. 폴더별 링크 저장, 이미지 미리보기(Cloudflare Images), 읽음·즐겨찾기·알림 표시, 태그·검색, 폴더 정렬(dnd-kit) |
 | **PigMoney** | `/pigmoney` | 운영 중 | 가계부. 수입/지출 기록, 카테고리, 월·주 시작일 설정, 달력 뷰, 월별 보고서(recharts). 기획·구현 문서는 `docs/pigmoney/` |
 | **텔레그램 Todo 봇** | `/api/telegram/webhook/[token]` | 운영 중 | 텔레그램 명령(`/todo`, `/list`, `/done`, `/delete`)으로 Todo 등록, Lambda 가 매분 알림 발송 |
-| jpStudy | `/japanese/*` | **비활성** | 일본어 회화 암기노트 (초기 서비스). 홈 메뉴에서 주석 처리됨. 코드·`Phrase` 모델은 남아 있음 |
 
 ### ⚠️ 실서비스 운영 중 — 작업 전 반드시 숙지
 
@@ -80,9 +79,9 @@ src/
     └── home/                   # Typography, DashBoard (레거시 위치)
 ```
 
-### Feature 구조 — 두 패턴 혼재
+### Feature 구조
 
-**현행 패턴** (link, folder, navigation, pigmoney, telegram). **새 feature 는 이걸 따른다.**
+모든 feature 가 아래 패턴을 따른다 (link, folder, navigation, pigmoney, telegram).
 
 ```
 features/{feature}/
@@ -94,9 +93,6 @@ features/{feature}/
 │   └── utils/       # (pigmoney 만)
 └── ui/              # "use client" 컴포넌트
 ```
-
-**레거시 패턴** (accumulate, phrases — jpStudy): `components/organisms|templates/` + `services/`.
-손댈 일이 있으면 그대로 두고, 새로 만들 땐 현행 패턴을 쓴다.
 
 ## 데이터 접근 패턴 (중요)
 
@@ -265,19 +261,43 @@ Cloudflare Images direct upload 방식.
 2. ~~**GET API 라우트에 인증 없음**~~ → **해결 (2026-10-20)**. 네 라우트를 삭제하고 서버 액션이 Prisma 로
    직접 조회하도록 바꿨다. 같은 종류의 문제였던 `getLink` 단건 조회(소유권 미검증)도 함께 고쳤다.
    새 조회 기능을 만들 때 **데이터 조회용 public route 를 다시 만들지 말 것** — 위 "데이터 접근 패턴" 규칙을 따른다.
-3. **미들웨어 matcher 와 실제 경로 불일치** — `/accumulate`, `/quiz` 를 보호하지만 실제 라우트는
-   `/japanese/accumulate`, `/japanese/quiz`. jpStudy 가 비활성이라 방치 중.
-4. **feature 구조 2종 혼재** — 위 "Feature 구조" 참고.
+3. ~~**미들웨어 matcher 와 실제 경로 불일치**~~ → 해결 (2026-10-20, jpStudy 제거와 함께).
+4. ~~**feature 구조 2종 혼재**~~ → 해결 (2026-10-20, 레거시 구조였던 jpStudy feature 제거).
 5. **`shared/lib/utils/` 에 index 없음** — `@/shared/lib/utils` 로는 import 불가. 파일명까지 적을 것:
    `.../utils/commonUtils`(cn, getTags, getQueryString), `.../utils/authUtils`(getSessionUser),
    `.../utils/dateUtils`, `.../utils/guestUtils`.
-6. `shared/constants/url.ts` 의 `URL`·`URL_TITLE_MAP` 은 jpStudy 시절 경로 위주 (낡음).
+6. ~~`shared/constants/url.ts` 가 낡음~~ → 해결 (2026-10-20, 실사용 3개만 남김).
 7. **Amplify 콘솔 buildSpec 에 비밀값이 하드코딩돼 있었음** — 환경변수 17개 값을 `echo "KEY=값" >> .env` 로
    직접 적던 것을 PR #26 에서 레포 `amplify.yml`(이름 참조)로 대체하고 콘솔 buildSpec 도 같은 내용으로 교체 완료
    (2026-09-15). 과거 빌드 로그 #1~#26 에 남은 값의 로테이션은 **보류로 결정** (접근자 본인뿐) — 재검토 조건은
    `docs/hosting-and-deployment.md` §3.6. **콘솔 buildSpec 을 출력하거나 파일로
    저장할 때는 반드시 값 마스킹 후 처리할 것.** 새 환경변수를 추가하면 콘솔 등록 + `amplify.yml` 허용 목록 두 곳 모두
    갱신해야 한다 (guard 가 누락을 잡아 빌드를 실패시킴).
+
+## 디자인 토큰 (`src/app/globals.css`)
+
+**색은 팔레트에서 한 번만 정의하고, 토큰 이름은 매핑만 한다.** 하드코딩 금지.
+
+```
+:root / :root.dark   팔레트 — 개념당 값 하나 (--bg-1, --fg-2, --brand, --line, --pig-* …)
+@theme inline        토큰 이름 → 팔레트 매핑 (프로젝트 토큰 + shadcn 표준 토큰 두 벌)
+@theme               모드와 무관한 스케일 (글꼴·타이포·radius·ease·animate)
+```
+
+- **토큰을 추가할 때**: 팔레트(라이트/다크) + `@theme inline` 매핑 한 줄. 값을 세 곳에 복사하지 않는다.
+- `@theme inline` 이어야 하는 이유: 값을 인라인하지 않고 `var()` 참조로 내보내야 다크모드 전환이 런타임에 먹는다.
+- **다크모드는 `@custom-variant dark (&:where(.dark, .dark *))`** 로 클래스 기준이다.
+  이 선언이 없으면 Tailwind 4 의 `dark:` 는 OS 설정(`prefers-color-scheme`)을 따라가 앱 토글과 어긋난다.
+- 두 토큰 계열은 같은 팔레트를 가리킨다: 프로젝트 토큰(`bg-background-primary`, `text-minimoku-neutral-bold` …)과
+  shadcn 표준 토큰(`bg-background`, `text-muted-foreground` …). 앱 코드는 전자, `components/atoms` 의
+  shadcn 컴포넌트는 후자를 쓴다.
+- **대비(contrast)**: 본문 텍스트는 WCAG AA 4.5:1 을 기준으로 한다. `--fg-3`(라이트)과 `--fg-2`(다크)는
+  이 기준을 맞추려고 조정한 값이므로 임의로 밝히지 말 것.
+- 사용 가능한 스케일: `text-display`/`text-hero`/`text-title`(행간·자간 포함), `rounded-card`/`rounded-panel`,
+  `shadow-card`/`shadow-float`(모드별 세기 자동), `ease-out-smooth`/`ease-in-out-smooth`,
+  `animate-fade-in`/`animate-fade-in-up`.
+- `prefers-reduced-motion` 사용자에게는 전역으로 애니메이션을 끈다 (globals.css 하단).
+- **한글 웹폰트는 아직 미정이다.** 현재는 OS 기본 한글 글꼴로 렌더링된다 (`--font-sans`).
 
 ## 코드 스타일
 

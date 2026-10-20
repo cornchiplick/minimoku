@@ -6,7 +6,7 @@ import type {Metadata} from "next";
 
 export const metadata: Metadata = {
   title: "MiniMoku",
-  description: "Nihongo Advanced Words",
+  description: "링크와 가계부를 한곳에서 관리하는 개인용 웹앱",
 };
 
 export default function RootLayout({

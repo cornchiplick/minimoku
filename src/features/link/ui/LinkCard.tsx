@@ -75,7 +75,7 @@ const LinkCard = ({data, keyword}: LinkCardProps) => {
 
   return (
     <>
-    <div className="link-card-shadow bg-background-primary hover:bg-background-primary flex w-full flex-col rounded-lg p-3 transition-colors">
+    <div className="shadow-card bg-background-primary hover:bg-background-primary flex w-full flex-col rounded-lg p-3 transition-colors">
       <div className="flex items-start space-x-4">
         {/* Thumbnail */}
         <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-lg bg-gray-600">
