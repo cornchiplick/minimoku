@@ -1,4 +1,3 @@
-import { APIConstants } from "@/shared/constants/api";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -26,13 +25,4 @@ export const getPathnameArray = (pathname: string): string[] => {
   return pathArray;
 };
 
-export const getQueryString = (params: Record<string, string | number | boolean> = {}) => {
-  const query = Object.entries(params)
-    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
-    .join("&");
-  return query ? `?${query}` : "";
-};
 
-export const getTags = (userId: number, api: string) => {
-  return `${userId}${APIConstants.DELIMITER}${api}`;
-}

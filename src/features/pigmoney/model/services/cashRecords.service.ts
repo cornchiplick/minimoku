@@ -1,40 +1,50 @@
 "use server";
 
-import { CashRecordInterface } from "@/entities/pigmoney/types";
 import { cashRecordSchema } from "@/features/pigmoney/model/schema/cashRecordSchema";
 import { cashRecordBatchSchema } from "@/features/pigmoney/model/schema/cashRecordBatchSchema";
-import { APIConstants } from "@/shared/constants/api";
 import db from "@/shared/lib/db";
 import { getSessionUser } from "@/shared/lib/utils/authUtils";
-import { getQueryString, getTags } from "@/shared/lib/utils/commonUtils";
 import { toKSTEndOfDay, toKSTStartOfDay } from "@/shared/lib/utils/dateUtils";
-import { fetchAPI } from "@/shared/utils/fetchAPI";
-import { revalidateTag } from "next/cache";
 
 // 거래 목록 조회
 export async function getCashRecords(
   parameters: {
-    revalidateTime?: number;
     params?: Record<string, string | number | boolean>;
   } = {},
 ) {
-  const { revalidateTime = 10, params = {} } = parameters;
+  const { params = {} } = parameters;
 
   const user = await getSessionUser();
   if (!user) {
     throw new Error("로그인이 필요합니다.");
   }
 
-  const res = await fetchAPI<CashRecordInterface[]>(
-    `/api/${APIConstants.API_CASH_RECORDS}${getQueryString({ ...params, userId: user.id! })}`,
-    {
-      method: "GET",
-      revalidate: revalidateTime,
-      next: { tags: [getTags(user.id!, APIConstants.API_CASH_RECORDS)] },
-    },
-  );
+  // userId 는 세션에서만 가져온다
+  const type = typeof params.type === "string" ? params.type : null;
+  const fromDate = typeof params.fromDate === "string" ? params.fromDate : null;
+  const toDate = typeof params.toDate === "string" ? params.toDate : null;
 
-  return res ?? [];
+  return db.cashRecord.findMany({
+    where: {
+      userId: user.id,
+      // 타입 필터
+      ...(type && { type: type as "INCOME" | "EXPENSE" }),
+      // 날짜 구간 필터 (KST 기준 자정~23:59)
+      ...(fromDate &&
+        toDate && {
+          date: {
+            gte: toKSTStartOfDay(fromDate),
+            lte: toKSTEndOfDay(toDate),
+          },
+        }),
+    },
+    include: {
+      category: true,
+    },
+    orderBy: {
+      date: "desc",
+    },
+  });
 }
 
 // 다중 거래 생성 (작성 모달)
@@ -73,7 +83,6 @@ export async function postCashRecords(formData: FormData) {
       })),
     });
 
-    revalidateTag(getTags(user.id!, APIConstants.API_CASH_RECORDS));
     return { success: true };
   } catch (error) {
     console.error("Post CashRecords Error:", error);
@@ -127,7 +136,6 @@ export async function updateCashRecord(formData: FormData) {
       },
     });
 
-    revalidateTag(getTags(user.id!, APIConstants.API_CASH_RECORDS));
     return { success: true };
   } catch (error) {
     console.error("Update CashRecord Error:", error);
@@ -204,7 +212,6 @@ export async function deleteCashRecord({ recordId }: { recordId: number }) {
       where: { id: recordId },
     });
 
-    revalidateTag(getTags(user.id!, APIConstants.API_CASH_RECORDS));
     return { success: true };
   } catch (error) {
     console.error("Delete CashRecord Error:", error);

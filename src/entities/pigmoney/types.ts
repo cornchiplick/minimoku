@@ -1,8 +1,13 @@
 // 수입/지출 타입
-export enum CashRecordType {
-  INCOME = "INCOME",
-  EXPENSE = "EXPENSE",
-}
+// TypeScript enum 대신 상수 객체 + 유니온 타입으로 선언한다.
+// enum 은 명목적 타입이라 Prisma 가 생성한 동일 값의 열거형과 호환되지 않아,
+// DB 조회 결과를 그대로 쓰지 못하는 문제가 있었다. 유니온 타입은 구조적으로 호환된다.
+export const CashRecordType = {
+  INCOME: "INCOME",
+  EXPENSE: "EXPENSE",
+} as const;
+
+export type CashRecordType = (typeof CashRecordType)[keyof typeof CashRecordType];
 
 // 거래 기록 인터페이스
 export interface CashRecordInterface {

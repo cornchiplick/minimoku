@@ -458,7 +458,9 @@ prune → S3 경유 → Layer → 컨테이너 순으로 대응. 핸들러 경�
 
 ### 6.3 코드 정리 (CLAUDE.md "알려진 함정" 참조)
 
-- GET API 4개에 세션 인증 추가 — 별도 작업 칩으로 분리됨 (2026-09-14)
+- ✅ **GET API 4개 인증 누락 — 해결 (2026-10-20)**. 라우트를 삭제하고 서버 액션이 Prisma 로 직접 조회.
+  부수 효과: HTTP 왕복 1회 제거(SSR compute 절감), `Date` 직렬화로 인한 타입 불일치 해소,
+  `CashRecordType` 을 Prisma 호환 유니온 타입으로 교체. `getLink` 단건 소유권 검증도 함께 추가
 - 미들웨어 matcher `/accumulate`·`/quiz` → 실제 경로 `/japanese/...` 불일치 (jpStudy 비활성이라 방치 중)
 - `components.json` alias 를 실제 경로(`src/shared/components/atoms`, `shared/lib/utils/commonUtils`)에
   맞추거나, shadcn 추가 시 수동 이동을 규칙으로 유지

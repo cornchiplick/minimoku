@@ -61,8 +61,8 @@ npm run rollback   # 직전 배포 코드(.previous.zip)로 되돌리기
 ```
 src/
 ├── app/                        # Next.js App Router
-│   ├── (api)/api/              # auth/[...nextauth], links, folders, cash-records, categories,
-│   │                           # telegram/webhook/[token]
+│   ├── (api)/api/              # auth/[...nextauth], telegram/webhook/[token]
+│   │                           # (데이터 조회용 route 는 없다 — 서버 액션이 직접 처리)
 │   ├── (auth)/login/           # 소셜 로그인 페이지
 │   ├── (link)/link/            # LinkLocker  (/link, /link/[id])
 │   ├── (pigmoney)/pigmoney/    # PigMoney    (/pigmoney, /calendar, /report, /settings)
@@ -77,7 +77,6 @@ src/
     ├── components/molecules/   # 조합 컴포넌트 (FormInput, FormSelect, Nav, SubHeader, buttons/*)
     ├── lib/                    # auth.ts(authOptions), db.ts(Prisma), utils/*, hooks/*, telegram/*
     ├── constants/ hooks/ providers/ services/ store/ types/
-    ├── utils/fetchAPI.ts       # 자체 API 호출 래퍼
     └── home/                   # Typography, DashBoard (레거시 위치)
 ```
 
@@ -101,25 +100,34 @@ features/{feature}/
 
 ## 데이터 접근 패턴 (중요)
 
-조회와 변경의 경로가 다르다. 관련 코드는 `features/link/model/services/links.service.ts` 의
-`getLinks` / `postLink` 를 참고.
-
-- **조회 (GET)**: 서버 액션 → `fetchAPI()` (`shared/utils/fetchAPI.ts`) → **자체 API route**
-  (`/api/links` 등) 를 `NEXT_PUBLIC_BASE_URL` 기준 절대 URL 로 호출. 이때 `next.tags` 로 캐시 태그를 붙인다.
-- **변경 (POST/PUT/DELETE)**: 서버 액션이 Prisma(`db`) 로 직접 DB 조작 후 `revalidateTag()` 로 해당
-  사용자·API 의 캐시를 무효화.
-- **캐시 태그**: `getTags(userId, api)` (`shared/lib/utils/commonUtils.ts`) → `"${userId}^${api}"`.
-  구분자와 API 이름은 `shared/constants/api.ts` 의 `APIConstants`.
+**조회·변경 모두 서버 액션이 Prisma 로 직접 처리한다.** 자체 API route 를 거치지 않는다.
+관련 코드는 `features/link/model/services/links.service.ts` 의 `getLinks` / `postLink` 를 참고.
 
 ```ts
-// 조회
-const res = await fetchAPI<LinkInterface[]>(
-  `/api/${APIConstants.API_LINKS}${getQueryString({...params, userId: user.id!})}`,
-  {method: "GET", revalidate: 10, next: {tags: [getTags(user.id!, APIConstants.API_LINKS)]}}
-);
-// 변경 후
-revalidateTag(getTags(user.id!, APIConstants.API_LINKS));
+export async function getLinks(parameters: {params?: Record<string, ...>} = {}) {
+  const user = await getSessionUser();
+  if (!user) throw new Error("로그인이 필요합니다.");
+
+  // userId 는 반드시 세션에서만 가져온다 — 외부 입력(쿼리 파라미터)으로 받지 않는다
+  return db.link.findMany({where: {folder: {userId: user.id}, ...}});
+}
 ```
+
+**지켜야 할 규칙**
+
+- **`userId` 는 `getSessionUser()` 로만 얻는다.** 클라이언트가 보낸 값으로 조회 범위를 정하지 않는다.
+- 조회 함수 첫 줄에서 세션을 확인하고 없으면 throw 한다.
+- 단건 조회도 소유권 조건을 where 에 넣는다 (`getLink` 의 `folder: {userId: user.id}`, `getFolder` 의 `userId`).
+- **변경 후 별도 캐시 무효화가 필요 없다.** 조회가 캐시를 타지 않으므로 다음 조회는 항상 최신이다.
+  클라이언트는 변경 후 같은 서버 액션을 다시 호출해 상태를 갱신한다 (`CategoryManageModal` 참고).
+
+**왜 이 구조인가** (2026-10-20 변경, 커밋 참조)
+
+이전에는 서버 액션이 `fetchAPI()` 로 자기 자신의 `/api/*` route 를 다시 호출하고 `next.tags` 로 캐시했다. 문제는:
+① 그 route 들이 `?userId=` 쿼리만 믿어 **로그인 없이 타인 데이터가 조회됐다**, ② 요청 한 번에 HTTP 왕복이
+한 번 더 생겨 SSR compute 시간을 먹었다 (Amplify 요금의 75%), ③ JSON 직렬화 때문에 `Date` 가 문자열로
+와서 선언된 타입(`Date`)과 런타임이 달랐다. 직접 조회로 바꾸면서 셋 다 해소됐다.
+`shared/utils/fetchAPI.ts`, `shared/constants/api.ts`, `getTags`, `getQueryString` 은 함께 제거됐다.
 
 ## 인증
 
@@ -254,9 +262,9 @@ Cloudflare Images direct upload 방식.
    실제 컴포넌트는 `src/shared/components/atoms/`, `cn` 은 `shared/lib/utils/commonUtils.ts` 에 있다.
    `npx shadcn add` 를 그대로 돌리면 엉뚱한 경로에 생성되고 import 도 깨진다 → 기존 `atoms/` 파일을 참고해
    수동 작성하거나, 생성 후 옮기고 import 를 고칠 것.
-2. **GET API 라우트에 인증 없음** — `/api/links`, `/api/folders`, `/api/cash-records`, `/api/categories` 는
-   `?userId=` 쿼리만 믿고 조회한다. 서버 액션 경유 시엔 세션의 userId 가 들어가지만 라우트 자체는 열려 있다
-   (수정 예정).
+2. ~~**GET API 라우트에 인증 없음**~~ → **해결 (2026-10-20)**. 네 라우트를 삭제하고 서버 액션이 Prisma 로
+   직접 조회하도록 바꿨다. 같은 종류의 문제였던 `getLink` 단건 조회(소유권 미검증)도 함께 고쳤다.
+   새 조회 기능을 만들 때 **데이터 조회용 public route 를 다시 만들지 말 것** — 위 "데이터 접근 패턴" 규칙을 따른다.
 3. **미들웨어 matcher 와 실제 경로 불일치** — `/accumulate`, `/quiz` 를 보호하지만 실제 라우트는
    `/japanese/accumulate`, `/japanese/quiz`. jpStudy 가 비활성이라 방치 중.
 4. **feature 구조 2종 혼재** — 위 "Feature 구조" 참고.

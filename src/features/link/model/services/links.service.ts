@@ -1,40 +1,40 @@
 "use server";
 
-import {LinkInterface} from "@/entities/link/types";
 import {getFolder} from "@/features/folder/model/services/folders.service";
 import {linkSchema} from "@/features/link/model/schema/linkSchema";
-import {APIConstants} from "@/shared/constants/api";
+import {FilterConstants} from "@/shared/constants/navigation";
 import db from "@/shared/lib/db";
 import {getSessionUser} from "@/shared/lib/utils/authUtils";
-import {getQueryString, getTags} from "@/shared/lib/utils/commonUtils";
 import {deleteImage} from "@/shared/services/cloudflare.service";
-import {fetchAPI} from "@/shared/utils/fetchAPI";
-import {revalidateTag} from "next/cache";
+
+// 필터 문자열을 Prisma where 조건으로 변환
+const validFilterValue = (filter?: string) => {
+  switch (filter) {
+    case FilterConstants.FILTER_UNREAD:
+      return {isRead: false};
+    case FilterConstants.FILTER_FAVORITE:
+      return {isFavorite: true};
+    default:
+      return null;
+  }
+};
 
 export async function getLinks(
-  parameters: {revalidateTime?: number; params?: Record<string, string | number | boolean>} = {}
+  parameters: {params?: Record<string, string | number | boolean>} = {}
 ) {
-  const {revalidateTime = 10, params = {}} = parameters;
+  const {params = {}} = parameters;
 
   const user = await getSessionUser();
   if (!user) {
     throw new Error("로그인이 필요합니다.");
   }
 
-  const res = await fetchAPI<LinkInterface[]>(
-    `/api/${APIConstants.API_LINKS}${getQueryString({...params, userId: user.id!})}`,
-    {
-      method: "GET",
-      revalidate: revalidateTime,
-      next: {tags: [getTags(user.id!, APIConstants.API_LINKS)]},
-    }
-  );
+  // 조회 범위는 항상 세션 사용자의 폴더로 한정한다 (userId 를 외부 입력으로 받지 않는다)
+  const folderId = params.folderId !== undefined ? Number(params.folderId) : null;
+  const filter = typeof params.filter === "string" ? params.filter : undefined;
+  const keyword = typeof params.keyword === "string" ? params.keyword : undefined;
 
-  return res ?? [];
-}
-
-export async function getLink({linkId}: {linkId: number}) {
-  const result = await db.link.findUnique({
+  return db.link.findMany({
     select: {
       id: true,
       title: true,
@@ -50,11 +50,24 @@ export async function getLink({linkId}: {linkId: number}) {
       memo: true,
     },
     where: {
-      id: linkId,
+      folder: {
+        ...(folderId !== null && !Number.isNaN(folderId) && {id: folderId}),
+        userId: user.id,
+      },
+      ...(validFilterValue(filter) ?? {}),
+      ...(keyword && {
+        title: {
+          contains: keyword,
+          mode: "insensitive",
+        },
+      }),
+    },
+    orderBy: {
+      createdAt: "desc",
     },
   });
-  return result;
 }
+
 
 export async function postLink(formData: FormData) {
   const user = await getSessionUser();
@@ -105,7 +118,6 @@ export async function postLink(formData: FormData) {
       },
     });
 
-    revalidateTag(getTags(user.id!, APIConstants.API_LINKS));
   } catch (error) {
     console.error("Database Error : ", error);
     throw error;
@@ -150,7 +162,6 @@ export async function deleteLink({linkId}: {linkId: number}) {
     });
 
     // 캐시 무효화
-    revalidateTag(getTags(user.id!, APIConstants.API_LINKS));
 
     return {success: true};
   } catch (error) {
@@ -188,7 +199,6 @@ export async function favoriteLink({linkId}: {linkId: number}) {
       },
     });
 
-    revalidateTag(getTags(user.id!, APIConstants.API_LINKS));
     return {success: true};
   } catch (error) {
     console.error("Favorite Link Error : ", error);
@@ -225,7 +235,6 @@ export async function readLink({linkId}: {linkId: number}) {
       },
     });
 
-    revalidateTag(getTags(user.id!, APIConstants.API_LINKS));
     return {success: true};
   } catch (error) {
     console.error("Read Link Error : ", error);
@@ -311,7 +320,6 @@ export async function updateLink(formData: FormData) {
       },
     });
 
-    revalidateTag(getTags(user.id!, APIConstants.API_LINKS));
   } catch (error) {
     console.error("Update Link Error : ", error);
     return {_form: "링크 업데이트 중 오류가 발생했습니다."};

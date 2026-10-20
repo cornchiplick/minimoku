@@ -57,7 +57,7 @@ const PigMoneyMain = ({initialRecords, initialCategories, initialSettings}: PigM
   const isInitializedRef = useRef(false);
 
   // 첫 마운트 시에만 records + dateRange 초기화
-  // (revalidateTag로 서버 컴포넌트 재렌더 시 dateRange 리셋 방지)
+  // (서버 컴포넌트 재렌더 시 dateRange 가 초기화되지 않도록 방지)
   useEffect(() => {
     if (!isInitializedRef.current) {
       setRecords(initialRecords);

@@ -99,8 +99,8 @@ const CategoryManageModal = ({ modalState }: CategoryManageModalProps) => {
 
   // 카테고리 목록 새로고침 (서버에서 재조회)
   const refreshCategories = async () => {
-    // 서버 액션으로 재조회하면 revalidateTag가 동작하여 다음 조회 시 반영됨
-    // 여기서는 로컬 상태를 즉시 업데이트하기 위해 API를 직접 호출
+    // 서버 액션이 DB 를 직접 조회하므로 재호출하면 항상 최신 값이 온다.
+    // 로컬 상태를 즉시 갱신하기 위해 여기서 다시 조회한다.
     try {
       const { getCategories } = await import(
         "@/features/pigmoney/model/services/categories.service"

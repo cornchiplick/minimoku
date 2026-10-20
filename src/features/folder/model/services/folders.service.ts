@@ -1,34 +1,44 @@
 "use server";
 
-import {FolderInterface} from "@/entities/folder/types";
 import {folderSchema} from "@/features/folder/model/schema/folderSchema";
-import {APIConstants} from "@/shared/constants/api";
 import db from "@/shared/lib/db";
 import {getSessionUser} from "@/shared/lib/utils/authUtils";
-import {getQueryString, getTags} from "@/shared/lib/utils/commonUtils";
-import {fetchAPI} from "@/shared/utils/fetchAPI";
-import {revalidateTag} from "next/cache";
 
-export async function getFolders(
-  parameters: {revalidateTime?: number; params?: Record<string, string | number | boolean>} = {}
-) {
-  const {revalidateTime = 10, params = {}} = parameters;
-
+export async function getFolders() {
   const user = await getSessionUser();
   if (!user) {
     throw new Error("로그인이 필요합니다.");
   }
 
-  const res = await fetchAPI<FolderInterface[]>(
-    `/api/${APIConstants.API_FOLDERS}${getQueryString({...params, userId: user.id!})}`,
-    {
-      method: "GET",
-      revalidate: revalidateTime,
-      next: {tags: [getTags(user.id!, APIConstants.API_FOLDERS)]},
-    }
-  );
+  // 폴더 목록과 각 폴더의 링크 개수를 조회 (userId 는 세션에서만 가져온다)
+  const folders = await db.folder.findMany({
+    select: {
+      id: true,
+      name: true,
+      sortOrder: true,
+      createdAt: true,
+      updatedAt: true,
+      _count: {
+        select: {links: true},
+      },
+    },
+    where: {
+      userId: user.id,
+    },
+    orderBy: {
+      sortOrder: "asc",
+    },
+  });
 
-  return res ?? [];
+  // _count.links 를 count 필드로 변환하여 기존 인터페이스와 호환
+  return folders.map((folder) => ({
+    id: folder.id,
+    name: folder.name,
+    sortOrder: folder.sortOrder,
+    createdAt: folder.createdAt,
+    updatedAt: folder.updatedAt,
+    count: folder._count.links,
+  }));
 }
 
 export async function getFolder({
@@ -97,7 +107,6 @@ export async function postFolder(formData: FormData) {
       },
     });
 
-    revalidateTag(getTags(user.id!, APIConstants.API_FOLDERS));
   } catch (error) {
     console.error("Post Folder Error : ", error);
     return {error: true};
@@ -138,7 +147,6 @@ export async function updateFolder(formData: FormData) {
       },
     });
 
-    revalidateTag(getTags(user.id!, APIConstants.API_FOLDERS));
   } catch (error) {
     console.error("Update Folder Error : ", error);
     return {error: true};
@@ -166,8 +174,6 @@ export async function deleteFolder(folderId: number) {
       },
     });
 
-    revalidateTag(getTags(user.id!, APIConstants.API_LINKS));
-    revalidateTag(getTags(user.id!, APIConstants.API_FOLDERS));
 
     return {success: true};
   } catch (error) {
@@ -190,7 +196,6 @@ export async function emptyFolder(folderId: number) {
       },
     });
 
-    revalidateTag(getTags(user.id!, APIConstants.API_LINKS));
 
     return {success: true};
   } catch (error) {
@@ -224,7 +229,6 @@ export async function updateFolderOrders(folderOrders: {id: number; sortOrder: n
     );
 
     // 캐시 무효화
-    revalidateTag(getTags(user.id!, APIConstants.API_FOLDERS));
 
     return {success: true};
   } catch (error) {

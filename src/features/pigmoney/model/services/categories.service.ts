@@ -1,39 +1,22 @@
 "use server";
 
-import { CategoryInterface } from "@/entities/pigmoney/types";
 import { categorySchema } from "@/features/pigmoney/model/schema/categorySchema";
-import { APIConstants } from "@/shared/constants/api";
 import { DEFAULT_CATEGORIES } from "@/shared/constants/pigmoney";
 import db from "@/shared/lib/db";
 import { getSessionUser } from "@/shared/lib/utils/authUtils";
-import { getQueryString, getTags } from "@/shared/lib/utils/commonUtils";
-import { fetchAPI } from "@/shared/utils/fetchAPI";
-import { revalidateTag } from "next/cache";
 
 // 카테고리 목록 조회
-export async function getCategories(
-  parameters: {
-    revalidateTime?: number;
-    params?: Record<string, string | number | boolean>;
-  } = {},
-) {
-  const { revalidateTime = 10, params = {} } = parameters;
-
+export async function getCategories() {
   const user = await getSessionUser();
   if (!user) {
     throw new Error("로그인이 필요합니다.");
   }
 
-  const res = await fetchAPI<CategoryInterface[]>(
-    `/api/${APIConstants.API_CATEGORIES}${getQueryString({ ...params, userId: user.id! })}`,
-    {
-      method: "GET",
-      revalidate: revalidateTime,
-      next: { tags: [getTags(user.id!, APIConstants.API_CATEGORIES)] },
-    },
-  );
-
-  return res ?? [];
+  // userId 는 세션에서만 가져온다
+  return db.category.findMany({
+    where: { userId: user.id },
+    orderBy: { name: "asc" },
+  });
 }
 
 // 기본 카테고리 생성 (첫 접속 시)
@@ -59,7 +42,7 @@ export async function seedDefaultCategories() {
       })),
     });
 
-    // 렌더링 중 호출되므로 revalidateTag 사용 불가 — seed 직후 getCategories로 조회하므로 불필요
+    // seed 직후 getCategories 로 다시 조회하므로 별도 갱신 처리가 필요 없다
   } catch (error) {
     console.error("Seed Categories Error:", error);
   }
@@ -102,7 +85,6 @@ export async function postCategory(formData: FormData) {
       },
     });
 
-    revalidateTag(getTags(user.id!, APIConstants.API_CATEGORIES));
     return { success: true };
   } catch (error) {
     console.error("Post Category Error:", error);
@@ -154,7 +136,6 @@ export async function updateCategory(formData: FormData) {
       data: { name: result.data.name },
     });
 
-    revalidateTag(getTags(user.id!, APIConstants.API_CATEGORIES));
     return { success: true };
   } catch (error) {
     console.error("Update Category Error:", error);
@@ -192,7 +173,6 @@ export async function deleteCategory({ categoryId }: { categoryId: number }) {
       where: { id: categoryId },
     });
 
-    revalidateTag(getTags(user.id!, APIConstants.API_CATEGORIES));
     return { success: true };
   } catch (error) {
     console.error("Delete Category Error:", error);
