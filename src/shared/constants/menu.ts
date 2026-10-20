@@ -13,11 +13,4 @@ export const menus: MenuItemType[] = [
     url: "/pigmoney",
     imageUrl: "",
   },
-  // TODO 추후 서비스 재정비 후 추가
-  // {
-  //   id: "3",
-  //   name: "JpStudy",
-  //   url: "jpstudy",
-  //   imageUrl: "",
-  // },
 ];

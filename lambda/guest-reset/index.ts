@@ -33,9 +33,6 @@ async function resetGuestData(guestUserId: number) {
     }
     await tx.folder.deleteMany({where: {userId: guestUserId}});
 
-    // jpStudy
-    await tx.phrase.deleteMany({where: {userId: guestUserId}});
-
     // PigMoney
     await tx.cashRecord.deleteMany({where: {userId: guestUserId}});
     await tx.category.deleteMany({where: {userId: guestUserId}});

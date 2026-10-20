@@ -22,9 +22,5 @@ export const config = {
     "/link/:path*",
     "/pigmoney",
     "/pigmoney/:path*",
-    "/accumulate",
-    "/accumulate/:path*",
-    "/quiz",
-    "/quiz/:path*",
   ],
 };
