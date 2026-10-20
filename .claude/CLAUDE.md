@@ -195,7 +195,8 @@ Cloudflare Images direct upload 방식.
 | 이미지 | Cloudflare Images (`imagedelivery.net`) |
 | 백그라운드 작업 | **AWS Lambda + EventBridge** (리전 `ap-northeast-2`). `lambda/telegram-notifier` → 함수 `telegram-todo-notifier` (EventBridge Scheduler `telegram-todo-every-minute`, `rate(1 minutes)`), `lambda/guest-reset` → 함수 `minimoku-guest-reset` (EventBridge 규칙 `minimoku-guest-reset-daily`, `cron(0 19 * * ? *)` = 04:00 KST). 새 cron 작업도 같은 패턴으로 추가 |
 | Lambda 런타임 | 두 함수 모두 **Node.js 22.x** (OpenSSL 3.0.x 엔진 필요, 커밋 `eb47368`). 메모리 256MB / 128MB, 타임아웃 30초 |
-| AWS CLI | 로컬 프로필 **`minimoku`** (`--profile minimoku`). IAM 사용자 `claude-code`, 읽기 + `lambda:UpdateFunctionCode` 만 허용. Amplify appId `d30vlh60k6bid7` |
+| AWS CLI | 로컬 프로필 **`minimoku`** (`--profile minimoku`). IAM 사용자 `claude-code` — 인프라·청구·IAM 읽기 + `lambda:UpdateFunctionCode` + `amplify:UpdateApp` 만 허용 (정책 `MinimokuClaudeOps` v3). Amplify appId `d30vlh60k6bid7` |
+| CI 배포 자격증명 | GitHub OIDC. 공급자 `token.actions.githubusercontent.com`(대상 `sts.amazonaws.com`) + 역할 `minimoku-github-lambda-deploy`(신뢰 조건 `repo:cornchiplick/minimoku:ref:refs/heads/main`) + 정책 `MinimokuLambdaDeploy`(두 함수 코드 교체 + 로그 읽기). **레포에 AWS 키 없음.** 2026-10-20 검증 완료 |
 
 ### 배포 절차
 
