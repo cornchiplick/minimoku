@@ -304,7 +304,7 @@ EC2 = AWS 가 빌려주는 리눅스 컴퓨터 한 대. "루틴 작업"보다 **
 참고: Billing 콘솔의 "IAM 사용자 및 역할의 결제 정보 액세스 활성화" 설정은 **콘솔 페이지 접근에만 적용**되고
 Cost Explorer·Budgets **API 에는 적용되지 않는다** (공식 문서 명시). CLI 조사에는 불필요.
 
-### 6.2 Lambda 배포 자동화 — A안 ✅ (2026-09-15) · B안 워크플로 작성 ✅, IAM 역할 생성 대기
+### 6.2 Lambda 배포 자동화 — ✅ 완료 (로컬 2026-09-15 · CI 2026-10-20)
 
 **A안 — 로컬 원커맨드 (완료·검증)**
 - `lambda/deploy.sh`(공용): 크기(50/250 MB)·핸들러 경로·Prisma 엔진 검사 → 현재 코드 `.previous.zip` 백업 → 업로드 →
@@ -323,7 +323,8 @@ Cost Explorer·Budgets **API 에는 적용되지 않는다** (공식 문서 명�
 - 각 함수 잡: Node 22 → OIDC 로 역할 `minimoku-github-lambda-deploy` 획득 → `npm run deploy` (로컬과 동일 경로).
 - 레포 변수 `AWS_DEPLOY_ROLE_ARN` = `arn:aws:iam::480415624766:role/minimoku-github-lambda-deploy` 등록 완료 (레포가 PUBLIC 이라
   ARN 을 워크플로에 직접 적지 않음).
-- **IAM 3단계 (공급자·정책·역할)**: 사용자가 2026-10-20 에 생성 완료했다고 보고. **첫 실행 결과 → 아래 "첫 실행 기록" 참고 (인증 실패, 미해결)**. **단 `claude-code` 사용자에게 `iam:GetRole`·
+- **IAM 3단계 (공급자·정책·역할)**: 2026-10-20 생성 완료, IAM 조회로 전부 대조 검증함 (공급자 URL·대상·지문, 역할
+신뢰 정책의 `Federated`·`aud`·`sub`, 연결 정책). 경위는 아래 실행 기록 참고. **단 `claude-code` 사용자에게 `iam:GetRole`·
   `iam:ListOpenIDConnectProviders` 권한이 없어 Claude 가 설정 내용을 직접 대조할 수 없다** (둘 다 AccessDenied 확인).
   → **첫 워크플로 실행이 곧 검증**이다. 설정을 푸시 없이 미리 대조하고 싶으면 `MinimokuClaudeOps` 에 `iam:GetRole`,
   `iam:ListAttachedRolePolicies`, `iam:GetPolicy`, `iam:GetPolicyVersion`, `iam:GetOpenIDConnectProvider`,
@@ -412,6 +413,19 @@ Cost Explorer·Budgets **API 에는 적용되지 않는다** (공식 문서 명�
 
 **교훈**: IAM 콘솔 마법사는 마지막 "생성" 버튼을 눌러야 실제로 만들어진다. 검토 화면에서 멈추면 아무것도 남지 않는다
 (2026-09-15 정책 생성 때도 같은 지점에서 멈춘 적 있음). 생성 후에는 목록에서 실제 항목을 확인할 것.
+
+### 최종 상태 (2026-10-20) — ✅ 자동 배포 정상 동작
+
+세 번째 실행 `39349846387` (push 트리거)에서 전 구간 성공. 이후 Lambda 배포는 `main` push 만으로 끝난다.
+
+| 확인 | 결과 |
+|---|---|
+| 두 배포 잡 | success |
+| 두 함수 반영 | `LastModified` 2026-10-20T00:49:33 (이전 2026-09-15), SHA256 일치 |
+| 사전 검사 | zip 34.6 MB / 압축 해제 93.0 MB, 핸들러 `index.js`·`dist/index.js` 각각 확인, 리눅스 엔진 확인 |
+| 실행 검증 | telegram-notifier 새 실행 환경에서 오류 없음, 이후 매분 정상 (`발송할 알림 없음`) |
+| 의존성 드리프트 | 이번 실행은 Prisma 6.19.3 으로 로컬과 동일 — **다만 lockfile 부재 위험은 그대로** (아래) |
+| guest-reset | 하루 1회라 즉시 검증 불가 → **2026-10-21 04:00 KST 로그 확인 필요** |
 
 ### 두 번째 실행 기록 (2026-10-20) — 인증 통과, 스크립트 버그 2건
 
