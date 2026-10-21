@@ -74,7 +74,7 @@ const RootHome = () => (
   <div className="bg-background-primary text-foreground min-h-screen">
     <div className="mx-auto w-full max-w-4xl px-5 md:px-8">
       {/* 머리 */}
-      <div className="flex items-center justify-between py-5">
+      <header className="flex items-center justify-between py-5">
         <span className="text-sm font-semibold tracking-tight">MiniMoku</span>
         <div className="flex items-center gap-1">
           <Link
@@ -86,83 +86,85 @@ const RootHome = () => (
           </Link>
           <ThemeToggleButton />
         </div>
-      </div>
-
-      {/* 히어로 — 이 페이지에서 유일하게 등장 동작을 쓴다 */}
-      <header className="animate-fade-in-up border-border border-b py-16 md:py-24">
-        <h1 className="text-hero md:text-display font-bold">
-          쓰면서 만드는
-          <br />
-          개인용 웹앱
-        </h1>
-        <p className="text-minimoku-neutral-bold mt-6 max-w-xl text-base leading-relaxed md:text-lg">
-          필요한 기능이 생길 때마다 하나씩 만들어 붙였습니다. 지금은 링크를 모아 두는 LinkLocker 와
-          가계부 PigMoney 가 들어 있고, 매일 쓰고 있습니다.
-        </p>
-        <div className="mt-9 flex flex-wrap items-center gap-2.5">
-          <GuestStartButton href="/link">로그인 없이 둘러보기</GuestStartButton>
-          <Link
-            href={REPO_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="border-border text-foreground hover:bg-background-secondary focus-visible:ring-minimoku inline-flex items-center rounded-full border px-5 py-2.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none">
-            코드 보기
-          </Link>
-        </div>
       </header>
 
-      {/* 서비스 */}
-      {SERVICES.map((service) => (
-        <section key={service.name} className="border-border border-b py-16 md:py-20">
-          <div className="flex items-center gap-2">
-            <service.icon className={`h-5 w-5 ${service.accent}`} />
-            <h2 className="text-title font-bold">{service.name}</h2>
-          </div>
-          <p className="text-foreground mt-3 text-base md:text-lg">{service.summary}</p>
-
-          <ul className="text-minimoku-neutral-bold mt-6 flex flex-col gap-2 text-[0.9375rem]">
-            {service.points.map((point) => (
-              <li key={point} className="border-border border-l pl-4">
-                {point}
-              </li>
-            ))}
-          </ul>
-
-          <Image
-            src={service.screen}
-            alt={service.screenAlt}
-            width={1280}
-            height={800}
-            sizes="(max-width: 768px) 100vw, 768px"
-            className="border-border shadow-float rounded-card mt-8 w-full border"
-          />
-
-          <div className="mt-6">
-            <GuestStartButton href={service.href} variant="quiet">
-              {service.name} 열어 보기
-            </GuestStartButton>
+      <main>
+        {/* 히어로 — 이 페이지에서 유일하게 등장 동작을 쓴다 */}
+        <section className="animate-fade-in-up border-border border-b py-16 md:py-24">
+          <h1 className="text-hero md:text-display font-bold">
+            쓰면서 만드는
+            <br />
+            개인용 웹앱
+          </h1>
+          <p className="text-minimoku-neutral-bold mt-6 max-w-xl text-base leading-relaxed md:text-lg">
+            필요한 기능이 생길 때마다 하나씩 만들어 붙였습니다. 지금은 링크를 모아 두는 LinkLocker
+            와 가계부 PigMoney 가 들어 있고, 매일 쓰고 있습니다.
+          </p>
+          <div className="mt-9 flex flex-wrap items-center gap-2.5">
+            <GuestStartButton href="/link">로그인 없이 둘러보기</GuestStartButton>
+            <Link
+              href={REPO_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="border-border text-foreground hover:bg-background-secondary focus-visible:ring-minimoku inline-flex items-center rounded-full border px-5 py-2.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none">
+              코드 보기
+            </Link>
           </div>
         </section>
-      ))}
 
-      {/* 만든 방식 */}
-      <section className="border-border border-b py-16 md:py-20">
-        <h2 className="text-title font-bold">만든 방식</h2>
-        <p className="text-minimoku-neutral-bold mt-3 max-w-xl text-[0.9375rem]">
-          기능보다 오래 남는 건 결정입니다. 이 프로젝트에서 내린 것 중 네 가지를 적어 둡니다.
-        </p>
-
-        <dl className="mt-8 grid gap-x-10 gap-y-8 md:grid-cols-2">
-          {DECISIONS.map((decision) => (
-            <div key={decision.title}>
-              <dt className="text-foreground text-[0.9375rem] font-semibold">{decision.title}</dt>
-              <dd className="text-minimoku-neutral-bold mt-2 text-[0.9375rem] leading-relaxed">
-                {decision.body}
-              </dd>
+        {/* 서비스 */}
+        {SERVICES.map((service) => (
+          <section key={service.name} className="border-border border-b py-16 md:py-20">
+            <div className="flex items-center gap-2">
+              <service.icon className={`h-5 w-5 ${service.accent}`} />
+              <h2 className="text-title font-bold">{service.name}</h2>
             </div>
-          ))}
-        </dl>
-      </section>
+            <p className="text-foreground mt-3 text-base md:text-lg">{service.summary}</p>
+
+            <ul className="text-minimoku-neutral-bold mt-6 flex flex-col gap-2 text-[0.9375rem]">
+              {service.points.map((point) => (
+                <li key={point} className="border-border border-l pl-4">
+                  {point}
+                </li>
+              ))}
+            </ul>
+
+            <Image
+              src={service.screen}
+              alt={service.screenAlt}
+              width={1280}
+              height={800}
+              sizes="(max-width: 768px) 100vw, 768px"
+              className="border-border shadow-float rounded-card mt-8 w-full border"
+            />
+
+            <div className="mt-6">
+              <GuestStartButton href={service.href} variant="quiet">
+                {service.name} 열어 보기
+              </GuestStartButton>
+            </div>
+          </section>
+        ))}
+
+        {/* 만든 방식 */}
+        <section className="border-border border-b py-16 md:py-20">
+          <h2 className="text-title font-bold">만든 방식</h2>
+          <p className="text-minimoku-neutral-bold mt-3 max-w-xl text-[0.9375rem]">
+            기능보다 오래 남는 건 결정입니다. 이 프로젝트에서 내린 것 중 네 가지를 적어 둡니다.
+          </p>
+
+          <dl className="mt-8 grid gap-x-10 gap-y-8 md:grid-cols-2">
+            {DECISIONS.map((decision) => (
+              <div key={decision.title}>
+                <dt className="text-foreground text-[0.9375rem] font-semibold">{decision.title}</dt>
+                <dd className="text-minimoku-neutral-bold mt-2 text-[0.9375rem] leading-relaxed">
+                  {decision.body}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      </main>
 
       {/* 꼬리 */}
       <footer className="py-12">

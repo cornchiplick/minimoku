@@ -39,7 +39,8 @@ const LinkHomeLayout = ({children}: {children: React.ReactNode}) => (
         }>
         <SidebarRegions />
       </Suspense>
-      {children}
+      {/* 본문 — 스크린리더가 사이드바를 건너뛰고 바로 올 수 있게 랜드마크를 둔다 */}
+      <main className="bg-background-primary flex min-w-0 flex-1 flex-col">{children}</main>
     </div>
   </div>
 );

@@ -4,7 +4,6 @@ import {LinkInterface} from "@/entities/link/types";
 import LinkCard from "@/features/link/ui/LinkCard";
 import Divider from "@/shared/components/molecules/Divider";
 import Icon from "@/shared/components/molecules/Icon";
-import Typography from "@/shared/home/atomic/Typography";
 import MobileSidebarTrigger from "@/widgets/sidebar/MobileSidebarTrigger";
 import ThemeToggleButton from "@/widgets/sidebar/ThemeToggleButton";
 import {Inbox} from "lucide-react";
@@ -45,9 +44,7 @@ export default function LinkLockerMain({initialLinks, folderName}: LinkLockerMai
           {/* 모바일에서만 보이는 사이드바 열기 버튼 */}
           <MobileSidebarTrigger />
           {showFolderIcon && <Icon name="folder" size={24} color="currentColor" />}
-          <Typography.SubTitle1 className="truncate font-semibold" keyword={keyword}>
-            {getHeaderTitle()}
-          </Typography.SubTitle1>
+          <h1 className="text-foreground truncate text-xl font-semibold">{getHeaderTitle()}</h1>
         </div>
         <ThemeToggleButton />
       </div>

@@ -17,7 +17,8 @@ const PigMoneyLayout = ({children}: {children: React.ReactNode}) => {
         {/* 우측: 헤더 + 메인 콘텐츠 */}
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
           <PigMoneyHeader />
-          {children}
+          {/* 본문 — 사이드바를 건너뛰고 바로 올 수 있게 랜드마크를 둔다 */}
+          <main className="flex min-h-0 flex-1 flex-col overflow-hidden">{children}</main>
         </div>
       </div>
     </div>

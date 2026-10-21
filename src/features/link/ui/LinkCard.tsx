@@ -100,14 +100,14 @@ const LinkCard = ({data, keyword}: LinkCardProps) => {
           )}
 
           <div className="min-w-0 flex-1">
-            <h3 className="flex items-start gap-1.5">
+            <h2 className="flex items-start gap-1.5">
               <ExternalLinkButton url={data.url} title={data.title} />
               <Typography.P1
                 className={cn("font-medium", isRead && "text-minimoku-neutral-bold")}
                 keyword={keyword}>
                 {data.title}
               </Typography.P1>
-            </h3>
+            </h2>
 
             {/* 출처와 시점 — 조용하게, 금액 자리처럼 줄을 맞춘다 */}
             <div className="text-minimoku-neutral-bold mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.8125rem]">

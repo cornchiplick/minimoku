@@ -8,10 +8,13 @@ const GuestBanner = async () => {
   if (!user?.isGuest) return null;
 
   return (
-    <div className="bg-notice-surface text-notice px-4 py-2 text-center text-xs">
+    // 랜드마크로 둬야 스크린리더가 영역을 훑을 때 빠지지 않는다
+    <aside
+      aria-label="체험 모드 안내"
+      className="bg-notice-surface text-notice px-4 py-2 text-center text-xs">
       체험 모드입니다. 이 계정은 모든 방문자가 공유하므로 다른 사용자의 데이터가 함께 보일 수 있고,
       매일 새벽 4시에 모든 데이터가 초기화됩니다.
-    </div>
+    </aside>
   );
 };
 

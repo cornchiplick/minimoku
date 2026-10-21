@@ -71,7 +71,8 @@ const CashRecordLedger = ({records, onSelect}: CashRecordLedgerProps) => {
       {days.map(({date, net, items, showMonth}) => (
         <section key={date.toISOString()} className="border-border border-t first:border-t-0">
           {/* 날짜 머리 — 날짜를 큰 숫자로, 요일을 곁들이고, 그날 소계를 오른쪽에 */}
-          <header className="flex items-baseline justify-between gap-3 pt-7 pb-2">
+          {/* 날짜 묶음의 머리 — <header> 로 두면 랜드마크가 되어 날마다 하나씩 생긴다 */}
+          <div className="flex items-baseline justify-between gap-3 pt-7 pb-2">
             <h2 className="flex items-baseline gap-1.5">
               {showMonth && (
                 <span className="text-minimoku-neutral-bold text-sm">{date.getMonth() + 1}월</span>
@@ -89,7 +90,7 @@ const CashRecordLedger = ({records, onSelect}: CashRecordLedgerProps) => {
               {net < 0 ? "−" : "+"}
               {Math.abs(net).toLocaleString("ko-KR")}
             </span>
-          </header>
+          </div>
 
           <ul>
             {items.map((record) => (

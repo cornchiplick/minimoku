@@ -64,7 +64,7 @@ const PigMoneySettings = ({initialSettings}: PigMoneySettingsProps) => {
   return (
     <div className="bg-background-secondary flex flex-1 flex-col overflow-hidden">
       <div className="p-6">
-        <h2 className="mb-6 text-lg font-semibold">가계부 설정</h2>
+        <h1 className="mb-6 text-lg font-semibold">가계부 설정</h1>
 
         <div className="flex max-w-md flex-col gap-6">
           {/* 월 시작일 */}

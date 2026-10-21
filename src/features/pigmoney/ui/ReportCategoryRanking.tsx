@@ -30,7 +30,7 @@ const ReportCategoryRanking = ({
 
   return (
     <section>
-      <h3 className="text-foreground text-sm font-semibold">{heading}</h3>
+      <h2 className="text-foreground text-sm font-semibold">{heading}</h2>
 
       {items.length === 0 ? (
         <p className="text-minimoku-neutral-bold mt-3 text-sm">{emptyText}</p>

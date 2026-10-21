@@ -67,7 +67,7 @@ const PigMoneyCalendar = ({initialRecords, initialSettings}: PigMoneyCalendarPro
   return (
     <div className="bg-background-primary flex flex-1 flex-col overflow-y-auto">
       <div className="p-6">
-        <h2 className="mb-4 text-lg font-semibold">달력</h2>
+        <h1 className="mb-4 text-lg font-semibold">달력</h1>
 
         {isLoading ? (
           <div className="flex items-center justify-center py-20">

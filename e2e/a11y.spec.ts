@@ -97,7 +97,15 @@ for (const theme of THEMES) {
       await openAndSettle(page, path);
 
       const excluded = EXCLUDED_RULES[path];
-      const builder = new AxeBuilder({page}).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]);
+      // best-practice 까지 포함한다. 제목 단계 건너뛰기(heading-order) 처럼 WCAG 태그에
+      // 들어 있지 않은 항목이 있어, 그건 처음에 Lighthouse 가 먼저 잡아냈다.
+      const builder = new AxeBuilder({page}).withTags([
+        "wcag2a",
+        "wcag2aa",
+        "wcag21a",
+        "wcag21aa",
+        "best-practice",
+      ]);
       const result = await (excluded ? builder.disableRules(excluded.rules) : builder).analyze();
 
       // 실패했을 때 어디가 문제인지 바로 읽히도록 요약해 붙인다

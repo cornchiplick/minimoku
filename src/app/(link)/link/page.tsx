@@ -35,16 +35,14 @@ const LinkHome = ({
 }: {
   searchParams: Promise<{[key: string]: string | string[] | undefined}>;
 }) => (
-  <div className="bg-background-primary flex min-w-0 flex-1 flex-col">
-    <Suspense
-      fallback={
-        <div className="px-4 py-6 md:px-6">
-          <LinkListSkeleton />
-        </div>
-      }>
-      <LinkHomeContent searchParams={searchParams} />
-    </Suspense>
-  </div>
+  <Suspense
+    fallback={
+      <div className="px-4 py-6 md:px-6">
+        <LinkListSkeleton />
+      </div>
+    }>
+    <LinkHomeContent searchParams={searchParams} />
+  </Suspense>
 );
 
 export default LinkHome;

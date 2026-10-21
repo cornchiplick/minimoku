@@ -64,7 +64,7 @@ const ReportDailyTrend = ({records, from, to}: ReportDailyTrendProps) => {
 
   return (
     <section>
-      <h3 className="text-foreground text-sm font-semibold">언제 많이 썼나</h3>
+      <h2 className="text-foreground text-sm font-semibold">언제 많이 썼나</h2>
       <div className="mt-3 h-28 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={days} margin={{top: 4, right: 0, bottom: 0, left: 0}} barCategoryGap={2}>
