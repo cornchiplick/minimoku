@@ -14,11 +14,11 @@
     "rollback": "bash ../deploy.sh minimoku-guest-reset .previous.zip"
   },
   "dependencies": {
-    "@prisma/client": "^6.7.0"
+    "@prisma/client": "6.7.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "prisma": "^6.7.0",
+    "prisma": "6.7.0",
     "typescript": "^5.0.0"
   }
 }
