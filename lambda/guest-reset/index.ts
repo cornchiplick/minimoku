@@ -43,6 +43,16 @@ async function resetGuestData(guestUserId: number) {
   });
 }
 
+/**
+ * 샘플 날짜의 기준이 되는 "오늘".
+ *
+ * 이 함수는 19:00 UTC(= 04:00 KST)에 돌기 때문에, 그냥 `new Date()` 를 쓰면 UTC 로는
+ * 아직 전날이다. 그러면 dayOffset 0 인 기록이 한국 사용자에게 "어제" 로 보이고,
+ * 달력의 오늘 표시가 가리키는 날에는 아무것도 없게 된다.
+ * 9시간을 더해 날짜 부분이 한국 날짜와 맞게 한다 (Lambda 의 로컬 시간대는 UTC 고정).
+ */
+const kstToday = () => new Date(Date.now() + 9 * 60 * 60 * 1000);
+
 export const handler = async (): Promise<{ok: boolean; deletedFor?: number; error?: string}> => {
   try {
     const guest = await prisma.user.findUnique({
@@ -64,7 +74,7 @@ export const handler = async (): Promise<{ok: boolean; deletedFor?: number; erro
 
     // 비운 뒤 체험용 샘플을 다시 심는다. 빈 화면이 아니라 실제로 쓰이는 모습을 보여주는 것이 목적이다.
     // 시드는 쓰기가 60여 건이라 위 삭제 트랜잭션 밖에서 한다 (트랜잭션 제한 시간에 걸리지 않도록).
-    const counts = await seedGuestShowcase(prisma, guest.id);
+    const counts = await seedGuestShowcase(prisma, guest.id, kstToday());
 
     console.log(
       `[guest-reset] guest user ${guest.id} 초기화 완료 — ` +
