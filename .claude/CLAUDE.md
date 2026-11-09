@@ -13,6 +13,7 @@ minimoku 는 개인용 **멀티 서비스 웹앱**이다. 하나의 Next.js 앱 
 | **LinkLocker** | `/link` | 운영 중 | 브라우저 북마크 대체. 폴더별 링크 저장, 이미지 미리보기(Cloudflare Images), 읽음·즐겨찾기·알림 표시, 태그·검색, 폴더 정렬(dnd-kit) |
 | **PigMoney** | `/pigmoney` | 운영 중 | 가계부. 수입/지출 기록, 카테고리, 월·주 시작일 설정, 달력 뷰, 월별 보고서(recharts). 기획·구현 문서는 `docs/pigmoney/` |
 | **텔레그램 Todo 봇** | `/api/telegram/webhook/[token]` | 운영 중 | 텔레그램 명령(`/todo`, `/list`, `/done`, `/delete`)으로 Todo 등록, Lambda 가 매분 알림 발송 |
+| **스타레일 출석체크** | (UI 없음) GitHub Actions | 운영 준비 | 붕괴: 스타레일 HoYoLAB 일일 출석을 매일 09:17 KST 자동 실행, 실패 시만 텔레그램 알림. 앱·DB 와 무관. `docs/hoyolab-checkin.md` |
 
 ### ⚠️ 실서비스 운영 중 — 작업 전 반드시 숙지
 
@@ -264,7 +265,7 @@ Cloudflare Images direct upload 방식.
 | 호스팅 | **AWS Amplify** — 프로덕션 `https://www.minimoku.net`. **GitHub `main` push → 자동 빌드·배포** (PR 머지 = 배포). 빌드 설정은 레포 루트 **`amplify.yml`** (PR #26 로 이관, 콘솔 설정보다 우선), 환경변수 값은 Amplify 콘솔에만 존재하고 빌드 시 `env | grep` 으로 `.env` 에 기록됨. **`amplify.yml` 에 값을 적지 말 것.** Vercel 아님 (Vercel Cron 등 호스팅 종속 기능 사용 불가). 무료 서비스가 아니라 **종량제** — 크레딧 기간이 2026-08 로 끝나 **2026-09 부터 실제 청구 중** — 실측 2026-09 $0.73, 2026-10 $0.66 (세금 포함), 대부분 SSR compute 시간. `docs/hosting-and-deployment.md` §3.5 |
 | DB | Supabase PostgreSQL (dev/prod 동일 인스턴스 — 위 경고 참고) |
 | 이미지 | Cloudflare Images (`imagedelivery.net`) |
-| 백그라운드 작업 | **AWS Lambda + EventBridge** (리전 `ap-northeast-2`). `lambda/telegram-notifier` → 함수 `telegram-todo-notifier` (EventBridge Scheduler `telegram-todo-every-minute`, `rate(1 minutes)`), `lambda/guest-reset` → 함수 `minimoku-guest-reset` (EventBridge 규칙 `minimoku-guest-reset-daily`, `cron(0 19 * * ? *)` = 04:00 KST). 새 cron 작업도 같은 패턴으로 추가 |
+| 백그라운드 작업 | **AWS Lambda + EventBridge** (리전 `ap-northeast-2`). `lambda/telegram-notifier` → 함수 `telegram-todo-notifier` (EventBridge Scheduler `telegram-todo-every-minute`, `rate(1 minutes)`), `lambda/guest-reset` → 함수 `minimoku-guest-reset` (EventBridge 규칙 `minimoku-guest-reset-daily`, `cron(0 19 * * ? *)` = 04:00 KST). 새 cron 작업도 같은 패턴으로 추가. 예외: 앱·DB 와 무관한 개인 자동화(스타레일 출석체크)는 GitHub Actions `hoyolab-checkin.yml` 스케줄 |
 | Lambda 런타임 | 두 함수 모두 **Node.js 22.x** (OpenSSL 3.0.x 엔진 필요, 커밋 `eb47368`). 메모리 256MB / 128MB, 타임아웃 30초 |
 | AWS CLI | 로컬 프로필 **`minimoku`** (`--profile minimoku`). IAM 사용자 `claude-code` — 인프라·청구·IAM 읽기 + `lambda:UpdateFunctionCode` + `amplify:UpdateApp` 만 허용 (정책 `MinimokuClaudeOps` v3). Amplify appId `d30vlh60k6bid7` |
 | CI 배포 자격증명 | GitHub OIDC. 공급자 `token.actions.githubusercontent.com`(대상 `sts.amazonaws.com`) + 역할 `minimoku-github-lambda-deploy`(신뢰 조건 `repo:cornchiplick/minimoku:ref:refs/heads/main`) + 정책 `MinimokuLambdaDeploy`(두 함수 코드 교체 + 로그 읽기). **레포에 AWS 키 없음.** 2026-10-20 검증 완료 |
@@ -413,6 +414,7 @@ Cloudflare Images direct upload 방식.
 - `docs/hosting-and-deployment.md` — 호스팅 구조·요금·대안 비교·EC2 부담·운영 로드맵. **호스팅은 Amplify 현행
   유지로 결정(2026-09-15)** — 이전 제안 전에 이 문서를 먼저 볼 것
 - `docs/pigmoney/` — `README.md`(개요·URL), `data-model.md`, `features.md`(기획), `implementation.md`(구현 상세)
+- `docs/hoyolab-checkin.md` — 스타레일 HoYoLAB 자동 출석체크 (GitHub Actions, 쿠키·Secret 설정법)
 - `docs/review.md` — 링크 수정 기능 코드 리뷰 기록 (2026-02)
 - `docs/url.md` — 초기 URL 설계 메모 (낡음)
 - `.claude/skills/commit-guide/` — 커밋 분리·메시지 작성 가이드 (프로젝트 스킬)
