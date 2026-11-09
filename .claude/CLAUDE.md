@@ -13,7 +13,7 @@ minimoku 는 개인용 **멀티 서비스 웹앱**이다. 하나의 Next.js 앱 
 | **LinkLocker** | `/link` | 운영 중 | 브라우저 북마크 대체. 폴더별 링크 저장, 이미지 미리보기(Cloudflare Images), 읽음·즐겨찾기·알림 표시, 태그·검색, 폴더 정렬(dnd-kit) |
 | **PigMoney** | `/pigmoney` | 운영 중 | 가계부. 수입/지출 기록, 카테고리, 월·주 시작일 설정, 달력 뷰, 월별 보고서(recharts). 기획·구현 문서는 `docs/pigmoney/` |
 | **텔레그램 Todo 봇** | `/api/telegram/webhook/[token]` | 운영 중 | 텔레그램 명령(`/todo`, `/list`, `/done`, `/delete`)으로 Todo 등록, Lambda 가 매분 알림 발송 |
-| **스타레일 출석체크** | (UI 없음) GitHub Actions | 운영 준비 | 붕괴: 스타레일 HoYoLAB 일일 출석을 매일 09:17 KST 자동 실행, 실패 시만 텔레그램 알림. 앱·DB 와 무관. `docs/hoyolab-checkin.md` |
+| **스타레일 출석체크** | (UI 없음) GitHub Actions | 운영 준비 | 붕괴: 스타레일 HoYoLAB 일일 출석을 매일 06:40 KST 자동 실행, 실패 시만 텔레그램 알림. 앱·DB 와 무관. `docs/hoyolab-checkin.md` |
 
 ### ⚠️ 실서비스 운영 중 — 작업 전 반드시 숙지
 

@@ -1,12 +1,12 @@
 # 붕괴: 스타레일 HoYoLAB 자동 출석체크
 
-매일 **09:17 KST** 에 GitHub Actions 가 HoYoLAB 출석체크를 대신 한다. 성공하면 조용히 끝나고,
+매일 **06:40 KST** 에 GitHub Actions 가 HoYoLAB 출석체크를 대신 한다. 성공하면 조용히 끝나고,
 **실패할 때만** 텔레그램(minimoku Todo 봇)으로 알림이 온다. 워크플로가 실패로 끝나므로 GitHub 의 실패 메일도 함께 온다.
 
 | 구성 | 위치 |
 |---|---|
 | 스크립트 (의존성 없음, Node 22) | `scripts/hoyolab-checkin.mjs` |
-| 스케줄 워크플로 | `.github/workflows/hoyolab-checkin.yml` — `cron: "17 0 * * *"` (UTC) |
+| 스케줄 워크플로 | `.github/workflows/hoyolab-checkin.yml` — `cron: "40 21 * * *"` (UTC, = 06:40 KST) |
 | 비밀값 | 저장소 Secrets: `HOYOLAB_COOKIE`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` |
 
 ## 왜 GitHub Actions 인가
@@ -49,7 +49,7 @@ AWS 설정 없이 Secret 만 등록하면 되는 GitHub Actions 로 분리했다
 | `data.gt_result.is_risk == true` (캡차) | 즉시 중단 + 알림. **우회하지 않는다** → 그날은 직접 출석 |
 | 재시도 후에도 실패, 기타 에러 | 알림 |
 
-출석 리셋은 UTC+8 자정(KST 01:00)이라, 그 뒤인 09:17 에 실행한다. GitHub 스케줄은 수 분~수십 분 늦게 돌 수 있지만
+출석 리셋은 UTC+8 자정(KST 01:00)이라, 그 뒤인 06:40 에 실행한다. GitHub 스케줄은 수 분~수십 분 늦게 돌 수 있지만
 하루 안에만 돌면 되므로 문제없다.
 
 ## 주의
