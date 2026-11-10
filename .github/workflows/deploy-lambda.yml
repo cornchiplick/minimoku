@@ -18,8 +18,8 @@ on:
       target:
         description: "배포 대상"
         type: choice
-        options: [both, guest-reset, telegram-notifier]
-        default: both
+        options: [all, guest-reset, telegram-notifier, hoyolab-checkin]
+        default: all
 
 # OIDC 로 AWS IAM 역할을 맡는다 — 레포에 AWS 액세스 키를 저장하지 않는다
 permissions:
@@ -41,6 +41,7 @@ jobs:
     outputs:
       guest: ${{ steps.plan.outputs.guest }}
       telegram: ${{ steps.plan.outputs.telegram }}
+      hoyolab: ${{ steps.plan.outputs.hoyolab }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,12 +52,13 @@ jobs:
           TARGET: ${{ inputs.target }}
           BEFORE: ${{ github.event.before }}
         run: |
-          guest=false; telegram=false
+          guest=false; telegram=false; hoyolab=false
           if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
             case "$TARGET" in
-              both)              guest=true; telegram=true ;;
+              all)               guest=true; telegram=true; hoyolab=true ;;
               guest-reset)       guest=true ;;
               telegram-notifier) telegram=true ;;
+              hoyolab-checkin)   hoyolab=true ;;
             esac
           else
             # push: 직전 커밋(before)과 비교. 비교 기준이 없으면(최초 push·강제 push) 전체 배포
@@ -66,16 +68,23 @@ jobs:
               changed=$(git ls-files)
             fi
             printf '변경 파일:\n%s\n' "$changed"
-            # 공통 파일이 바뀌면 둘 다 재배포. 특히 schema.prisma — 생성된 Prisma Client 가 zip 에 포함되므로 스키마 변경 = 재배포
-            if grep -qE '^(prisma/schema\.prisma|prisma/guest-showcase\.(json|ts)|lambda/deploy\.sh|lambda/verify\.sh|\.github/workflows/deploy-lambda\.yml)$' <<< "$changed"; then
+            # Prisma 산출물은 zip 에 포함되므로 스키마·샘플이 바뀌면 그걸 쓰는 두 함수를 재배포한다
+            # (hoyolab-checkin 은 Prisma 를 쓰지 않아 영향이 없다)
+            if grep -qE '^prisma/(schema\.prisma|guest-showcase\.(json|ts))$' <<< "$changed"; then
               guest=true; telegram=true
+            fi
+            # 공용 배포 스크립트와 이 워크플로는 모든 함수에 영향
+            if grep -qE '^(lambda/deploy\.sh|lambda/verify\.sh|\.github/workflows/deploy-lambda\.yml)$' <<< "$changed"; then
+              guest=true; telegram=true; hoyolab=true
             fi
             grep -q '^lambda/guest-reset/' <<< "$changed" && guest=true
             grep -q '^lambda/telegram-notifier/' <<< "$changed" && telegram=true
+            grep -q '^lambda/hoyolab-checkin/' <<< "$changed" && hoyolab=true
           fi
           echo "guest=$guest" >> "$GITHUB_OUTPUT"
           echo "telegram=$telegram" >> "$GITHUB_OUTPUT"
-          echo "배포 대상 → guest-reset=$guest, telegram-notifier=$telegram"
+          echo "hoyolab=$hoyolab" >> "$GITHUB_OUTPUT"
+          echo "배포 대상 → guest-reset=$guest, telegram-notifier=$telegram, hoyolab-checkin=$hoyolab"
 
   guest-reset:
     name: minimoku-guest-reset
@@ -113,4 +122,24 @@ jobs:
       # 업로드 뒤 verify.sh 가 다음 1분 실행의 로그를 기다려 오류 여부까지 판정한다 (upload 스크립트에 포함)
       - name: 패키징 · 검사 · 업로드 · 실행 검증
         working-directory: lambda/telegram-notifier
+        run: npm run deploy
+
+  hoyolab-checkin:
+    name: minimoku-hoyolab-checkin
+    needs: plan
+    if: needs.plan.outputs.hoyolab == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      # 의존성이 없어 빌드 없이 index.mjs 하나를 zip 한다. 하루 1회 실행이라 즉시 실행 검증은 불가
+      # (다음날 06:40 KST 로그로 확인, 또는 콘솔의 Test 버튼)
+      - name: 패키징 · 검사 · 업로드
+        working-directory: lambda/hoyolab-checkin
         run: npm run deploy

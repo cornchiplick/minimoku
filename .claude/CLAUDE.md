@@ -13,6 +13,7 @@ minimoku 는 개인용 **멀티 서비스 웹앱**이다. 하나의 Next.js 앱 
 | **LinkLocker** | `/link` | 운영 중 | 브라우저 북마크 대체. 폴더별 링크 저장, 이미지 미리보기(Cloudflare Images), 읽음·즐겨찾기·알림 표시, 태그·검색, 폴더 정렬(dnd-kit) |
 | **PigMoney** | `/pigmoney` | 운영 중 | 가계부. 수입/지출 기록, 카테고리, 월·주 시작일 설정, 달력 뷰, 월별 보고서(recharts). 기획·구현 문서는 `docs/pigmoney/` |
 | **텔레그램 Todo 봇** | `/api/telegram/webhook/[token]` | 운영 중 | 텔레그램 명령(`/todo`, `/list`, `/done`, `/delete`)으로 Todo 등록, Lambda 가 매분 알림 발송 |
+| **스타레일 출석체크** | — (웹 UI 없음) | 운영 중 | HoYoLAB 일일 출석을 Lambda 가 매일 06:40 KST 에 대신 누른다. `docs/hoyolab-checkin.md` |
 | **스타레일 출석체크** | (UI 없음) GitHub Actions | 운영 준비 | 붕괴: 스타레일 HoYoLAB 일일 출석을 매일 06:40 KST 자동 실행, 실패 시만 텔레그램 알림. 앱·DB 와 무관. `docs/hoyolab-checkin.md` |
 
 ### ⚠️ 실서비스 운영 중 — 작업 전 반드시 숙지
@@ -265,10 +266,10 @@ Cloudflare Images direct upload 방식.
 | 호스팅 | **AWS Amplify** — 프로덕션 `https://www.minimoku.net`. **GitHub `main` push → 자동 빌드·배포** (PR 머지 = 배포). 빌드 설정은 레포 루트 **`amplify.yml`** (PR #26 로 이관, 콘솔 설정보다 우선), 환경변수 값은 Amplify 콘솔에만 존재하고 빌드 시 `env | grep` 으로 `.env` 에 기록됨. **`amplify.yml` 에 값을 적지 말 것.** Vercel 아님 (Vercel Cron 등 호스팅 종속 기능 사용 불가). 무료 서비스가 아니라 **종량제** — 크레딧 기간이 2026-08 로 끝나 **2026-09 부터 실제 청구 중** — 실측 2026-09 $0.73, 2026-10 $0.66 (세금 포함), 대부분 SSR compute 시간. `docs/hosting-and-deployment.md` §3.5 |
 | DB | Supabase PostgreSQL (dev/prod 동일 인스턴스 — 위 경고 참고) |
 | 이미지 | Cloudflare Images (`imagedelivery.net`) |
-| 백그라운드 작업 | **AWS Lambda + EventBridge** (리전 `ap-northeast-2`). `lambda/telegram-notifier` → 함수 `telegram-todo-notifier` (EventBridge Scheduler `telegram-todo-every-minute`, `rate(1 minutes)`), `lambda/guest-reset` → 함수 `minimoku-guest-reset` (EventBridge 규칙 `minimoku-guest-reset-daily`, `cron(0 19 * * ? *)` = 04:00 KST). 새 cron 작업도 같은 패턴으로 추가. 예외: 앱·DB 와 무관한 개인 자동화(스타레일 출석체크)는 GitHub Actions `hoyolab-checkin.yml` 스케줄 |
-| Lambda 런타임 | 두 함수 모두 **Node.js 22.x** (OpenSSL 3.0.x 엔진 필요, 커밋 `eb47368`). 메모리 256MB / 128MB, 타임아웃 30초 |
+| 백그라운드 작업 | **AWS Lambda + EventBridge** (리전 `ap-northeast-2`). `lambda/telegram-notifier` → 함수 `telegram-todo-notifier` (EventBridge Scheduler `telegram-todo-every-minute`, `rate(1 minutes)`), `lambda/guest-reset` → 함수 `minimoku-guest-reset` (EventBridge 규칙 `minimoku-guest-reset-daily`, `cron(0 19 * * ? *)` = 04:00 KST), `lambda/hoyolab-checkin` → 함수 `minimoku-hoyolab-checkin` (EventBridge 규칙 `minimoku-hoyolab-checkin-daily`, `cron(40 21 * * ? *)` = 06:40 KST). 새 cron 작업도 같은 패턴으로 추가. **GitHub Actions 의 `schedule` 은 쓰지 않는다** — 출석체크를 그걸로 만들었다가 첫 예정 시각에 아예 발화하지 않았다 (2026-11-10, `docs/hoyolab-checkin.md`) |
+| Lambda 런타임 | 세 함수 모두 **Node.js 22.x**. guest-reset·telegram-notifier 는 OpenSSL 3.0.x Prisma 엔진 필요 (커밋 `eb47368`), 메모리 256MB / 128MB, 타임아웃 30초. hoyolab-checkin 은 의존성 없음, 128MB, 타임아웃 10분(재시도 포함) |
 | AWS CLI | 로컬 프로필 **`minimoku`** (`--profile minimoku`). IAM 사용자 `claude-code` — 인프라·청구·IAM 읽기 + `lambda:UpdateFunctionCode` + `amplify:UpdateApp` 만 허용 (정책 `MinimokuClaudeOps` v3). Amplify appId `d30vlh60k6bid7` |
-| CI 배포 자격증명 | GitHub OIDC. 공급자 `token.actions.githubusercontent.com`(대상 `sts.amazonaws.com`) + 역할 `minimoku-github-lambda-deploy`(신뢰 조건 `repo:cornchiplick/minimoku:ref:refs/heads/main`) + 정책 `MinimokuLambdaDeploy`(두 함수 코드 교체 + 로그 읽기). **레포에 AWS 키 없음.** 2026-10-20 검증 완료 |
+| CI 배포 자격증명 | GitHub OIDC. 공급자 `token.actions.githubusercontent.com`(대상 `sts.amazonaws.com`) + 역할 `minimoku-github-lambda-deploy`(신뢰 조건 `repo:cornchiplick/minimoku:ref:refs/heads/main`) + 정책 `MinimokuLambdaDeploy`(**함수 ARN 을 하나씩 열거**한다 — Lambda 를 새로 만들면 이 정책에 함수·로그그룹 ARN 을 추가해야 CI 배포가 된다. 빠뜨리면 `AccessDenied`). **레포에 AWS 키 없음.** 2026-10-20 검증 완료 |
 
 ### 배포 절차
 
@@ -281,6 +282,10 @@ Cloudflare Images direct upload 방식.
 
 ### Lambda 빌드 규약
 
+**Prisma(DB)를 쓰는 함수**(guest-reset · telegram-notifier)는 아래 순서를 따른다.
+**쓰지 않는 함수**(hoyolab-checkin)는 의존성이 0이라 빌드도 `node_modules` 도 없이 `index.mjs` 한 장을
+그대로 zip 한다 (8KB). `deploy.sh` 의 Prisma 엔진 검사는 zip 안에 `@prisma/client` 가 있을 때만 돈다.
+
 1. 루트 `prisma/schema.prisma` 를 `lambda/<job>/prisma/` 로 복사 (이 사본은 gitignore)
 2. `prisma generate` → `tsc` → `dist/`
 3. `dist` + `node_modules` + `prisma` 를 zip
@@ -291,10 +296,10 @@ Cloudflare Images direct upload 방식.
 ### Lambda 배포 규칙 (`lambda/deploy.sh` 가 강제)
 
 - 배포 = `update-function-code` 한 번. 아래 검사 중 하나라도 실패하면 **업로드 자체를 하지 않는다** (기존 코드 유지).
-  1. zip **50 MB 초과 → 중단** (API/콘솔 직접 업로드 한도). 45 MB 부터 경고. 현재 두 함수 모두 34.6 MB
+  1. zip **50 MB 초과 → 중단** (API/콘솔 직접 업로드 한도). 45 MB 부터 경고. 현재 Prisma 두 함수는 27 MB, hoyolab-checkin 은 8 KB
   2. 압축 해제 **250 MB 초과 → 중단** (하드 리밋). 현재 93 MB
-  3. 함수 설정의 `Handler` 에서 유도한 파일(`index.js` / `dist/index.js`)이 zip 에 없으면 중단 — **두 함수의 zip 구조가 다르다**:
-     guest-reset 은 `index.js` 가 루트, telegram-notifier 는 `dist/` 가 루트 (`Handler=dist/index.handler`). `package` 스크립트가 이 구조를 만든다
+  3. 함수 설정의 `Handler` 에서 유도한 파일이 zip 에 없으면 중단 (`.js`/`.mjs`/`.cjs` 를 모두 찾아본다) — **함수마다 zip 구조가 다르다**:
+     guest-reset 은 `index.js` 가 루트, telegram-notifier 는 `dist/` 가 루트 (`Handler=dist/index.handler`), hoyolab-checkin 은 `index.mjs` 가 루트. `package` 스크립트가 이 구조를 만든다
   4. `libquery_engine-rhel-openssl-3.0.x` 엔진이 없으면 중단 (Node 22 런타임 필수). darwin/windows/1.0.x 엔진이 남아 있으면 경고(용량)
 - 업로드 전 현재 코드를 `.previous.zip` 으로 백업 → 문제 시 `npm run rollback`. 업로드 후 `LastUpdateStatus=Successful` 과 SHA256 일치를 확인
 - telegram-notifier 는 배포 후 `lambda/verify.sh` 가 다음 1분 실행의 새 로그 스트림을 기다려 오류를 판정한다. guest-reset 은 하루 1회라

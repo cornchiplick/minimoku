@@ -42,16 +42,27 @@ awk "BEGIN{exit !($ZIP_BYTES > $WARN_ZIP_MB*1048576)}" && \
 
 # ── 2. 핸들러 파일이 zip 안 올바른 경로에 있는지 (함수 설정의 Handler 에서 유도) ──
 HANDLER=$(aws lambda get-function-configuration --region "$REGION" --function-name "$FUNCTION_NAME" --query Handler --output text)
-HANDLER_FILE="${HANDLER%.*}.js"   # 예: dist/index.handler → dist/index.js
-grep -qx "$HANDLER_FILE" <<< "$ZIP_LIST" || \
-  fail "zip 안에 핸들러 파일 '$HANDLER_FILE' 이 없습니다 (함수 Handler 설정: $HANDLER). zip 구조가 어긋났습니다"
+HANDLER_BASE="${HANDLER%.*}"      # 예: dist/index.handler → dist/index
+# Node 런타임이 찾는 확장자 후보. 빌드하는 함수는 .js, 의존성 없이 그대로 올리는 함수는 .mjs(ESM) 다
+HANDLER_FILE=""
+for ext in js mjs cjs; do
+  if grep -qx "${HANDLER_BASE}.${ext}" <<< "$ZIP_LIST"; then HANDLER_FILE="${HANDLER_BASE}.${ext}"; break; fi
+done
+[ -n "$HANDLER_FILE" ] || \
+  fail "zip 안에 핸들러 파일 '${HANDLER_BASE}.{js,mjs,cjs}' 가 없습니다 (함수 Handler 설정: $HANDLER). zip 구조가 어긋났습니다"
 log "핸들러 확인: $HANDLER → $HANDLER_FILE"
 
 # ── 3. Prisma 엔진: 리눅스(OpenSSL 3) 엔진은 필수, 타 플랫폼 엔진은 용량 낭비 ──
-grep -q 'libquery_engine-rhel-openssl-3.0.x' <<< "$ZIP_LIST" || \
-  fail "rhel-openssl-3.0.x Prisma 엔진이 없습니다. Node 22 Lambda 에서 실행 불가 — schema.prisma binaryTargets 와 prune-engines 확인"
-EXTRA=$(grep -cE 'engine-(darwin|windows|debian)|rhel-openssl-1\.0\.x' <<< "$ZIP_LIST" || true)
-[ "$EXTRA" = "0" ] || log "⚠ 불필요한 Prisma 엔진 ${EXTRA}개 포함 (darwin/windows/debian/1.0.x) — prune-engines 확인"
+# Prisma 를 쓰는 함수에만 적용한다. 의존성 없이 내장 fetch 만 쓰는 함수(hoyolab-checkin)는
+# 엔진이 없는 것이 정상이므로, 무조건 요구하면 멀쩡한 배포가 막힌다
+if grep -q '^node_modules/@prisma/client/' <<< "$ZIP_LIST"; then
+  grep -q 'libquery_engine-rhel-openssl-3.0.x' <<< "$ZIP_LIST" || \
+    fail "rhel-openssl-3.0.x Prisma 엔진이 없습니다. Node 22 Lambda 에서 실행 불가 — schema.prisma binaryTargets 와 prune-engines 확인"
+  EXTRA=$(grep -cE 'engine-(darwin|windows|debian)|rhel-openssl-1\.0\.x' <<< "$ZIP_LIST" || true)
+  [ "$EXTRA" = "0" ] || log "⚠ 불필요한 Prisma 엔진 ${EXTRA}개 포함 (darwin/windows/debian/1.0.x) — prune-engines 확인"
+else
+  log "Prisma 미사용 — 엔진 검사 건너뜀"
+fi
 
 # ── 4. 현재 배포 코드 백업 (롤백용, gitignore 대상) ──────────────────────────
 PREV=".previous.zip"

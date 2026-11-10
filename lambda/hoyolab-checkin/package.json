@@ -1,0 +1,13 @@
+{
+  "name": "hoyolab-checkin",
+  "version": "1.0.0",
+  "description": "붕괴: 스타레일 HoYoLAB 일일 출석체크 Lambda 함수",
+  "main": "index.mjs",
+  "scripts": {
+    "clean": "rm -f hoyolab-checkin.zip",
+    "package": "npm run clean && zip -j hoyolab-checkin.zip index.mjs",
+    "upload": "bash ../deploy.sh minimoku-hoyolab-checkin hoyolab-checkin.zip",
+    "deploy": "npm run package && npm run upload",
+    "rollback": "bash ../deploy.sh minimoku-hoyolab-checkin .previous.zip"
+  }
+}
