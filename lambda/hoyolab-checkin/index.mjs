@@ -12,6 +12,8 @@
 // 규칙: ① 쿠키 값은 절대 출력하지 않는다 ② 캡차(is_risk)는 우회하지 않고 알림만 보낸다
 //       ③ 실패해도 throw 하지 않고 {ok:false} 를 돌려준다 — 던지면 EventBridge 가 재시도해 같은 알림이 여러 번 온다.
 //          실패 사실은 텔레그램 알림과 ERROR 로그로 남는다
+//       ④ 성공·실패 모두 텔레그램으로 알린다. 매일 한 줄씩 오는 셈인데, 그래야 "조용한 건 잘 돌아서"인지
+//          "조용한 건 아예 안 돌아서"인지 구분된다 (GitHub Actions 때 후자를 겪었다)
 
 const ACT_ID = "e202303301540311";
 const API_BASE = "https://sg-public-api.hoyolab.com/event/luna/os";
@@ -26,8 +28,14 @@ const RETCODE = {
   NOT_LOGGED_IN: -100,
 };
 
-// 재시도해도 소용없는 실패 (쿠키 만료·캡차) — 바로 알림
-class FatalError extends Error {}
+// 재시도해도 소용없는 실패 (쿠키 만료·캡차) — 바로 알림.
+// title 은 텔레그램 알림의 첫 줄로, 무슨 일인지 한눈에 보이게 한다
+class FatalError extends Error {
+  constructor(message, title = "❌ 출석체크가 실패했습니다") {
+    super(message);
+    this.title = title;
+  }
+}
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -35,13 +43,15 @@ function getCookie() {
   const cookie = process.env.HOYOLAB_COOKIE?.trim();
   if (!cookie)
     throw new FatalError(
-      "HOYOLAB_COOKIE 가 설정되지 않았습니다. Lambda 콘솔의 환경 변수를 확인해 주세요."
+      "HOYOLAB_COOKIE 가 설정되지 않았습니다. Lambda 콘솔의 환경 변수를 확인해 주세요.",
+      "🔑 쿠키가 설정되지 않았습니다"
     );
   // 값은 보지 않고 필요한 키가 들어 있는지만 확인
   const missing = ["ltoken_v2", "ltuid_v2"].filter((key) => !cookie.includes(`${key}=`));
   if (missing.length > 0) {
     throw new FatalError(
-      `HOYOLAB_COOKIE 에 ${missing.join(", ")} 가 없습니다. 쿠키를 다시 복사해 주세요.`
+      `HOYOLAB_COOKIE 에 ${missing.join(", ")} 가 없습니다. 쿠키를 다시 복사해 주세요.`,
+      "🔑 쿠키 형식이 올바르지 않습니다"
     );
   }
   return cookie;
@@ -84,7 +94,8 @@ async function callApi(path, {method = "GET", cookie, body} = {}) {
 function assertLoggedIn(json) {
   if (json.retcode === RETCODE.NOT_LOGGED_IN) {
     throw new FatalError(
-      "쿠키가 만료됐습니다 (retcode -100).\n시크릿 창에서 HoYoLAB 에 로그인해 새 쿠키를 복사한 뒤 Lambda 환경 변수 HOYOLAB_COOKIE 를 갱신해 주세요."
+      "시크릿 창에서 HoYoLAB 에 로그인해 새 쿠키를 복사한 뒤,\nLambda 콘솔 → minimoku-hoyolab-checkin → 구성 → 환경 변수에서\nHOYOLAB_COOKIE 값을 바꿔 주세요. (retcode -100)",
+      "🔑 쿠키가 만료되었습니다"
     );
   }
 }
@@ -109,15 +120,16 @@ async function sign(cookie) {
   // 캡차 요구는 retcode 0 으로도 올 수 있으므로 성공 판정보다 먼저 본다
   if (json.data?.gt_result?.is_risk === true) {
     throw new FatalError(
-      "HoYoLAB 이 캡차 인증을 요구했습니다. 자동으로 넘기지 않으니 오늘은 직접 출석해 주세요.\nhttps://act.hoyolab.com/bbs/event/signin/hkrpg/index.html?act_id=" +
-        ACT_ID
+      "자동으로 넘기지 않으니 오늘은 직접 출석해 주세요.\nhttps://act.hoyolab.com/bbs/event/signin/hkrpg/index.html?act_id=" +
+        ACT_ID,
+      "🤖 캡차 인증이 필요합니다"
     );
   }
   if (json.retcode === RETCODE.OK || json.retcode === RETCODE.ALREADY_SIGNED) return true;
   throw new Error(`sign 실패: retcode ${json.retcode} (${json.message})`);
 }
 
-// 텔레그램 알림 — 설정이 없으면 건너뛴다 (그래도 CloudWatch 로그에는 남는다)
+// 텔레그램 알림 — 성공·실패 모두 보낸다. 설정이 없으면 건너뛴다 (그래도 CloudWatch 로그에는 남는다)
 async function notify(text) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
@@ -182,11 +194,17 @@ async function checkIn() {
 export const handler = async () => {
   try {
     const result = await checkIn();
+    const title = result.alreadySigned
+      ? "✅ 이미 출석되어 있었습니다"
+      : "✅ 출석체크 완료되었습니다";
+    await notify(`${title}\n누적 ${result.totalDays}일`);
     return {ok: true, ...result};
   } catch (error) {
     // 던지지 않는다 — EventBridge 재시도로 같은 알림이 여러 번 오는 것을 막는다
     console.error(`실패: ${error.message}`);
-    await notify(`출석 실패\n${error.message}`);
+    // FatalError 는 무슨 일인지 드러내는 제목을 갖고 있다 (쿠키 만료·캡차 등)
+    const title = error.title ?? "❌ 출석체크가 실패했습니다";
+    await notify(`${title}\n${error.message}`);
     return {ok: false, error: error.message};
   }
 };
