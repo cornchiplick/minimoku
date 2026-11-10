@@ -106,7 +106,7 @@ IAM → 정책 → **`MinimokuLambdaDeploy`** → 편집 → JSON 에서 두 군
 Lambda 콘솔 → **Test** 탭 → 아무 이름으로 테스트 이벤트 생성 (내용은 `{}` 그대로) → Test 실행.
 결과에 `"ok": true` 와 함께 로그에 `출석 완료!` 또는 `오늘은 이미 출석했습니다.` 가 보이면 된다.
 
-### 6. 매일 실행 걸기
+### 6. 매일 실행 걸기 (완료 — 2026-11-10)
 
 EventBridge → 규칙 → 규칙 생성
 
@@ -118,6 +118,12 @@ EventBridge → 규칙 → 규칙 생성
 | 대상      | Lambda 함수 → `minimoku-hoyolab-checkin`               |
 
 > 기존 게스트 초기화 규칙(`minimoku-guest-reset-daily`, `cron(0 19 * * ? *)`)과 같은 방식이다.
+>
+> **규칙만 만들면 안 되고 Lambda 쪽에 호출 권한(`lambda:AddPermission`)이 붙어야 한다.** 빠지면
+> 시간이 돼도 조용히 아무 일도 일어나지 않는다. 콘솔에서 만들면 보통 자동으로 붙지만, CLI 로 만들
+> 때는 직접 줘야 한다.
+>
+> 2026-11-10 기준 생성 완료 — `ENABLED`, 대상 `minimoku-hoyolab-checkin`, 호출 권한 확인됨.
 
 ## 동작
 
