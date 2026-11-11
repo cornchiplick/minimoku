@@ -84,6 +84,12 @@ const RootHome = () => (
             className="text-minimoku-neutral-bold hover:text-foreground focus-visible:ring-minimoku rounded-md px-2 py-1.5 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none">
             GitHub
           </Link>
+          {/* 내 계정으로 들어가는 입구. 홈에서 로그인 화면으로 가는 길은 이것과 아래 "열어 보기" 뿐이다 */}
+          <Link
+            href="/login"
+            className="text-foreground hover:bg-background-secondary focus-visible:ring-minimoku rounded-md px-2 py-1.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none">
+            로그인
+          </Link>
           <ThemeToggleButton />
         </div>
       </header>
@@ -138,10 +144,16 @@ const RootHome = () => (
               className="border-border shadow-float rounded-card mt-8 w-full border"
             />
 
+            {/* 게스트 로그인이 아니라 그냥 이동한다. 로그인돼 있으면 바로 들어가고, 아니면
+                proxy 가 로그인 화면으로 보내 거기서 게스트와 내 계정 중 고르게 한다.
+                보호된 경로라 미리 받아 와도 대개 로그인 화면으로 돌려보내지므로 prefetch 는 끈다 */}
             <div className="mt-6">
-              <GuestStartButton href={service.href} variant="quiet">
+              <Link
+                href={service.href}
+                prefetch={false}
+                className="border-border text-foreground hover:bg-background-secondary focus-visible:ring-minimoku inline-flex items-center rounded-full border px-5 py-2.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none">
                 {service.name} 열어 보기
-              </GuestStartButton>
+              </Link>
             </div>
           </section>
         ))}
