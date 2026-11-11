@@ -79,7 +79,7 @@ src/
 │   └── page.tsx                # 홈: 히어로 · 서비스 소개 · 만든 방식 · 푸터
 ├── features/                   # 기능 단위 비즈니스 로직 (아래 "Feature 구조")
 ├── entities/                   # 도메인 타입 (filter, folder, link, pigmoney, quiz, user)
-├── widgets/                    # 레이아웃 레벨 컴포넌트 (sidebar, pigmoney/*, guest/GuestBanner, auth/*, menu, theme)
+├── widgets/                    # 레이아웃 레벨 컴포넌트 (sidebar, pigmoney/*, guest/GuestBanner, home/GuestStartButton, auth/*, theme)
 └── shared/
     ├── components/atoms/       # shadcn/ui 컴포넌트 (button, dialog, select, calendar …) — ⚠️ "함정 1" 참고
     ├── components/molecules/   # 조합 컴포넌트 (FormInput, FormSelect, Nav, SubHeader, buttons/*)
@@ -183,7 +183,7 @@ npm run test:e2e:ui     # 디버깅용 UI 모드
 ```
 
 - `e2e/` — 캐시 무효화(`cache.spec.ts`), 접근성 이름(`a11y.spec.ts`), 모바일 드로어(`mobile.spec.ts`),
-  홈 구조(`home.spec.ts`). 게스트 로그인은 `guest.setup.ts` 가 한 번만 하고 세션을 재사용한다.
+  홈 구조(`home.spec.ts`), 로그인 진입 경로(`login.spec.ts`). 게스트 로그인은 `guest.setup.ts` 가 한 번만 하고 세션을 재사용한다.
 - **실데이터를 쓴다.** dev 가 프로덕션 DB 를 보므로 테스트도 그렇다. 게스트 계정만 쓰고, 만든 데이터는
   고유 제목을 붙인 뒤 끝나면 지운다. 게스트 계정은 공유 자원이라 직렬 실행한다(`workers: 1`).
 - **프로덕션(`E2E_BASE_URL=https://www.minimoku.net`)을 대상으로 돌리지 말 것.** Supabase 무료 티어의
@@ -212,9 +212,14 @@ npm run test:e2e:ui     # 디버깅용 UI 모드
 | 시드 (User upsert + 기존 데이터 비우고 샘플 재시드) | `prisma/seed-guest.ts` → `npm run seed:guest` (tsx 사용) |
 | **샘플 데이터 정본** | `prisma/guest-showcase.json` (데이터) + `prisma/guest-showcase.ts` (심는 로직) |
 | 일일 초기화 Lambda — EventBridge `cron(0 19 * * ? *)` (UTC 19:00 = KST 04:00) | `lambda/guest-reset/index.ts` — 비운 뒤 같은 샘플로 재시드 |
-| 진입점: 홈 메뉴 "로그인 없이 이용하기" → `signIn(GUEST_PROVIDER)` | `widgets/menu/MenuItem.tsx` |
-| 안내 배너 (link · pigmoney 레이아웃에 포함) | `widgets/guest/GuestBanner.tsx` |
+| 진입점: 홈 히어로·로그인 화면의 "로그인 없이 둘러보기" → `signIn(GUEST_PROVIDER)`. **이미 로그인돼 있으면 세션을 바꾸지 않고 이동만 한다** (내 계정이 게스트로 덮어써지지 않게) | `widgets/home/GuestStartButton.tsx` |
+| 안내 배너 (link · pigmoney 레이아웃에 포함) + "내 계정으로 로그인" 링크 (`returnTo` 로 지금 서비스로 돌아온다) | `widgets/guest/GuestBanner.tsx` |
 | 이미지 업로드 차단 (`user.isGuest` 면 업로드 URL 발급 거부) | `shared/services/cloudflare.service.ts` `getUploadUrl` |
+
+**⚠️ 홈에서 내 계정으로 들어가는 길을 없애지 말 것.** 홈 머리의 "로그인"(→ `/login`)과 서비스별 "열어 보기"
+(→ `/link`·`/pigmoney`, 로그인 안 돼 있으면 `proxy.ts` 가 `/login?callbackUrl=` 로 보낸다) 두 곳뿐이다.
+홈 재설계(`e0320af`) 때 버튼을 전부 게스트 로그인으로 바꿔 이 길이 사라진 적이 있다 (2026-11-11 복구).
+`e2e/login.spec.ts` 가 두 경로를 고정한다.
 
 **⚠️ `"guest"` 문자열은 `guestUtils.ts` · `prisma/seed-guest.ts` · `lambda/guest-reset/index.ts` 세 곳에 각각
 하드코딩돼 있다.** seed 스크립트와 Lambda 는 `@/` 별칭을 쓸 수 없어 공유가 불가능하다 — 하나를 바꾸면 셋 다
