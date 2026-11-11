@@ -25,6 +25,29 @@ test.describe("로그인 화면", () => {
     await expect(page).toHaveURL(/\/pigmoney$/, {timeout: 20_000});
   });
 
+  /**
+   * 홈에서 내 계정으로 들어가는 길. 홈을 재설계하면서 이 길이 통째로 사라진 적이 있다
+   * (모든 버튼이 게스트 로그인이었다) — 다시 없어지지 않게 고정해 둔다.
+   */
+  test("홈 머리의 로그인 링크로 로그인 화면에 간다", async ({page}) => {
+    await page.goto("/");
+
+    await page.getByRole("link", {name: "로그인", exact: true}).click();
+    await expect(page).toHaveURL(/\/login$/);
+    await expect(page.getByRole("button", {name: "Google로 계속하기"})).toBeVisible();
+  });
+
+  test("홈에서 서비스를 열면 로그인 화면이 그 서비스를 기억한다", async ({page}) => {
+    await page.goto("/");
+
+    // 화면 안 이동(클라이언트 내비게이션)으로 proxy 리다이렉트를 탄다 — 주소창 입력과 경로가 다르다
+    await page.getByRole("link", {name: "PigMoney 열어 보기"}).click();
+    await expect(page).toHaveURL(/\/login\?callbackUrl=%2Fpigmoney$/);
+
+    await page.getByRole("button", {name: "로그인 없이 둘러보기"}).click();
+    await expect(page).toHaveURL(/\/pigmoney$/, {timeout: 20_000});
+  });
+
   test("앱 밖 주소는 돌아갈 곳으로 받지 않는다", async ({page}) => {
     await page.goto("/login?callbackUrl=https%3A%2F%2Fexample.com");
 
